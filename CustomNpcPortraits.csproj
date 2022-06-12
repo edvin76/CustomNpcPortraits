@@ -128,7 +128,8 @@ attrib -R "$(TargetDir)$(ProjectName).dll"
 attrib -R "$(TargetDir)Info.json"
 attrib -R "$(TargetDir)Settings.xml"
 
-powershell Compress-Archive -Path '$(TargetDir)' -DestinationPath '$(ProjectDir)$(ProjectName).zip' -Force</PostBuildEvent>
+if $(ConfigurationName) == Release (powershell Compress-Archive -Path '$(TargetDir)' -DestinationPath '$(ProjectDir)$(ProjectName).zip' -Force)
+</PostBuildEvent>
   </PropertyGroup>
   <ProjectExtensions>
     <VisualStudio>
