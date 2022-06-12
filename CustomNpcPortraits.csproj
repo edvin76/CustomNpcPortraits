@@ -100,9 +100,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy /Y "$(ProjectDir)Info.json" "$(TargetDir)Info.json"
-
-@echo off
+    <PostBuildEvent>@echo off
 set version=0.0.0.0
 FOR /F delims^=^"^ tokens^=2 %25%25i in ('findstr /b /c:"[assembly: AssemblyVersion(" $(ProjectDir)\Properties\AssemblyInfo.cs') do (
   set version=%25%25i
@@ -110,14 +108,14 @@ FOR /F delims^=^"^ tokens^=2 %25%25i in ('findstr /b /c:"[assembly: AssemblyVers
 
 echo Assembly Version: %25version%25
 
+copy /Y "$(ProjectDir)Info.json" "$(TargetDir)Info.json"
 echo     "Version": "%25version%25" &gt;&gt; Info.json
 echo } &gt;&gt; Info.json
-
-git commit -am "Succesful build at $(date -u +'%25Y.%25m.%25d %25H:%25M:%25S')"</PostBuildEvent>
+</PostBuildEvent>
   </PropertyGroup>
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties BuildVersion_StartDate="2000/1/1" BuildVersion_BuildVersioningStyle="None.None.None.Increment" BuildVersion_UpdateAssemblyVersion="True" BuildVersion_UseGlobalSettings="False" BuildVersion_DetectChanges="False" BuildVersion_ReplaceNonNumerics="False" BuildVersion_IncrementBeforeBuild="True" BuildVersion_ConfigurationName="Debug" />
+      <UserProperties BuildVersion_ConfigurationName="Debug" BuildVersion_IncrementBeforeBuild="True" BuildVersion_ReplaceNonNumerics="False" BuildVersion_DetectChanges="False" BuildVersion_UseGlobalSettings="False" BuildVersion_UpdateAssemblyVersion="True" BuildVersion_BuildVersioningStyle="None.None.None.Increment" BuildVersion_StartDate="2000/1/1" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>
