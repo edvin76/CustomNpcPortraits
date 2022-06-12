@@ -28,6 +28,7 @@ namespace CustomNpcPortraits
 #endif
 	public static class Main
 	{
+
 		public static Settings settings;
 
 		public static bool Load(UnityModManager.ModEntry modEntry)
