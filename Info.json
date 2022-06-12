@@ -1,6 +1,0 @@
-{
-    "Author": "Edvin",
-    "DisplayName": "Custom Npc Portraits",
-    "EntryMethod": "CustomNpcPortraits.Main.Load",
-    "Id": "CustomNpcPortraits",
-    "ManagerVersion": "0.23.0",

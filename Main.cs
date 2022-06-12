@@ -37,7 +37,6 @@ namespace CustomNpcPortraits
 
 			Main.logger = modEntry.Logger;
 
-			
 			//(new Harmony(modEntry.Info.Id)).PatchAll(Assembly.GetExecutingAssembly());
 
 			Main.harmonyInstance = HarmonyInstance.Create(modEntry.Info.Id);

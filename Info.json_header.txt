@@ -1,0 +1,8 @@
+{
+    "Author": "Edvin76",
+    "DisplayName": "Custom Npc Portraits",
+    "EntryMethod": "CustomNpcPortraits.Main.Load",
+    "Id": "CustomNpcPortraits",
+    "ManagerVersion": "0.23.0",
+    "HomePage": "https://www.nexusmods.com/pathfinderkingmaker/mods",
+    "Repository": "https://raw.githubusercontent.com/edvin76/CustomNpcPortraits/master/Repository.json",
