@@ -3,4 +3,4 @@
     [
         {
             "Id": "FastTravel", 
-            "DownloadUrl": "https://raw.githubusercontent.com/edvin76/CustomNpcPortraits/master/CustomNpcPortraits.zip",
+            "DownloadUrl": "https://github.com/edvin76/CustomNpcPortraits/raw/master/CustomNpcPortraits.zip",

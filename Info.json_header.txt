@@ -5,4 +5,4 @@
     "Id": "CustomNpcPortraits",
     "ManagerVersion": "0.23.0",
     "HomePage": "https://www.nexusmods.com/pathfinderkingmaker/mods",
-    "Repository": "https://raw.githubusercontent.com/edvin76/CustomNpcPortraits/master/Repository.json",
+    "Repository": "https://github.com/edvin76/CustomNpcPortraits/raw/master/Repository.json",
