@@ -2,5 +2,5 @@
     "Releases":
     [
         {
-            "Id": "FastTravel", 
+            "Id": "CustomNpcPortraits", 
             "DownloadUrl": "https://github.com/edvin76/CustomNpcPortraits/raw/master/CustomNpcPortraits.zip",

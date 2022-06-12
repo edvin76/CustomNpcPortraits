@@ -32,6 +32,7 @@ namespace CustomNpcPortraits
 
 		public static bool Load(UnityModManager.ModEntry modEntry)
 		{
+
 			//isInitRunning = true;
 
 			Main.logger = modEntry.Logger;
