@@ -103,8 +103,12 @@ FOR /F delims^=^"^ tokens^=2 %25%25i in ('findstr /b /c:"[assembly: AssemblyVers
   set version=%25%25i
 )
 
+FOR /F "delims=" %25%25i IN ('powershell """%25version%25""".substring(0^,5^)') DO SET version2=%25%25i
+
+
 echo Assembly Version: %25version%25
 
+if $(ConfigurationName) == Release (
 copy /Y "$(ProjectDir)Info.json_header.txt" "$(TargetDir)Info.json"
 echo     "Version": "%25version%25" &gt;&gt; Info.json
 echo } &gt;&gt; Info.json
@@ -125,12 +129,12 @@ attrib -R "$(TargetDir)$(ProjectName).dll"
 attrib -R "$(TargetDir)Info.json"
 attrib -R "$(TargetDir)Settings.xml"
 
-if $(ConfigurationName) == Release (powershell Compress-Archive -Path '$(TargetDir)' -DestinationPath '$(ProjectDir)$(ProjectName).zip' -Force)
+powershell Compress-Archive -Path '$(TargetDir)' -DestinationPath '$(ProjectDir)$(ProjectName).zip' -Force)
 </PostBuildEvent>
   </PropertyGroup>
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties BuildVersion_StartDate="2000/1/1" BuildVersion_BuildVersioningStyle="None.None.None.Increment" BuildVersion_UpdateAssemblyVersion="True" BuildVersion_UseGlobalSettings="False" BuildVersion_DetectChanges="False" BuildVersion_ReplaceNonNumerics="False" BuildVersion_IncrementBeforeBuild="True" BuildVersion_ConfigurationName="Debug" />
+      <UserProperties BuildVersion_ConfigurationName="Release" BuildVersion_IncrementBeforeBuild="True" BuildVersion_ReplaceNonNumerics="False" BuildVersion_DetectChanges="False" BuildVersion_UseGlobalSettings="False" BuildVersion_UpdateAssemblyVersion="True" BuildVersion_BuildVersioningStyle="None.None.Increment.None" BuildVersion_StartDate="2000/1/1" />
     </VisualStudio>
   </ProjectExtensions>
 </Project>

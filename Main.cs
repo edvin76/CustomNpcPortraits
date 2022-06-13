@@ -32,8 +32,8 @@ namespace CustomNpcPortraits
 
 		public static bool Load(UnityModManager.ModEntry modEntry)
 		{
-			//isInitRunning = true;
 
+			//isInitRunning = true;
 			Main.logger = modEntry.Logger;
 
 			//(new Harmony(modEntry.Info.Id)).PatchAll(Assembly.GetExecutingAssembly());
