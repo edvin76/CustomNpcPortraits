@@ -187,9 +187,12 @@ namespace CustomNpcPortraits
 			if (GUILayout.Button("Open NPC portraits dir", GUILayout.Width(200f), GUILayout.Height(20f)))
 			{
 				//Process.Start(GetNpcPortraitsDirectory());
+				/*
 				BlueprintAreaEnterPoint bap = Utilities.GetBlueprint<BlueprintAreaEnterPoint>("Prologue_Labyrinth_Ending");
 
 				Game.Instance.LoadArea(bap, AutoSaveMode.None);
+				*/
+				Process.Start(GetNpcPortraitsDirectory());
 
 			}
 			GUILayout.Label(GetNpcPortraitsDirectory());
@@ -219,8 +222,8 @@ namespace CustomNpcPortraits
 				inventory.Add(key);
 				
 				*/
-				loctel();
-				//Process.Start(GetCompanionPortraitsDirectory());
+				//loctel();
+				Process.Start(GetCompanionPortraitsDirectory());
 			}
 			GUILayout.Label(GetCompanionPortraitsDirectory());
 			GUILayout.EndHorizontal();
