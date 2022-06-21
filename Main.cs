@@ -20,6 +20,12 @@ using Kingmaker.PubSubSystem;
 using Kingmaker.ResourceLinks;
 using Kingmaker.Localization;
 using System.Reflection;
+using Kingmaker.Blueprints.Area;
+using Kingmaker.Cheats;
+using Kingmaker.EntitySystem.Persistence;
+using Kingmaker.Blueprints.Items;
+using Kingmaker.Items;
+using TurnBased.Controllers;
 
 namespace CustomNpcPortraits
 {
@@ -29,12 +35,34 @@ namespace CustomNpcPortraits
 	public static class Main
 	{
 		public static Settings settings;
-
-		public static bool Load(UnityModManager.ModEntry modEntry)
+		public static void loctel()
+		{
+			Vector3 worldPosition = Game.Instance.ClickEventsController.WorldPosition;
+			TurnController currentTurn = Game.Instance.TurnBasedCombatController.CurrentTurn;
+			List<UnitEntityData> selectedUnits = Game.Instance.UI.SelectionManager.SelectedUnits;
+			if (currentTurn != null)
+			{
+				selectedUnits = new List<UnitEntityData>()
+				{
+					currentTurn.Rider
+				};
+				if (currentTurn.Mount != null)
+				{
+					selectedUnits.Add(currentTurn.Mount);
+				}
+			}
+			foreach (UnitEntityData selectedUnit in selectedUnits)
+			{
+				selectedUnit.Commands.InterruptAll(true);
+				selectedUnit.Position = worldPosition;
+			}
+		}
+			public static bool Load(UnityModManager.ModEntry modEntry)
 		{
 
 			//isInitRunning = true;
 			Main.logger = modEntry.Logger;
+
 
 			//(new Harmony(modEntry.Info.Id)).PatchAll(Assembly.GetExecutingAssembly());
 
@@ -75,6 +103,11 @@ namespace CustomNpcPortraits
 			if (!Main.ApplyPatch(typeof(Player_AddCompanion_Patch), "Player_AddCompanion_Patch"))
 			{
 				throw Main.Error("Failed to patch Player_AddCompanion");
+			}
+
+			if (!Main.ApplyPatch(typeof(InitiativeTrackerUnitVM_Get_Portrait_Patch), "InitiativeTrackerUnitVM_Get_Portrait_Patch"))
+			{
+				throw Main.Error("Failed to patch InitiativeTrackerUnitVM_Get_Portrait");
 			}
 			
 			return true;
@@ -153,7 +186,11 @@ namespace CustomNpcPortraits
 			GUILayout.BeginHorizontal(Array.Empty<GUILayoutOption>());
 			if (GUILayout.Button("Open NPC portraits dir", GUILayout.Width(200f), GUILayout.Height(20f)))
 			{
-				Process.Start(GetNpcPortraitsDirectory());
+				//Process.Start(GetNpcPortraitsDirectory());
+				BlueprintAreaEnterPoint bap = Utilities.GetBlueprint<BlueprintAreaEnterPoint>("Prologue_Labyrinth_Ending");
+
+				Game.Instance.LoadArea(bap, AutoSaveMode.None);
+
 			}
 			GUILayout.Label(GetNpcPortraitsDirectory());
 			GUILayout.EndHorizontal();
@@ -161,7 +198,29 @@ namespace CustomNpcPortraits
 			GUILayout.BeginHorizontal(Array.Empty<GUILayoutOption>());
 			if (GUILayout.Button("Open Party Portraits Directory", GUILayout.Width(200f), GUILayout.Height(20f)))
 			{
-				Process.Start(GetCompanionPortraitsDirectory());
+
+				/*	foreach (BlueprintItem scriptableObject in Utilities.GetScriptableObjects<BlueprintItem>())
+					{
+						string blueprintPath = Utilities.GetBlueprintPath(scriptableObject);
+						"HosillaKey"
+						//if(scriptableObject != null && scriptableObject.Name != null && scriptableObject.Name.Length > 0 && scriptableObject.Name.ToLower().Contains("maze"))
+						if (blueprintPath.ToLower().Contains("key"))
+						Main.DebugLog(blueprintPath);
+					}*/
+				/*
+				CheatsTransfer
+
+				BlueprintItem scriptableObject = Utilities.GetBlueprintByName<BlueprintItem>("Labyrinth_Key_2");
+
+				ItemsCollection inventory = Game.Instance.Player.Inventory;
+
+				ItemEntitySimple key = new ItemEntitySimple(scriptableObject);
+
+				inventory.Add(key);
+				
+				*/
+				loctel();
+				//Process.Start(GetCompanionPortraitsDirectory());
 			}
 			GUILayout.Label(GetCompanionPortraitsDirectory());
 			GUILayout.EndHorizontal();
@@ -700,7 +759,12 @@ namespace CustomNpcPortraits
 				if (!missing)
 				{
 					BlueprintPortrait blueprintPortrait = BlueprintRoot.Instance.CharGen.CustomPortrait;
-					blueprintPortrait.Data = new PortraitData(portraitDirectoryName);
+
+					CustomPortraitsManager.Instance.Storage.Unload(Path.Combine(portraitDirectoryPath, "Small.png"));
+					CustomPortraitsManager.Instance.Storage.Unload(Path.Combine(portraitDirectoryPath, "Medium.png"));
+					CustomPortraitsManager.Instance.Storage.Unload(Path.Combine(portraitDirectoryPath, "Fulllength.png"));
+
+					blueprintPortrait.Data = new PortraitData(portraitDirectoryPath);
 
 
 					unitEntityData.UISettings.SetPortrait(blueprintPortrait);
@@ -714,7 +778,7 @@ namespace CustomNpcPortraits
 				{
 
 					BlueprintPortrait blueprintPortrait = BlueprintRoot.Instance.CharGen.CustomPortrait;
-					blueprintPortrait.Data = new PortraitData(Path.Combine(portraitDirectoryName, Main.GetDefaultPortraitsDirName()));
+					blueprintPortrait.Data = new PortraitData(Path.Combine(portraitDirectoryPath, Main.GetDefaultPortraitsDirName()));
 
 
 					unitEntityData.UISettings.SetPortrait(blueprintPortrait);

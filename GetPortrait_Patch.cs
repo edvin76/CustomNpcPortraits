@@ -103,6 +103,8 @@ namespace CustomNpcPortraits
                     if (!missing)
                     {
                         //Main.DebugLog("Getportrait() loaded portrait for Companion "+characterName);
+                        CustomPortraitsManager.Instance.Storage.Unload(Path.Combine(portraitDirectoryPath, "Medium.png"));
+
                         PortraitData Data = new PortraitData(portraitDirectoryPath);
                         __result = Data;
                         return false;
@@ -188,6 +190,8 @@ namespace CustomNpcPortraits
                     {
                         //Main.DebugLog("Getportrait() loaded portrait for NPC " + characterName);
                         //if (Main.settings.AutoBackup) Main.SaveOriginals(Game.Instance.DialogController.CurrentSpeakerBlueprint, portraitDirectoryPath);
+                        CustomPortraitsManager.Instance.Storage.Unload(Path.Combine(portraitDirectoryPath, "Medium.png"));
+
                         PortraitData Data = new PortraitData(portraitDirectoryPath);
                         __result = Data;
                         return false;
