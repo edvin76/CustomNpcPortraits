@@ -35,7 +35,7 @@
   <ItemGroup>
     <Reference Include="0Harmony12">
       <HintPath>D:\Steam\steamapps\common\Pathfinder Second Adventure\Wrath_Data\Managed\0Harmony12.dll</HintPath>
-      <Private>False</Private>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Assembly-CSharp">
       <HintPath>D:\Steam\steamapps\common\Pathfinder Second Adventure\Wrath_Data\Managed\Assembly-CSharp.dll</HintPath>
@@ -71,7 +71,7 @@
     </Reference>
     <Reference Include="UnityModManager">
       <HintPath>D:\Steam\steamapps\common\Pathfinder Second Adventure\Wrath_Data\Managed\UnityModManager\UnityModManager.dll</HintPath>
-      <Private>False</Private>
+      <Private>True</Private>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -128,11 +128,16 @@ copy /Y "$(TargetDir)Repository.json" "$(ProjectDir)Repository.json"
 attrib +R "$(TargetDir)$(ProjectName).dll"
 attrib +R "$(TargetDir)Info.json"
 attrib +R "$(TargetDir)Settings.xml"
+attrib +R "$(TargetDir)0Harmony12.dll"
+attrib +R "$(TargetDir)UnityModManager.dll"
+
 del /q *.*
 
 attrib -R "$(TargetDir)$(ProjectName).dll"
 attrib -R "$(TargetDir)Info.json"
 attrib -R "$(TargetDir)Settings.xml"
+attrib +R "$(TargetDir)0Harmony12.dll"
+attrib +R "$(TargetDir)UnityModManager.dll"
 
 powershell Compress-Archive -LiteralPath '$(TargetDir)' -DestinationPath '$(ProjectDir)$(ProjectName).zip' -CompressionLevel 'NoCompression' -Force)
 </PostBuildEvent>
