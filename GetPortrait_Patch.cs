@@ -127,6 +127,11 @@ namespace CustomNpcPortraits
 
                     // Main.DebugLog("Getportrait() 1");
 
+
+                    BlueprintUnit bup = Game.Instance.DialogController.CurrentSpeakerBlueprint;
+
+                    BlueprintPortrait blueprintPortrait = bup.PortraitSafe;
+
                     if (Main.settings.AutoSecret)
                     {
 
@@ -146,18 +151,11 @@ namespace CustomNpcPortraits
                             }
                         }
 
-
-
-
-
-
                         if (enterHere)
                         {
                             //    Main.DebugLog("Getportrait() 3");
 
-                            BlueprintUnit bup = Game.Instance.DialogController.CurrentSpeakerBlueprint;
 
-                            BlueprintPortrait blueprintPortrait = bup.PortraitSafe;
 
                             if ((blueprintPortrait != null) && (blueprintPortrait.Data != null))
                             {
@@ -177,7 +175,36 @@ namespace CustomNpcPortraits
                         }
                     }
 
-                    portraitDirectoryPath = GetUnitPortraitPath(blueprintUnit, characterName);
+                    // 184
+/*
+                    Main.DebugLog(blueprintPortrait.Data.FullLengthPortrait.texture.width.ToString());
+                    Main.DebugLog(blueprintPortrait.Data.HalfLengthPortrait.texture.width.ToString());
+                    Main.DebugLog(blueprintPortrait.Data.SmallPortrait.texture.width.ToString());
+
+
+
+                    Sprite sprite = CustomPortraitsManager.Instance.LoadPortrait(Path.Combine(portraitDirectoryPath, "Small.png"), pdata.SmallPortrait, true);
+
+
+                    
+                    if (!TextureIsDefaultPortrait(sprite.texture, PortraitType.SmallPortrait))
+                    {
+                        // Main.DebugLog("huh 5");
+
+                        //__instance.Unit.Portrait.SmallPortrait.texture
+
+                        //   if (GetPseudoHash(pdata.SmallPortrait.texture) != GetPseudoHash(sprite.texture))
+                        //  {
+
+                        */
+
+
+
+
+
+
+
+                        portraitDirectoryPath = GetUnitPortraitPath(blueprintUnit, characterName);
 
                     if (!Directory.Exists(portraitDirectoryPath))
                     {

@@ -5,8 +5,8 @@ using Kingmaker.GameModes;
 
 namespace CustomNpcPortraits
 {
-    [HarmonyPatch(typeof(Game), "OnAreaLoaded", new Type[] { })]
-    internal static class Game_OnAreaLoaded_Patch
+    [HarmonyPatch(typeof(Player), "OnAreaLoaded", new Type[] { })]
+    internal static class Player_OnAreaLoaded_Patch
     {
         private static void Postfix()
         {

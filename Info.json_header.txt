@@ -4,5 +4,5 @@
     "EntryMethod": "CustomNpcPortraits.Main.Load",
     "Id": "CustomNpcPortraits",
     "ManagerVersion": "0.23.0",
-    "HomePage": "https://www.nexusmods.com/pathfinderkingmaker/mods",
+    "HomePage": "https://www.nexusmods.com/pathfinderkingmaker/mods/346",
     "Repository": "https://raw.githubusercontent.com/edvin76/CustomNpcPortraits/master/Repository.json",

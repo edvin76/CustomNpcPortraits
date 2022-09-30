@@ -10,6 +10,7 @@ namespace CustomNpcPortraits
 
 		public bool AutoSecret = true;
 
+		public string enterPoint = "GrayGarrisonBasement1From1stFloor";
 
 		public Settings()
 		{

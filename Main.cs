@@ -37,7 +37,7 @@ namespace CustomNpcPortraits
 		public static Settings settings;
 		public static void loctel()
 		{
-			Vector3 worldPosition = Game.Instance.ClickEventsController.WorldPosition;
+		/*	Vector3 worldPosition = Game.Instance.ClickEventsController.WorldPosition;
 			TurnController currentTurn = Game.Instance.TurnBasedCombatController.CurrentTurn;
 			List<UnitEntityData> selectedUnits = Game.Instance.UI.SelectionManager.SelectedUnits;
 			if (currentTurn != null)
@@ -55,7 +55,7 @@ namespace CustomNpcPortraits
 			{
 				selectedUnit.Commands.InterruptAll(true);
 				selectedUnit.Position = worldPosition;
-			}
+			}*/
 		}
 			public static bool Load(UnityModManager.ModEntry modEntry)
 		{
@@ -80,6 +80,12 @@ namespace CustomNpcPortraits
 
 #if DEBUG
 			modEntry.OnUnload = new Func<UnityModManager.ModEntry, bool>(Main.Unload);
+
+
+			if (!Main.ApplyPatch(typeof(BlueprintDlcReward_IsAvailable_Patch), "BlueprintDlcReward_IsAvailable_Patch"))
+			{
+				throw Main.Error("Failed to patch BlueprintDlcReward_IsAvailable");
+			}
 #endif
 			//modEntry.OnUpdate = new Action<UnityModManager.ModEntry, float>(Main.Init);
 
@@ -95,9 +101,9 @@ namespace CustomNpcPortraits
 				throw Main.Error("Failed to patch GameMode_OnActivate");
 			}
 		
-			if (!Main.ApplyPatch(typeof(Game_OnAreaLoaded_Patch), "Game_OnAreaLoaded_Patch"))
+			if (!Main.ApplyPatch(typeof(Player_OnAreaLoaded_Patch), "Player_OnAreaLoaded_Patch"))
 			{
-				throw Main.Error("Failed to patch Game_OnAreaLoaded");
+				throw Main.Error("Failed to patch Player_OnAreaLoaded");
 			}
 			
 			if (!Main.ApplyPatch(typeof(Player_AddCompanion_Patch), "Player_AddCompanion_Patch"))
@@ -181,19 +187,27 @@ namespace CustomNpcPortraits
 			boldStyle.normal.textColor = Color.cyan;
 
 
-			
+			GUILayoutOption[] defSize = new GUILayoutOption[]
+			{
+				GUILayout.Width(200f),
+				GUILayout.Height(20f)
+			};
+
+			//GrayGarrisonBasement1From1stFloor
+			string target = "DefendersHeart_DefendersHeart_Enter";
+
+
 
 			GUILayout.BeginHorizontal(Array.Empty<GUILayoutOption>());
 			if (GUILayout.Button("Open NPC portraits dir", GUILayout.Width(200f), GUILayout.Height(20f)))
 			{
-				//Process.Start(GetNpcPortraitsDirectory());
-				/*
-				BlueprintAreaEnterPoint bap = Utilities.GetBlueprint<BlueprintAreaEnterPoint>("Prologue_Labyrinth_Ending");
+				#if DEBUG
+				BlueprintAreaEnterPoint bap = Utilities.GetBlueprint<BlueprintAreaEnterPoint>(target);
 
 				Game.Instance.LoadArea(bap, AutoSaveMode.None);
-				*/
+#else
 				Process.Start(GetNpcPortraitsDirectory());
-
+#endif
 			}
 			GUILayout.Label(GetNpcPortraitsDirectory());
 			GUILayout.EndHorizontal();
@@ -210,20 +224,23 @@ namespace CustomNpcPortraits
 						if (blueprintPath.ToLower().Contains("key"))
 						Main.DebugLog(blueprintPath);
 					}*/
-				/*
-				CheatsTransfer
+/*
+CheatsTransfer
 
-				BlueprintItem scriptableObject = Utilities.GetBlueprintByName<BlueprintItem>("Labyrinth_Key_2");
+BlueprintItem scriptableObject = Utilities.GetBlueprintByName<BlueprintItem>("Labyrinth_Key_2");
 
-				ItemsCollection inventory = Game.Instance.Player.Inventory;
+ItemsCollection inventory = Game.Instance.Player.Inventory;
 
-				ItemEntitySimple key = new ItemEntitySimple(scriptableObject);
+ItemEntitySimple key = new ItemEntitySimple(scriptableObject);
 
-				inventory.Add(key);
-				
-				*/
-				//loctel();
+inventory.Add(key);
+
+*/
+#if DEBUG
+				loctel();
+#else
 				Process.Start(GetCompanionPortraitsDirectory());
+#endif
 			}
 			GUILayout.Label(GetCompanionPortraitsDirectory());
 			GUILayout.EndHorizontal();
