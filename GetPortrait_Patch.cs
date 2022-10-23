@@ -105,7 +105,12 @@ namespace CustomNpcPortraits
                         //Main.DebugLog("Getportrait() loaded portrait for Companion "+characterName);
                         CustomPortraitsManager.Instance.Storage.Unload(Path.Combine(portraitDirectoryPath, "Medium.png"));
 
+
                         PortraitData Data = new PortraitData(portraitDirectoryPath);
+
+                        Data.m_PetEyeImage = Game.Instance.DialogController.CurrentSpeaker.Blueprint.PortraitSafe.Data.m_PetEyeImage;
+
+
                         __result = Data;
                         return false;
                     }
@@ -220,6 +225,8 @@ namespace CustomNpcPortraits
                         CustomPortraitsManager.Instance.Storage.Unload(Path.Combine(portraitDirectoryPath, "Medium.png"));
 
                         PortraitData Data = new PortraitData(portraitDirectoryPath);
+                        Data.m_PetEyeImage = Game.Instance.DialogController.CurrentSpeaker.Blueprint.PortraitSafe.Data.m_PetEyeImage;
+
                         __result = Data;
                         return false;
                     }

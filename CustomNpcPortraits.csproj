@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="packages\AssemblyPublicizer.1.0.2\build\AssemblyPublicizer.props" Condition="Exists('packages\AssemblyPublicizer.1.0.2\build\AssemblyPublicizer.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <ProjectGuid>{18491D8D-C215-483F-A6A2-E521AB9F8DB5}</ProjectGuid>
@@ -11,6 +12,8 @@
     <RootNamespace>CustomNpcPortraits</RootNamespace>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <TargetFrameworkProfile />
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <OutputPath>D:\Steam\steamapps\common\Pathfinder Second Adventure\Mods\CustomNpcPortraits\</OutputPath>
@@ -21,6 +24,7 @@
     <DebugType>full</DebugType>
     <ErrorReport>prompt</ErrorReport>
     <PlatformTarget>AnyCPU</PlatformTarget>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <OutputPath>D:\Steam\steamapps\common\Pathfinder Second Adventure\Mods\CustomNpcPortraits\</OutputPath>
@@ -45,6 +49,9 @@
       <HintPath>D:\Steam\steamapps\common\Pathfinder Second Adventure\Wrath_Data\Managed\Owlcat.Runtime.UI.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="UniRx">
+      <HintPath>D:\Steam\steamapps\common\Pathfinder Kingmaker\Kingmaker_Data\Managed\UniRx.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEngine">
       <HintPath>D:\Steam\steamapps\common\Pathfinder Second Adventure\Wrath_Data\Managed\UnityEngine.dll</HintPath>
       <Private>False</Private>
@@ -101,6 +108,9 @@
   <ItemGroup>
     <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>@echo off
@@ -150,4 +160,17 @@ powershell Compress-Archive -LiteralPath '$(TargetDir)' -DestinationPath '$(Proj
       <UserProperties BuildVersion_ConfigurationName="Release" BuildVersion_IncrementBeforeBuild="True" BuildVersion_ReplaceNonNumerics="False" BuildVersion_DetectChanges="False" BuildVersion_UseGlobalSettings="False" BuildVersion_UpdateAssemblyVersion="True" BuildVersion_BuildVersioningStyle="None.None.Increment.None" BuildVersion_StartDate="2000/1/1" />
     </VisualStudio>
   </ProjectExtensions>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('packages\AssemblyPublicizer.1.0.2\build\AssemblyPublicizer.props')" Text="$([System.String]::Format('$(ErrorText)', 'packages\AssemblyPublicizer.1.0.2\build\AssemblyPublicizer.props'))" />
+  </Target>
+  <Target Name="Publicize" AfterTargets="Clean">
+    <ItemGroup>
+      <!-- Use $(KingmakerPath)\Kingmaker_Data\Managed\Assembly-CSharp.dll for Kingmaker -->
+      <Assemblies Include="d:\Steam\steamapps\common\Pathfinder Second Adventure\Wrath_Data\Managed\Assembly-CSharp.dll" />
+    </ItemGroup>
+    <PublicizeTask InputAssemblies="@(Assemblies)" OutputDir="$(SolutionDir)lib/" />
+  </Target>
 </Project>

@@ -26,6 +26,7 @@ using Kingmaker.EntitySystem.Persistence;
 using Kingmaker.Blueprints.Items;
 using Kingmaker.Items;
 using TurnBased.Controllers;
+using UniRx;
 
 namespace CustomNpcPortraits
 {
@@ -785,14 +786,29 @@ inventory.Add(key);
 					CustomPortraitsManager.Instance.Storage.Unload(Path.Combine(portraitDirectoryPath, "Fulllength.png"));
 
 					blueprintPortrait.Data = new PortraitData(portraitDirectoryPath);
+					blueprintPortrait.Data.m_PetEyeImage = unitEntityData.Blueprint.PortraitSafe.Data.m_PetEyeImage;
+
+					unitEntityData.Descriptor.UISettings.SetPortrait(blueprintPortrait);
 
 
-					unitEntityData.UISettings.SetPortrait(blueprintPortrait);
 
+
+					/*
+					ReactiveProperty<Kingmaker.UI.MVVM._VM.Party.PartyCharacterPetVM> reactiveCharacter = new ReactiveProperty<Kingmaker.UI.MVVM._VM.Party.PartyCharacterPetVM>(null);
+
+					Kingmaker.UI.MVVM._VM.Party.PartyCharacterPetVM partyCharacterPetVM = new Kingmaker.UI.MVVM._VM.Party.PartyCharacterPetVM();
+					reactiveCharacter.Value = partyCharacterPetVM;
+					//AddDisposable(partyCharacterPetVM1);
+
+					reactiveCharacter.Value.SetUnitData(unitEntityData);
+				*/
+					//unitEntityData.UISettings.SetPortrait(blueprintPortrait);
+
+					/*
 					EventBus.RaiseEvent<IUnitPortraitChangedHandler>(delegate (IUnitPortraitChangedHandler h)
 					{
 						h.HandlePortraitChanged(unitEntityData);
-					});
+					});*/
 				}
 				else
 				{
@@ -800,19 +816,48 @@ inventory.Add(key);
 					BlueprintPortrait blueprintPortrait = BlueprintRoot.Instance.CharGen.CustomPortrait;
 					blueprintPortrait.Data = new PortraitData(Path.Combine(portraitDirectoryPath, Main.GetDefaultPortraitsDirName()));
 
+					blueprintPortrait.Data.m_PetEyeImage = unitEntityData.Blueprint.PortraitSafe.Data.m_PetEyeImage;
 
-					unitEntityData.UISettings.SetPortrait(blueprintPortrait);
 
+					unitEntityData.Descriptor.UISettings.SetPortrait(blueprintPortrait);
+
+					//Kingmaker.UI.MVVM._VM.Party.PartyCharacterVM.SetPinPet(null, unitEntityData);
+
+					/*
+					reactiveCharacter = null;
+						Kingmaker.UI.MVVM._VM.Party.PartyCharacterPetVM partyCharacterPetVM = new Kingmaker.UI.MVVM._VM.Party.PartyCharacterPetVM();
+						Kingmaker.UI.MVVM._VM.Party.PartyCharacterPetVM partyCharacterPetVM1 = partyCharacterPetVM;
+						reactiveCharacter.Value = partyCharacterPetVM;
+					//AddDisposable(partyCharacterPetVM1);
+					
+					reactiveCharacter.Value.SetUnitData(unitEntityData);*/
+
+					//pcvm = new Kingmaker.UI.MVVM._VM.Party.PartyCharacterVM();
+
+					//PartyCharacterVM.SetPinPet(null, unit)
+
+					//unitEntityData.UISettings.SetPortrait(blueprintPortrait);
+
+					/*
 					EventBus.RaiseEvent<IUnitPortraitChangedHandler>(delegate (IUnitPortraitChangedHandler h)
 					{
 						h.HandlePortraitChanged(unitEntityData);
 					});
-
+					*/
 					//Main.DebugLog("Trying to restore default portraits for " + characterName);
 				}
 
-			}
+				//Kingmaker.UI.MVVM._PCView.Party.PartyCharacterPetPCView ptv =
 
+				
+
+					//unitEntityData.UISettings.PinPet = false;
+					//unitEntityData.UISettings.PinPet = true;
+
+				
+
+			}
+			//Game.Instance.UI.Common.Initialize();
 
 		}
 
