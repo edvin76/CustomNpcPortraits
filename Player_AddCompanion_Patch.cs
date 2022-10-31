@@ -10,7 +10,7 @@ namespace CustomNpcPortraits
     {
         private static void Postfix()
         {
-            if (!Main.enabled)
+            if (!Main.enabled || !Main.settings.ManageCompanions)
                 return;
             //Main.prevMode = GameModeType.None;
             try

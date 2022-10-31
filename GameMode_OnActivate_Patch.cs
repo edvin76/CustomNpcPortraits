@@ -12,7 +12,7 @@ namespace CustomNpcPortraits
     {
         private static void Postfix()
         {
-            if (!Main.enabled)
+            if (!Main.enabled || !Main.settings.ManageCompanions)
                 return;
             
             try
@@ -22,7 +22,7 @@ namespace CustomNpcPortraits
                     Game.Instance.CurrentMode != GameModeType.BugReport &&
                     Game.Instance.CurrentMode != GameModeType.EscMode &&
                     Game.Instance.CurrentMode != GameModeType.None &&
-                    Game.Instance.CurrentMode != GameModeType.Pause)
+                    Game.Instance.CurrentMode != GameModeType.Pause )
 
                 {
                     Main.DebugLog("Refresh companion potraits called after GameModeType.Dialog. The current GameModeType is: " + Game.Instance.CurrentMode + ":");

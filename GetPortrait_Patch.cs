@@ -21,6 +21,7 @@ using Kingmaker.View;
 using System.Collections.Generic;
 using static Kingmaker.Visual.CharacterSystem.BakedCharacter;
 using Kingmaker.PubSubSystem;
+using UnityEngine.SceneManagement;
 
 namespace CustomNpcPortraits
 {
@@ -35,11 +36,20 @@ namespace CustomNpcPortraits
                 return true;
             try
             {
+
+              //  Main.DebugLog("Getportrait() : " + __instance.Owner.CharacterName);
+
+
+
                 if (Game.Instance.CurrentMode != GameModeType.Dialog)
                 {
                     // Main.DebugLog("Getportrait() : " + Game.Instance.CurrentMode);
 
-                    return true;
+                    //return true;
+
+
+
+
                 }
 
 
@@ -65,7 +75,7 @@ namespace CustomNpcPortraits
                 bool companion = Game.Instance.DialogController.CurrentSpeaker.Blueprint.IsCompanion;
 
 
-                if (companion)
+                if (companion && Main.settings.ManageCompanions)
                 {
                     //Main.DebugLog("Getportrait() 1");
 

@@ -1,4 +1,5 @@
 using UnityEngine;
+
 using UnityEngine.UI;
 using UnityModManagerNet;
 using static UnityModManagerNet.UnityModManager;
@@ -27,6 +28,18 @@ using Kingmaker.Blueprints.Items;
 using Kingmaker.Items;
 using TurnBased.Controllers;
 using UniRx;
+using Owlcat.Runtime.UI.MVVM;
+using Kingmaker.UI.MVVM._VM.Crusade.ArmyInfo;
+using Kingmaker.UI.MVVM._VM.TacticalCombat;
+using Kingmaker.EntitySystem;
+using Kingmaker.Armies;
+using static Kingmaker.Inspect.InspectUnitsManager;
+using Kingmaker.UnitLogic.Groups;
+using Kingmaker.Globalmap.State;
+using Kingmaker.Globalmap;
+using Kingmaker.Armies.State;
+using Kingmaker.DialogSystem.Blueprints;
+using Kingmaker.BundlesLoading;
 
 namespace CustomNpcPortraits
 {
@@ -95,8 +108,15 @@ namespace CustomNpcPortraits
 			{
 				throw Main.Error("Failed to patch GetPortrait");
 			}
-			
 
+			if (!Main.ApplyPatch(typeof(GetPortraitSafe_Patch), "GetPortraitSafe_Patch"))
+			{
+				throw Main.Error("Failed to patch GetPortraitSafe");
+			}
+			if (!Main.ApplyPatch(typeof(GetPortraitSafeGeneral_Patch), "GetPortraitSafeGeneral_Patch"))
+			{
+				throw Main.Error("Failed to patch GetPortraitSafeGeneral");
+			}
 			if (!Main.ApplyPatch(typeof(GameMode_OnActivate_Patch), "GameMode_OnActivate_Patch"))
 			{
 				throw Main.Error("Failed to patch GameMode_OnActivate");
@@ -120,6 +140,133 @@ namespace CustomNpcPortraits
 			return true;
 		}
 
+
+		public static void saveNpcPortraits()
+		{
+
+
+			string str = BundlesLoadService.BundlesPath("cheatdata.json");
+			BlueprintList blueprintList = new BlueprintList()
+			{
+				Entries = new List<BlueprintList.Entry>()
+			};
+
+			if (File.Exists(str))
+				 blueprintList = JsonUtility.FromJson<BlueprintList>(File.ReadAllText(str));
+
+
+			List<string> speakers = new List<string>();
+
+
+			string portraitsDirectoryPath = Main.GetNpcPortraitsDirectory();
+	
+			foreach (BlueprintList.Entry be in blueprintList.Entries)
+			{
+
+				if (be.TypeFullName.Equals("Kingmaker.DialogSystem.Blueprints.BlueprintCue"))
+				{
+
+					BlueprintCue bc = Utilities.GetBlueprintByGuid<BlueprintCue>(be.Guid);
+
+					if(bc.Speaker != null && bc.Speaker.Blueprint != null && bc.Speaker.Blueprint.CharacterName != null && !speakers.Contains(bc.Speaker.Blueprint.CharacterName))
+                    {
+						if (!bc.Speaker.Blueprint.IsCompanion)
+						{
+
+							speakers.Add(bc.Speaker.Blueprint.CharacterName);
+							//Main.DebugLog(bc.Speaker.Blueprint.CharacterName);
+							string portraitDirectoryName = bc.Speaker.Blueprint.CharacterName;
+							string portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, portraitDirectoryName);
+
+
+							SaveOriginals(bc.Speaker.Blueprint, portraitDirectoryPath);
+
+						}
+					}
+					if (bc.Listener != null && bc.Listener.CharacterName != null && !speakers.Contains(bc.Listener.CharacterName))
+					{
+						if (!bc.Listener.IsCompanion)
+						{
+							speakers.Add(bc.Listener.CharacterName);
+							//							Main.DebugLog(bc.Listener.CharacterName);
+							string portraitDirectoryName = bc.Listener.CharacterName;
+							string portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, portraitDirectoryName);
+
+							SaveOriginals(bc.Listener, portraitDirectoryPath);
+
+						}
+					}
+
+				}
+			}
+			Main.DebugLog(speakers.Count().ToString());
+
+		}
+
+
+		public static void makeNpcDirs()
+		{
+
+
+			string str = BundlesLoadService.BundlesPath("cheatdata.json");
+			BlueprintList blueprintList = new BlueprintList()
+			{
+				Entries = new List<BlueprintList.Entry>()
+			};
+
+			if (File.Exists(str))
+				blueprintList = JsonUtility.FromJson<BlueprintList>(File.ReadAllText(str));
+
+
+			List<string> speakers = new List<string>();
+
+
+			string portraitsDirectoryPath = Main.GetNpcPortraitsDirectory();
+
+			foreach (BlueprintList.Entry be in blueprintList.Entries)
+			{
+
+				if (be.TypeFullName.Equals("Kingmaker.DialogSystem.Blueprints.BlueprintCue"))
+				{
+
+					BlueprintCue bc = Utilities.GetBlueprintByGuid<BlueprintCue>(be.Guid);
+
+					if (bc.Speaker != null && bc.Speaker.Blueprint != null && bc.Speaker.Blueprint.CharacterName != null && !speakers.Contains(bc.Speaker.Blueprint.CharacterName))
+					{
+						if (!bc.Speaker.Blueprint.IsCompanion)
+						{
+
+							speakers.Add(bc.Speaker.Blueprint.CharacterName);
+							//Main.DebugLog(bc.Speaker.Blueprint.CharacterName);
+							string portraitDirectoryName = bc.Speaker.Blueprint.CharacterName;
+							string portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, portraitDirectoryName);
+
+							Directory.CreateDirectory(portraitDirectoryPath);
+							//SaveOriginals(bc.Speaker.Blueprint, portraitDirectoryPath);
+
+						}
+					}
+					if (bc.Listener != null && bc.Listener.CharacterName != null && !speakers.Contains(bc.Listener.CharacterName))
+					{
+						if (!bc.Listener.IsCompanion)
+						{
+							speakers.Add(bc.Listener.CharacterName);
+							//							Main.DebugLog(bc.Listener.CharacterName);
+							string portraitDirectoryName = bc.Listener.CharacterName;
+							string portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, portraitDirectoryName);
+
+							Directory.CreateDirectory(portraitDirectoryPath);
+
+							//SaveOriginals(bc.Listener, portraitDirectoryPath);
+
+						}
+					}
+
+				}
+			}
+			Main.DebugLog(speakers.Count().ToString());
+
+		}
 		/*
 		//private static bool onUpdateCalled = false;
 		public static void Init(UnityModManager.ModEntry modEntry, float dt)
@@ -151,6 +298,10 @@ namespace CustomNpcPortraits
 		public static bool savedComp = false;
 		private static void OnGUI(UnityModManager.ModEntry modEntry)
 		{
+			//bool globalMap = false;
+		//	if (Game.Instance.CurrentMode == GameModeType.GlobalMap)
+				//&& (SceneManager.GetActiveScene().name.Equals("WorldWoundGM_Light")))
+			//	globalMap = true;
 
 			switch (state)
 			{
@@ -159,8 +310,18 @@ namespace CustomNpcPortraits
 
 					string name = SceneManager.GetActiveScene().name;
 					//Main.DebugLog("SceneManager.GetActiveScene().name: " + name);
-
+					//Main.DebugLog("Game.Instance.State: " + Game.Instance.State);
 					Game instance = Game.Instance;
+					/*
+					Main.DebugLog("Game.Instance.CurrentMode: " + instance.CurrentMode);
+
+					Main.DebugLog("Game.Instance.State: " + Game.Instance.State);*/
+				
+
+
+
+
+
 					if (((instance != null) ? instance.Player : null) == null || name == "UI_MainMenu_Scene" || name == "Start")
 					{
 						isLoadedGame = false;
@@ -187,6 +348,10 @@ namespace CustomNpcPortraits
 			//Color c = new Color((float)131.0, (float)192.0, (float)239.0);
 			boldStyle.normal.textColor = Color.cyan;
 
+			GUIStyle boldStyle2 = new GUIStyle();
+			boldStyle2.fontStyle = FontStyle.Bold;
+			//Color c = new Color((float)131.0, (float)192.0, (float)239.0);
+			boldStyle2.normal.textColor = Color.red;
 
 			GUILayoutOption[] defSize = new GUILayoutOption[]
 			{
@@ -197,7 +362,38 @@ namespace CustomNpcPortraits
 			//GrayGarrisonBasement1From1stFloor
 			string target = "DefendersHeart_DefendersHeart_Enter";
 
+			GUILayout.BeginHorizontal(Array.Empty<GUILayoutOption>());
+			if (GUILayout.Button("Open Party Portraits Directory", GUILayout.Width(200f), GUILayout.Height(20f)))
+			{
 
+				/*	foreach (BlueprintItem scriptableObject in Utilities.GetScriptableObjects<BlueprintItem>())
+					{
+						string blueprintPath = Utilities.GetBlueprintPath(scriptableObject);
+						"HosillaKey"
+						//if(scriptableObject != null && scriptableObject.Name != null && scriptableObject.Name.Length > 0 && scriptableObject.Name.ToLower().Contains("maze"))
+						if (blueprintPath.ToLower().Contains("key"))
+						Main.DebugLog(blueprintPath);
+					}*/
+				/*
+				CheatsTransfer
+
+				BlueprintItem scriptableObject = Utilities.GetBlueprintByName<BlueprintItem>("Labyrinth_Key_2");
+
+				ItemsCollection inventory = Game.Instance.Player.Inventory;
+
+				ItemEntitySimple key = new ItemEntitySimple(scriptableObject);
+
+				inventory.Add(key);
+
+				*/
+#if DEBUG
+				loctel();
+#else
+				Process.Start(GetCompanionPortraitsDirectory());
+#endif
+			}
+			GUILayout.Label(GetCompanionPortraitsDirectory());
+			GUILayout.EndHorizontal();
 
 			GUILayout.BeginHorizontal(Array.Empty<GUILayoutOption>());
 			if (GUILayout.Button("Open NPC portraits dir", GUILayout.Width(200f), GUILayout.Height(20f)))
@@ -213,39 +409,17 @@ namespace CustomNpcPortraits
 			GUILayout.Label(GetNpcPortraitsDirectory());
 			GUILayout.EndHorizontal();
 
+
+
 			GUILayout.BeginHorizontal(Array.Empty<GUILayoutOption>());
-			if (GUILayout.Button("Open Party Portraits Directory", GUILayout.Width(200f), GUILayout.Height(20f)))
+			if (GUILayout.Button("Open Army portraits dir", GUILayout.Width(200f), GUILayout.Height(20f)))
 			{
 
-				/*	foreach (BlueprintItem scriptableObject in Utilities.GetScriptableObjects<BlueprintItem>())
-					{
-						string blueprintPath = Utilities.GetBlueprintPath(scriptableObject);
-						"HosillaKey"
-						//if(scriptableObject != null && scriptableObject.Name != null && scriptableObject.Name.Length > 0 && scriptableObject.Name.ToLower().Contains("maze"))
-						if (blueprintPath.ToLower().Contains("key"))
-						Main.DebugLog(blueprintPath);
-					}*/
-/*
-CheatsTransfer
+				Process.Start(GetArmyPortraitsDirectory());
 
-BlueprintItem scriptableObject = Utilities.GetBlueprintByName<BlueprintItem>("Labyrinth_Key_2");
-
-ItemsCollection inventory = Game.Instance.Player.Inventory;
-
-ItemEntitySimple key = new ItemEntitySimple(scriptableObject);
-
-inventory.Add(key);
-
-*/
-#if DEBUG
-				loctel();
-#else
-				Process.Start(GetCompanionPortraitsDirectory());
-#endif
 			}
-			GUILayout.Label(GetCompanionPortraitsDirectory());
+			GUILayout.Label(GetArmyPortraitsDirectory());
 			GUILayout.EndHorizontal();
-
 			//GUILayout.Label(" ");
 
 			GUILayout.BeginHorizontal(Array.Empty<GUILayoutOption>());
@@ -263,15 +437,60 @@ inventory.Add(key);
 			}
 			else
 			{
+
 				GUILayout.BeginHorizontal(Array.Empty<GUILayoutOption>());
 				if (GUILayout.Button("Refresh Party Portraits", GUILayout.Width(200f), GUILayout.Height(20f)))
 				{
-					SetPortraits();
+					if (Main.settings.ManageCompanions)
+						SetPortraits();
 				}
-				GUILayout.Label("Use this after replacing the portrait of a party companion.");
+				if (Main.settings.ManageCompanions)
+
+					GUILayout.Label("Use this after replacing the portrait of a party companion.");
+else
+					GUILayout.Label("Advanced settings: mod is not managing companion portraits.");
 				GUILayout.EndHorizontal();
 
+				GUILayout.BeginHorizontal(Array.Empty<GUILayoutOption>());
+				if (GUILayout.Button("Create Dirs", GUILayout.Width(200f), GUILayout.Height(20f)))
+				{
+					makeNpcDirs();
+				}
+				GUILayout.Label("Create directories for all NPC-s taking part in dialogs.");
+				GUILayout.EndHorizontal();
 
+				if (!showExperimental)
+				{
+					GUILayout.BeginHorizontal(Array.Empty<GUILayoutOption>());
+					if (GUILayout.Button("Show experimental feature", GUILayout.Width(200f), GUILayout.Height(20f)))
+					{
+						showExperimental = true;
+					}
+					GUILayout.EndHorizontal();
+				}
+				else
+				{
+
+					GUILayout.BeginHorizontal(Array.Empty<GUILayoutOption>());
+					if (GUILayout.Button("Close", GUILayout.Width(200f), GUILayout.Height(20f)))
+					{
+						showExperimental = false;
+					}
+					GUILayout.Label("WARNING! This will crash your game and you need to restart 2-3 times before it saves all", boldStyle);
+
+					GUILayout.EndHorizontal();
+
+
+		
+
+					GUILayout.BeginHorizontal(Array.Empty<GUILayoutOption>());
+					if (GUILayout.Button("Save Npc Portraits", GUILayout.Width(200f), GUILayout.Height(20f)))
+					{
+						saveNpcPortraits();
+					}
+					GUILayout.Label("Save 346 NPC-s' default portraits in their dirs");
+					GUILayout.EndHorizontal();
+				}
 				//GUILayout.Label(" ");
 
 				GUILayout.BeginHorizontal(Array.Empty<GUILayoutOption>());
@@ -410,9 +629,13 @@ inventory.Add(key);
 			GUILayout.BeginHorizontal(Array.Empty<GUILayoutOption>());
 			GUILayout.Label("Advanced", boldStyle);
 			GUILayout.EndHorizontal();
+			Main.settings.ManageCompanions = GUILayout.Toggle(Main.settings.ManageCompanions, "Let the mod manage the portraits of companions and mercenaries.", new GUILayoutOption[0]);
 
 			Main.settings.AutoBackup = GUILayout.Toggle(Main.settings.AutoBackup, "Keep game defaults auto backed up in 'Game Default Portraits' of each subdir.", new GUILayoutOption[0]);
 			Main.settings.AutoSecret = GUILayout.Toggle(Main.settings.AutoSecret, "Extract and use the turn based portraits of NPC-s in dialogs where available.", new GUILayoutOption[0]);
+
+
+
 
 #if DEBUG
 			if (!showPatched)
@@ -503,6 +726,9 @@ inventory.Add(key);
 		private static bool isDialog = false;
 
 		private static bool isLoadedGame = false;
+
+		private static bool showExperimental = false;
+
 #if DEBUG
 		private static bool showPatched = false;
 #endif
@@ -515,6 +741,7 @@ inventory.Add(key);
 			savedComp = false;
 			isDialog = true;
 			isLoadedGame = true;
+			showExperimental = false;
 #if DEBUG
 			showPatched = false;
 #endif
@@ -551,6 +778,76 @@ inventory.Add(key);
 
 
 
+		public static void SetArmyPortraits()
+        {
+
+
+			GlobalMapState state2 = Game.Instance.Player.GlobalMap.LastActivated;
+
+			var dirs = Directory.GetDirectories(Main.GetArmyPortraitsDirectory());
+
+			// if (dirs.Contains(characterName))
+			//  {}
+
+
+			/*
+
+			for (int i = 0; i < state2.Armies.Count; i++)
+			{
+				GlobalMapArmyState item = state2.Armies[i];
+				if (!item.Data.Squads.Empty<SquadState>() && !item.IsGarrison)
+				{
+					Main.DebugLog("----------------------NAME: " + item.Data.ArmyName);
+					foreach (SquadState s in item.Data.Squads)
+					{
+						string characterName = s.Unit.CharacterName;
+						string portraitDirectoryName = characterName;
+						string portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, portraitDirectoryName);
+						Main.DebugLog("squad: " + characterName + " - "+ s.Unit.name);
+
+						if (dirs.Contains(characterName))
+			            {
+
+							PortraitData Data = new PortraitData(portraitDirectoryPath);
+							BlueprintPortrait bp = new BlueprintPortrait();
+
+							bp.Data = Data;
+
+							s.Unit.PortraitSafe = bp;
+
+							//Type baseType = typeof(BlueprintUnit).BaseType;
+							//baseType.GetField("m_Portrait", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(s.Unit, bp);
+							//this.m_Portrait = value.ToReference<BlueprintPortraitReference>();
+						}
+
+
+
+					}
+				}
+			}
+
+		*/
+			/*
+			foreach (ArmyLeader ud in Game.Instance.Player.ArmyLeadersManager.Leaders.ToList<ArmyLeader>())
+			{
+				string characterName = ud.LocalizedName;
+				string portraitDirectoryName = characterName;
+				string portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, portraitDirectoryName);
+				PortraitData Data = new PortraitData(portraitDirectoryPath);
+				BlueprintPortrait bp = new BlueprintPortrait();
+
+				bp.Data = Data;
+
+				ud.Blueprint.Unit.PortraitSafe = bp;
+
+				Main.DebugLog("ud: " + ud.Blueprint.Unit.CharacterName + " - " + ud.Blueprint.LeaderName + " - " + ud.Blueprint.name);
+
+			}
+			
+			*/
+
+		}
+
 
 		public static string GetNpcPortraitsDirectory()
 		{
@@ -563,6 +860,18 @@ inventory.Add(key);
 
 		}
 
+		public static string GetArmyPortraitsDirectory()
+		{
+			string dir = Path.GetFullPath(Path.Combine(CustomPortraitsManager.PortraitsRootFolderPath, @"..\"));
+
+			dir = Path.Combine(dir, ArmyPortraitsDirName());
+
+			Directory.CreateDirectory(dir);
+			return dir;
+
+		}
+
+
 		public static string GetCompanionPortraitsDirectory()
 		{
 
@@ -574,6 +883,13 @@ inventory.Add(key);
 		{
 
 			return "Portraits - Npc";
+
+		}
+
+		public static string ArmyPortraitsDirName()
+		{
+
+			return "Portraits - Army";
 
 		}
 		public static string GetCompanionPortraitDirPrefix()
@@ -880,27 +1196,32 @@ inventory.Add(key);
 
 
 
-			//BlueprintPortrait blueprintPortrait = (BlueprintPortrait)AccessTools.Field(bup.GetType(), "m_Portrait").GetValue(bup);
+		//	BlueprintPortrait blueprintPortrait = (BlueprintPortrait)typeof(BlueprintUnit).GetField("m_Portrait", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(bup);
 
-			// (BlueprintPortrait)typeof(BlueprintUnit).GetField("m_Portrait", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(bup);
+			//(BlueprintPortrait)AccessTools.Field(bup.GetType(), "m_Portrait").GetValue(bup);
+
+			// 
 
 			if (blueprintPortrait != null)
 			{
+			//	Main.DebugLog("SaveOriginals: " + "1");
 
 				SpriteLink mFullLengthImage = blueprintPortrait.Data.m_FullLengthImage;
+				//Main.DebugLog("SaveOriginals: " + "2");
 				SpriteLink mHalfLengthImage = blueprintPortrait.Data.m_HalfLengthImage;
+				//Main.DebugLog("SaveOriginals: " + "3");
 				SpriteLink mPortraitImage = blueprintPortrait.Data.m_PortraitImage;
 
 				//string defdirpath = Path.Combine(path, GetDefaultPortraitsDirName());
 
 				//Directory.CreateDirectory(defdirpath);
 
-				//Main.DebugLog("SaveOriginals: " + defdirpath);
 
 
 				//Main.DebugLog(mFullLengthImage.AssetId);
-				//Main.DebugLog("SaveOriginals: Trying to write files for " + bup.CharacterName + " - " + mPortraitImage.Load(true, false));
+			//	Main.DebugLog("SaveOriginals: Trying to write files for " + bup.CharacterName + " - " + mPortraitImage.Load(true, false));
 				string defdirpath = Path.Combine(path, GetDefaultPortraitsDirName());
+			//	Main.DebugLog("SaveOriginals: " + defdirpath);
 
 
 				if (Main.settings.AutoBackup)			
@@ -925,12 +1246,12 @@ inventory.Add(key);
 							CreateBaseImages(Path.Combine(defdirpath, Main.mediumName), mHalfLengthImage.Load(true, false), isNpc, false);
 							CreateBaseImages(Path.Combine(defdirpath, Main.fullName), mFullLengthImage.Load(true, false), isNpc, false);
 
-							//Main.DebugLog("SaveOriginals: all Originals saved OK for " + bup.CharacterName + " in " + defdirpath);
+							Main.DebugLog("SaveOriginals: all Originals saved OK for " + bup.CharacterName + " in " + defdirpath);
 
 						}
 						else
 						{
-							//Main.DebugLog("SaveOriginals: all Originals already saved for " + bup.CharacterName + " in " + defdirpath);
+					//		Main.DebugLog("SaveOriginals: all Originals already saved for " + bup.CharacterName + " in " + defdirpath);
 						}
 					}
 					else
@@ -949,7 +1270,7 @@ inventory.Add(key);
 
 							if (small.texture.width == medium.texture.width)
 							{
-								//Main.DebugLog("SECRET!!!");
+						//		Main.DebugLog("SECRET!!!");
 								secret = true;
 								if (Main.settings.AutoBackup)
 								{
@@ -967,16 +1288,16 @@ inventory.Add(key);
 									CreateBaseImages(Path.Combine(defdirpath, Main.smallName), small, isNpc, secret);
 									CreateBaseImages(Path.Combine(defdirpath, Main.fullName), mFullLengthImage.Load(true, false), false, secret);
 								}
-								//Main.DebugLog("NPC with full portraits");
+						//		Main.DebugLog("NPC with full portraits");
 
 							}
 							
 
-							//Main.DebugLog("SaveOriginals: all Originals saved OK for " + bup.CharacterName + " in " + defdirpath);
+							Main.DebugLog("SaveOriginals: all Originals saved OK for " + bup.CharacterName + " in " + defdirpath);
 						}
 						else
 						{
-							//Main.DebugLog("SaveOriginals: all Originals already saved for " + bup.CharacterName + " in " + defdirpath);
+				//			Main.DebugLog("SaveOriginals: all Originals already saved for " + bup.CharacterName + " in " + defdirpath);
 						}
 
 						if (Main.settings.AutoSecret && secret)
@@ -1010,11 +1331,11 @@ inventory.Add(key);
 
 
 								//	}
-								//Main.DebugLog("SaveOriginals: Original saved as Custom portrait OK as " + Path.Combine(path, Main.mediumName));
+								Main.DebugLog("SaveOriginals: Original saved as Custom portrait OK as " + Path.Combine(path, Main.mediumName));
 							}
 							else
 							{
-								//Main.DebugLog("SaveOriginals: Original already saved as Custom portrait as " + Path.Combine(path, Main.mediumName));
+							//	Main.DebugLog("SaveOriginals: Original already saved as Custom portrait as " + Path.Combine(path, Main.mediumName));
 							}
 						}
 					}
@@ -1038,6 +1359,126 @@ inventory.Add(key);
 			return result;
 		}
 
+
+		public static bool SaveOriginals2(BlueprintPortrait blueprintPortrait, string path)
+		{
+
+
+			bool result = false;
+
+
+
+
+
+			//Main.DebugLog("SaveOriginals2() no backups yet");
+
+			//BlueprintPortrait blueprintPortrait = bup.PortraitSafe;
+
+
+
+
+
+
+			//(BlueprintPortrait)AccessTools.Field(bup.GetType(), "m_Portrait").GetValue(bup);
+
+			// 
+
+			if (blueprintPortrait != null)
+			{
+			//	Main.DebugLog("SaveOriginals2: " + "1");
+
+				SpriteLink mFullLengthImage = blueprintPortrait.Data.m_FullLengthImage;
+			//	Main.DebugLog("SaveOriginals2: " + "2");
+				SpriteLink mHalfLengthImage = blueprintPortrait.Data.m_HalfLengthImage;
+			//	Main.DebugLog("SaveOriginals2: " + "3");
+				SpriteLink mPortraitImage = blueprintPortrait.Data.m_PortraitImage;
+
+				//string defdirpath = Path.Combine(path, GetDefaultPortraitsDirName());
+
+				//Directory.CreateDirectory(defdirpath);
+
+
+
+				//Main.DebugLog(mFullLengthImage.AssetId);
+			//	Main.DebugLog("SaveOriginals: Trying to write files for " + bup.CharacterName + " - " + mPortraitImage.Load(true, false));
+				string defdirpath = Path.Combine(path, GetDefaultPortraitsDirName());
+			//	Main.DebugLog("SaveOriginals2: " + defdirpath);
+
+
+				if (Main.settings.AutoBackup)
+					Directory.CreateDirectory(defdirpath);
+
+
+
+
+
+				bool isNpc = false;
+
+				try
+				{
+
+
+
+
+						isNpc = true;
+						bool secret = false;
+					if (isNpc)
+					{
+						Sprite medium = mHalfLengthImage.Load(true, false);
+
+						Sprite small = mPortraitImage.Load(true, false);
+
+
+
+
+
+						if (small.texture.width == medium.texture.width)
+						{
+					//		Main.DebugLog("SECRET!!!");
+							secret = true;
+							if (Main.settings.AutoBackup)
+							{
+								CreateBaseImages(Path.Combine(defdirpath, Main.mediumName), mHalfLengthImage.Load(true, false), true, true);
+
+								CreateBaseImages(Path.Combine(defdirpath, Main.smallName), small, isNpc, false);
+							}
+						}
+						else
+						{
+							secret = false;
+							if (Main.settings.AutoBackup)
+							{
+								CreateBaseImages(Path.Combine(defdirpath, Main.mediumName), medium, isNpc, secret);
+								CreateBaseImages(Path.Combine(defdirpath, Main.smallName), small, isNpc, secret);
+								CreateBaseImages(Path.Combine(defdirpath, Main.fullName), mFullLengthImage.Load(true, false), false, secret);
+							}
+					//		Main.DebugLog("NPC with full portraits");
+
+						}
+
+
+					}
+
+			
+
+
+
+
+					result = true;
+				}
+				catch (Exception ex)
+				{
+
+					Main.DebugLog("Disk, The process failed: " + ex.ToString());
+					result = false;
+				}
+
+
+
+			}
+
+			return result;
+		}
 		public static void CreateBaseImages(string path, Sprite baseSprite, bool npc, bool secret)
 		{
 			//baseSprite.texture.graphicsFormat
@@ -1063,21 +1504,20 @@ inventory.Add(key);
 
 				//   ((line = reader.ReadLine()) != null)
 
-				//Main.DebugLog("SaveOriginals88 "+path);
-
+				
 
 				File.WriteAllBytes(path, bytes);
 				//Main.DebugLog("Disk, The file was created successfully at " + path);
 			}
 			else
 			{
-				//Main.DebugLog("Disk, not created: " + path);
+				Main.DebugLog("Disk, not created: " + path);
 			}
 		}
 
 		public static Texture2D textureFromSprite(Sprite sprite, bool med, bool npc, bool secret, string path)
 		{
-			
+	
 			if (sprite == null || sprite.texture == null || sprite.rect == null)
 			{ return null; }
 			
@@ -1088,43 +1528,53 @@ inventory.Add(key);
 			}
 			else if (sprite.textureRect != null && sprite.textureRectOffset != null)
 			{
-
-				Texture2D readabelAtlas = duplicateTexture(sprite.texture, med, npc, secret, path);
-
-				int texHei = (int)sprite.rect.height;
-
-				if (texHei > (int)BlueprintRoot.Instance.CharGen.BasePortraitSmall.rect.height && texHei < (int)BlueprintRoot.Instance.CharGen.BasePortraitBig.rect.height)
+				try
 				{
-					texHei = (int)BlueprintRoot.Instance.CharGen.BasePortraitMedium.rect.height;
+					Texture2D readabelAtlas = duplicateTexture(sprite.texture, med, npc, secret, path);
+
+					int texHei = (int)sprite.rect.height;
+
+					if (texHei > (int)BlueprintRoot.Instance.CharGen.BasePortraitSmall.rect.height && texHei < (int)BlueprintRoot.Instance.CharGen.BasePortraitBig.rect.height)
+					{
+						texHei = (int)BlueprintRoot.Instance.CharGen.BasePortraitMedium.rect.height;
+					}
+
+					int texWid = (int)sprite.rect.width;
+
+					if (texWid > (int)BlueprintRoot.Instance.CharGen.BasePortraitMedium.rect.width)
+					{
+						texWid = (int)BlueprintRoot.Instance.CharGen.BasePortraitBig.rect.width;
+					}
+
+
+
+
+
+
+
+					Texture2D newTex = new Texture2D(texWid, texHei);
+
+					Color[] defaultPixels = Enumerable.Repeat<Color>(new Color(0, 0, 0, 0), texWid * texHei).ToArray();
+					Color[] pixels = readabelAtlas.GetPixels(
+					  (int)sprite.textureRect.x
+					, (int)sprite.textureRect.y
+					, (int)sprite.textureRect.width
+					, (int)sprite.textureRect.height
+					//, sprite.texture.calculatedMipmapLevel
+					);
+					newTex.SetPixels(defaultPixels);
+					newTex.SetPixels((int)sprite.textureRectOffset.x, (int)sprite.textureRectOffset.y, (int)sprite.textureRect.width, (int)sprite.textureRect.height, pixels);
+					newTex.Apply();
+					return newTex;
+
 				}
-
-				int texWid = (int)sprite.rect.width;
-
-				if (texWid > (int)BlueprintRoot.Instance.CharGen.BasePortraitMedium.rect.width)
+				catch (Exception e)
 				{
-					texWid = (int)BlueprintRoot.Instance.CharGen.BasePortraitBig.rect.width;
+
+					Main.DebugLog("textureFromSprite error: " + e);
+					return null;
+
 				}
-
-	
-				
-
-
-
-
-				Texture2D newTex = new Texture2D(texWid, texHei);
-
-				Color[] defaultPixels = Enumerable.Repeat<Color>(new Color(0, 0, 0, 0), texWid * texHei).ToArray();
-				Color[] pixels = readabelAtlas.GetPixels(
-				  (int)sprite.textureRect.x
-				, (int)sprite.textureRect.y
-				, (int)sprite.textureRect.width
-				, (int)sprite.textureRect.height
-				//, sprite.texture.calculatedMipmapLevel
-				);
-				newTex.SetPixels(defaultPixels);
-				newTex.SetPixels((int)sprite.textureRectOffset.x, (int)sprite.textureRectOffset.y, (int)sprite.textureRect.width, (int)sprite.textureRect.height, pixels);
-				newTex.Apply();
-				return newTex;
 			}
 			else { return null; }
 
@@ -1139,7 +1589,7 @@ inventory.Add(key);
 			{
 				if (med && npc && secret/*source.width == (int)BlueprintRoot.Instance.CharGen.BasePortraitSmall.texture.width*/)
 				{
-					//Main.DebugLog("Enlarging omly? " + path);
+					Main.DebugLog("Enlarging omly? " + path);
 					renderTex = RenderTexture.GetTemporary(
 								 330,
 								 432,
@@ -1155,7 +1605,7 @@ inventory.Add(key);
 				}
 				else
 				{
-					//Main.DebugLog("No enlarging! " + path);
+					Main.DebugLog("No enlarging! " + path);
 
 					renderTex = RenderTexture.GetTemporary(
 								source.width,

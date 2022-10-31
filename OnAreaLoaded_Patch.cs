@@ -10,10 +10,11 @@ namespace CustomNpcPortraits
     {
         private static void Postfix()
         {
-            if (!Main.enabled)
+            if (!Main.enabled || !Main.settings.ManageCompanions)
                 return;
             try
-            {
+            { 
+
                 Main.prevMode = GameModeType.None;
                 Main.DebugLog("Refresh companion potraits called after arealoded.");
 
