@@ -45,7 +45,7 @@ namespace CustomNpcPortraits
                 {
                     // Main.DebugLog("Getportrait() : " + Game.Instance.CurrentMode);
 
-                    //return true;
+                    return true;
 
 
 
@@ -132,6 +132,8 @@ namespace CustomNpcPortraits
                 }
                 else if(!companion)// Npc
                 {
+
+                   
                     //Main.DebugLog("Getportrait() 2");
                     //string portraitsDirectoryPath = Main.GetNpcPortraitsDirectory();
                     //string portraitDirectoryName = characterName;
@@ -144,6 +146,8 @@ namespace CustomNpcPortraits
 
 
                     BlueprintUnit bup = Game.Instance.DialogController.CurrentSpeakerBlueprint;
+
+
 
                     BlueprintPortrait blueprintPortrait = bup.PortraitSafe;
 
@@ -181,6 +185,8 @@ namespace CustomNpcPortraits
                                 if ((mHalfLengthImage != null) && (mHalfLengthImage.AssetId != null) && (mHalfLengthImage.AssetId.Length > 5))
                                 {
                                     //        Main.DebugLog("Getportrait() 5");
+
+                                    
 
                                     Main.SaveOriginals(bup, Path.Combine(Main.GetNpcPortraitsDirectory(), characterName));
                                     Main.SaveOriginals(bup, Path.Combine(Main.GetNpcPortraitsDirectory(), characterName, blueprintUnit.name));
@@ -254,7 +260,7 @@ namespace CustomNpcPortraits
 
 
 
-
+                return true;
 
             }
 
