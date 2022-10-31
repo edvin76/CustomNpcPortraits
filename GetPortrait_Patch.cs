@@ -130,7 +130,7 @@ namespace CustomNpcPortraits
                     }
 
                 }
-                else // Npc
+                else if(!companion)// Npc
                 {
                     //Main.DebugLog("Getportrait() 2");
                     //string portraitsDirectoryPath = Main.GetNpcPortraitsDirectory();
@@ -188,6 +188,11 @@ namespace CustomNpcPortraits
                                 }
                             }
                         }
+                    }
+                    else
+                    {
+
+                        return true;
                     }
 
                     // 184
