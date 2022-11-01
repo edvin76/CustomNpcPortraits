@@ -29,7 +29,7 @@ namespace CustomNpcPortraits
             try
             {
 
-                if (Game.Instance.CurrentMode == GameModeType.GlobalMap && !__instance.IsCompanion)
+                if (Game.Instance.CurrentMode == GameModeType.GlobalMap && !__instance.IsCompanion && !Main.pauseGetPortraitsafe)
                 {
                     //Main.DebugLog("GetPortraitSafeGeneral() : " + characterName);
 
@@ -93,7 +93,6 @@ namespace CustomNpcPortraits
 
         public static void Postfix(BlueprintUnit __instance, ref BlueprintPortrait __result, BlueprintPortrait ___m_Portrait)
         {
-            //  Main.DebugLog("Getportraitsafe_patch()");
             if (!Main.enabled)
             {
                 return;
@@ -101,7 +100,7 @@ namespace CustomNpcPortraits
             try
             {
 
-                if (Main.settings.AutoBackup && Game.Instance.CurrentMode == GameModeType.GlobalMap && !__instance.IsCompanion)
+                if (Main.settings.AutoBackup && Game.Instance.CurrentMode == GameModeType.GlobalMap && !__instance.IsCompanion && !Main.pauseGetPortraitsafe)
                 {
                     //Main.DebugLog("GetPortraitSafeGeneral() : " + characterName);
 

@@ -140,7 +140,8 @@ namespace CustomNpcPortraits
 			return true;
 		}
 
-
+		public static int portraitCounter = 0;
+		public static int failCounter = 0;
 		public static void saveNpcPortraits()
 		{
 
@@ -155,11 +156,18 @@ namespace CustomNpcPortraits
 				 blueprintList = JsonUtility.FromJson<BlueprintList>(File.ReadAllText(str));
 
 
-			List<string> speakers = new List<string>();
+			Dictionary<string, string> speakers = new Dictionary<string, string>();
 
 
 			string portraitsDirectoryPath = Main.GetNpcPortraitsDirectory();
-	
+
+			//List<string> fyou = new List<string>();
+
+			//fyou.Add("Darrazand");
+			//fyou.Add("DLC3_ShadowBalorNahindry_CUTSCENE");
+
+
+
 			foreach (BlueprintList.Entry be in blueprintList.Entries)
 			{
 
@@ -167,32 +175,66 @@ namespace CustomNpcPortraits
 				{
 
 					BlueprintCue bc = Utilities.GetBlueprintByGuid<BlueprintCue>(be.Guid);
-
-					if(bc.Speaker != null && bc.Speaker.Blueprint != null && bc.Speaker.Blueprint.CharacterName != null && !speakers.Contains(bc.Speaker.Blueprint.CharacterName))
-                    {
-						if (!bc.Speaker.Blueprint.IsCompanion)
+					
+					if (bc.Speaker != null && bc.Speaker.Blueprint != null && !bc.Speaker.Blueprint.name.IsNullOrEmpty() && !speakers.ContainsKey(bc.Speaker.Blueprint.name))
+					{
+						if (!bc.Speaker.Blueprint.IsCompanion /* && !fyou.Contains(bc.Speaker.Blueprint.name)*/)
 						{
-
-							speakers.Add(bc.Speaker.Blueprint.CharacterName);
-							//Main.DebugLog(bc.Speaker.Blueprint.CharacterName);
-							string portraitDirectoryName = bc.Speaker.Blueprint.CharacterName;
-							string portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, portraitDirectoryName);
+							try
+							{
+								speakers.Add(bc.Speaker.Blueprint.name, bc.Speaker.Blueprint.CharacterName);
 
 
-							SaveOriginals(bc.Speaker.Blueprint, portraitDirectoryPath);
 
+								string portraitDirectoryName = bc.Speaker.Blueprint.CharacterName;
+								string portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, portraitDirectoryName);
+
+								if(bc.Speaker.Blueprint.name != bc.Speaker.Blueprint.CharacterName)
+								SaveOriginals(bc.Speaker.Blueprint, Path.Combine(portraitDirectoryPath, bc.Speaker.Blueprint.name));
+								else
+									SaveOriginals(bc.Speaker.Blueprint, portraitDirectoryPath);
+
+								portraitCounter++;
+							}
+							catch (Exception e)
+							{
+								failCounter++;
+								Main.DebugLog("speaker fail: " + bc.Speaker.Blueprint.CharacterName + " - " + bc.Speaker.Blueprint.name);
+
+							//	Main.DebugError(e);
+
+
+							}
 						}
 					}
-					if (bc.Listener != null && bc.Listener.CharacterName != null && !speakers.Contains(bc.Listener.CharacterName))
+					if (bc.Listener != null && !bc.Listener.name.IsNullOrEmpty() && !speakers.ContainsKey(bc.Listener.name))
 					{
-						if (!bc.Listener.IsCompanion)
+						try
 						{
-							speakers.Add(bc.Listener.CharacterName);
-							//							Main.DebugLog(bc.Listener.CharacterName);
-							string portraitDirectoryName = bc.Listener.CharacterName;
-							string portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, portraitDirectoryName);
 
-							SaveOriginals(bc.Listener, portraitDirectoryPath);
+
+							if (!bc.Listener.IsCompanion /*&& !fyou.Contains(bc.Listener.name)*/)
+							{
+
+								speakers.Add(bc.Listener.name, bc.Listener.CharacterName);
+								string portraitDirectoryName = bc.Listener.CharacterName;
+								string portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, portraitDirectoryName);
+
+								if(bc.Listener.name != bc.Listener.CharacterName)
+								SaveOriginals(bc.Listener, Path.Combine(portraitDirectoryPath, bc.Speaker.Blueprint.name));
+								else
+									SaveOriginals(bc.Speaker.Blueprint, portraitDirectoryPath);
+
+								portraitCounter++;
+							}
+						}
+						catch(Exception e)
+						{
+							failCounter++;
+							Main.DebugLog("listener fail: " + bc.Listener.CharacterName + " - " + bc.Listener.name);
+
+						//	Main.DebugError(e);
+
 
 						}
 					}
@@ -218,7 +260,7 @@ namespace CustomNpcPortraits
 				blueprintList = JsonUtility.FromJson<BlueprintList>(File.ReadAllText(str));
 
 
-			List<string> speakers = new List<string>();
+			Dictionary<string, string> speakers = new Dictionary<string, string>();
 
 
 			string portraitsDirectoryPath = Main.GetNpcPortraitsDirectory();
@@ -230,41 +272,51 @@ namespace CustomNpcPortraits
 				{
 
 					BlueprintCue bc = Utilities.GetBlueprintByGuid<BlueprintCue>(be.Guid);
-
-					if (bc.Speaker != null && bc.Speaker.Blueprint != null && bc.Speaker.Blueprint.CharacterName != null && !speakers.Contains(bc.Speaker.Blueprint.CharacterName))
+					if (bc.Speaker != null && bc.Speaker.Blueprint != null && !bc.Speaker.Blueprint.name.IsNullOrEmpty() && !speakers.ContainsKey(bc.Speaker.Blueprint.name))
 					{
-						if (!bc.Speaker.Blueprint.IsCompanion)
+						if (!bc.Speaker.Blueprint.IsCompanion /* && !fyou.Contains(bc.Speaker.Blueprint.name)*/)
 						{
+					
 
-							speakers.Add(bc.Speaker.Blueprint.CharacterName);
-							//Main.DebugLog(bc.Speaker.Blueprint.CharacterName);
+
+								speakers.Add(bc.Speaker.Blueprint.name, bc.Speaker.Blueprint.CharacterName);
+
+							//Main.DebugLog(speakers[bc.Speaker.Blueprint.name]);
 							string portraitDirectoryName = bc.Speaker.Blueprint.CharacterName;
 							string portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, portraitDirectoryName);
 
-							Directory.CreateDirectory(portraitDirectoryPath);
-							//SaveOriginals(bc.Speaker.Blueprint, portraitDirectoryPath);
+							if (bc.Speaker.Blueprint.name != bc.Speaker.Blueprint.CharacterName)
+
+								Directory.CreateDirectory(Path.Combine(portraitDirectoryPath, bc.Speaker.Blueprint.name));
+else
+															Directory.CreateDirectory(portraitDirectoryPath);
+
+
 
 						}
 					}
-					if (bc.Listener != null && bc.Listener.CharacterName != null && !speakers.Contains(bc.Listener.CharacterName))
+					if (bc.Listener != null && !bc.Listener.name.IsNullOrEmpty() && !speakers.ContainsKey(bc.Listener.name))
 					{
 						if (!bc.Listener.IsCompanion)
 						{
-							speakers.Add(bc.Listener.CharacterName);
-							//							Main.DebugLog(bc.Listener.CharacterName);
+
+							speakers.Add(bc.Listener.name, bc.Listener.CharacterName);
+							//Main.DebugLog(bc.Listener.CharacterName);
 							string portraitDirectoryName = bc.Listener.CharacterName;
 							string portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, portraitDirectoryName);
 
+							if (bc.Listener.name != bc.Listener.CharacterName)
+
+								Directory.CreateDirectory(Path.Combine(portraitDirectoryPath, bc.Listener.name));
+							else
 							Directory.CreateDirectory(portraitDirectoryPath);
 
-							//SaveOriginals(bc.Listener, portraitDirectoryPath);
 
 						}
 					}
 
 				}
 			}
-			Main.DebugLog(speakers.Count().ToString());
 
 		}
 		/*
@@ -476,7 +528,7 @@ else
 					{
 						showExperimental = false;
 					}
-					GUILayout.Label("WARNING! This will crash your game and you need to restart 2-3 times before it saves all", boldStyle);
+					GUILayout.Label("WARNING! This might hang your game for 1-2 minutes or crash.", boldStyle);
 
 					GUILayout.EndHorizontal();
 
@@ -488,7 +540,7 @@ else
 					{
 						saveNpcPortraits();
 					}
-					GUILayout.Label("Save 346 NPC-s' default portraits in their dirs");
+					GUILayout.Label("Save all NPC-s' default portraits in their dirs: " + portraitCounter + " have been saved OK! ( "+ failCounter + " invalid )");
 					GUILayout.EndHorizontal();
 				}
 				//GUILayout.Label(" ");
@@ -1177,10 +1229,12 @@ else
 
 		}
 
+		public static bool pauseGetPortraitsafe = false;
 
 		public static bool SaveOriginals(BlueprintUnit bup, string path)
 		{
 
+			pauseGetPortraitsafe = true;
 
 			bool result = false;
 
@@ -1192,7 +1246,7 @@ else
 
 				BlueprintPortrait blueprintPortrait = bup.PortraitSafe;
 
-
+			pauseGetPortraitsafe = false;
 
 
 
@@ -1246,7 +1300,7 @@ else
 							CreateBaseImages(Path.Combine(defdirpath, Main.mediumName), mHalfLengthImage.Load(true, false), isNpc, false);
 							CreateBaseImages(Path.Combine(defdirpath, Main.fullName), mFullLengthImage.Load(true, false), isNpc, false);
 
-							Main.DebugLog("SaveOriginals: all Originals saved OK for " + bup.CharacterName + " in " + defdirpath);
+					//		Main.DebugLog("SaveOriginals: all Originals saved OK for " + bup.CharacterName + " in " + defdirpath);
 
 						}
 						else
@@ -1293,7 +1347,7 @@ else
 							}
 							
 
-							Main.DebugLog("SaveOriginals: all Originals saved OK for " + bup.CharacterName + " in " + defdirpath);
+				//			Main.DebugLog("SaveOriginals: all Originals saved OK for " + bup.CharacterName + " in " + defdirpath);
 						}
 						else
 						{
@@ -1331,7 +1385,7 @@ else
 
 
 								//	}
-								Main.DebugLog("SaveOriginals: Original saved as Custom portrait OK as " + Path.Combine(path, Main.mediumName));
+					//			Main.DebugLog("SaveOriginals: Original saved as Custom portrait OK as " + Path.Combine(path, Main.mediumName));
 							}
 							else
 							{
@@ -1347,7 +1401,7 @@ else
 				}
 				catch (Exception ex)
 				{
-
+					failCounter++;
 					Main.DebugLog("Disk, The process failed: " + ex.ToString());
 					result = false;
 				}
@@ -1468,6 +1522,8 @@ else
 				}
 				catch (Exception ex)
 				{
+					failCounter++;
+
 
 					Main.DebugLog("Disk, The process failed: " + ex.ToString());
 					result = false;
@@ -1511,7 +1567,7 @@ else
 			}
 			else
 			{
-				Main.DebugLog("Disk, not created: " + path);
+			//	Main.DebugLog("Disk, not created: " + path);
 			}
 		}
 
@@ -1570,13 +1626,17 @@ else
 				}
 				catch (Exception e)
 				{
+					failCounter++;
 
 					Main.DebugLog("textureFromSprite error: " + e);
 					return null;
 
 				}
 			}
-			else { return null; }
+			else {
+				failCounter++;
+
+				return null; }
 
 		}
 
@@ -1589,7 +1649,7 @@ else
 			{
 				if (med && npc && secret/*source.width == (int)BlueprintRoot.Instance.CharGen.BasePortraitSmall.texture.width*/)
 				{
-					Main.DebugLog("Enlarging omly? " + path);
+				//	Main.DebugLog("Enlarging omly? " + path);
 					renderTex = RenderTexture.GetTemporary(
 								 330,
 								 432,
@@ -1605,7 +1665,7 @@ else
 				}
 				else
 				{
-					Main.DebugLog("No enlarging! " + path);
+					//Main.DebugLog("No enlarging! " + path);
 
 					renderTex = RenderTexture.GetTemporary(
 								source.width,
