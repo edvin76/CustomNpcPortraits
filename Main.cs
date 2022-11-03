@@ -199,9 +199,9 @@ namespace CustomNpcPortraits
 							catch (Exception e)
 							{
 								failCounter++;
-								Main.DebugLog("speaker fail: " + bc.Speaker.Blueprint.CharacterName + " - " + bc.Speaker.Blueprint.name);
+								//Main.DebugLog("speaker fail: " + bc.Speaker.Blueprint.CharacterName + " - " + bc.Speaker.Blueprint.name);
 
-							//	Main.DebugError(e);
+								Main.DebugError(e);
 
 
 							}
@@ -231,9 +231,9 @@ namespace CustomNpcPortraits
 						catch(Exception e)
 						{
 							failCounter++;
-							Main.DebugLog("listener fail: " + bc.Listener.CharacterName + " - " + bc.Listener.name);
+							//Main.DebugLog("listener fail: " + bc.Listener.CharacterName + " - " + bc.Listener.name);
 
-						//	Main.DebugError(e);
+							Main.DebugError(e);
 
 
 						}
@@ -1134,8 +1134,10 @@ else
 				string portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, portraitDirectoryName);
 
 				Directory.CreateDirectory(portraitDirectoryPath);
-				
-				if(Main.settings.AutoBackup) SaveOriginals(unitEntityData.Blueprint, portraitDirectoryPath);
+
+
+				if (Main.settings.AutoBackup) SaveOriginals2(unitEntityData.Portrait, portraitDirectoryPath);
+				//if (Main.settings.AutoBackup) SaveOriginals(unitEntityData.Blueprint, portraitDirectoryPath);
 				bool missing = false;
 				foreach (string fileName in Main.PortraitFileNames)
 				{
@@ -1154,7 +1156,9 @@ else
 					CustomPortraitsManager.Instance.Storage.Unload(Path.Combine(portraitDirectoryPath, "Fulllength.png"));
 
 					blueprintPortrait.Data = new PortraitData(portraitDirectoryPath);
+					Main.pauseGetPortraitsafe = true;
 					blueprintPortrait.Data.m_PetEyeImage = unitEntityData.Blueprint.PortraitSafe.Data.m_PetEyeImage;
+					Main.pauseGetPortraitsafe = false;
 
 					unitEntityData.Descriptor.UISettings.SetPortrait(blueprintPortrait);
 
@@ -1184,8 +1188,9 @@ else
 					BlueprintPortrait blueprintPortrait = BlueprintRoot.Instance.CharGen.CustomPortrait;
 					blueprintPortrait.Data = new PortraitData(Path.Combine(portraitDirectoryPath, Main.GetDefaultPortraitsDirName()));
 
+					Main.pauseGetPortraitsafe = true;
 					blueprintPortrait.Data.m_PetEyeImage = unitEntityData.Blueprint.PortraitSafe.Data.m_PetEyeImage;
-
+					Main.pauseGetPortraitsafe = false;
 
 					unitEntityData.Descriptor.UISettings.SetPortrait(blueprintPortrait);
 
@@ -1414,7 +1419,7 @@ else
 		}
 
 
-		public static bool SaveOriginals2(BlueprintPortrait blueprintPortrait, string path)
+		public static bool SaveOriginals2(PortraitData pdata, string path)
 		{
 
 
@@ -1437,15 +1442,15 @@ else
 
 			// 
 
-			if (blueprintPortrait != null)
+			if (pdata != null)
 			{
 			//	Main.DebugLog("SaveOriginals2: " + "1");
 
-				SpriteLink mFullLengthImage = blueprintPortrait.Data.m_FullLengthImage;
+				SpriteLink mFullLengthImage = pdata.m_FullLengthImage;
 			//	Main.DebugLog("SaveOriginals2: " + "2");
-				SpriteLink mHalfLengthImage = blueprintPortrait.Data.m_HalfLengthImage;
+				SpriteLink mHalfLengthImage = pdata.m_HalfLengthImage;
 			//	Main.DebugLog("SaveOriginals2: " + "3");
-				SpriteLink mPortraitImage = blueprintPortrait.Data.m_PortraitImage;
+				SpriteLink mPortraitImage = pdata.m_PortraitImage;
 
 				//string defdirpath = Path.Combine(path, GetDefaultPortraitsDirName());
 

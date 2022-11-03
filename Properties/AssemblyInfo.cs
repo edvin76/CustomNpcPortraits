@@ -11,7 +11,7 @@ using System.Runtime.Versioning;
 [assembly: AssemblyProduct("CustomNpcPortraits")]
 [assembly: AssemblyTitle("CustomNpcPortraits")]
 [assembly: AssemblyTrademark("")]
-[assembly: AssemblyVersion("1.0.36.47")]
+[assembly: AssemblyVersion("1.0.37.47")]
 [assembly: CompilationRelaxations(8)]
 [assembly: ComVisible(true)]
 [assembly: Debuggable(DebuggableAttribute.DebuggingModes.IgnoreSymbolStoreSequencePoints)]

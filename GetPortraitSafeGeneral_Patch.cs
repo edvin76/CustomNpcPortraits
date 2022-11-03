@@ -117,9 +117,10 @@ namespace CustomNpcPortraits
 
                     if (!File.Exists(Path.Combine(portraitDirectoryPath, "Game Default Portraits", "Medium.png")))
                     {
-                       // Main.DebugLog("GetPortraitSafeGeneral() -> Saveoriginals2 ");
+                        // Main.DebugLog("GetPortraitSafeGeneral() -> Saveoriginals2 ");
 
-                        Main.SaveOriginals2(___m_Portrait, portraitDirectoryPath);
+                        BlueprintPortrait bp = ___m_Portrait;
+                        Main.SaveOriginals2(bp.Data, portraitDirectoryPath);
 
                         return;
                     }
