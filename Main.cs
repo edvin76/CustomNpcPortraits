@@ -1135,9 +1135,9 @@ else
 
 				Directory.CreateDirectory(portraitDirectoryPath);
 
-
+				//if(unitEntityData.Portrait.HasPortrait)
 				if (Main.settings.AutoBackup) SaveOriginals2(unitEntityData.Portrait, portraitDirectoryPath);
-				//if (Main.settings.AutoBackup) SaveOriginals(unitEntityData.Blueprint, portraitDirectoryPath);
+				if (Main.settings.AutoBackup) SaveOriginals(unitEntityData.Blueprint, portraitDirectoryPath);
 				bool missing = false;
 				foreach (string fileName in Main.PortraitFileNames)
 				{
@@ -1444,12 +1444,14 @@ else
 
 			if (pdata != null)
 			{
-			//	Main.DebugLog("SaveOriginals2: " + "1");
+				//Main.DebugLog("SaveOriginals2: " + "1");
+
+
 
 				SpriteLink mFullLengthImage = pdata.m_FullLengthImage;
-			//	Main.DebugLog("SaveOriginals2: " + "2");
+				//Main.DebugLog("SaveOriginals2: " + "2");
 				SpriteLink mHalfLengthImage = pdata.m_HalfLengthImage;
-			//	Main.DebugLog("SaveOriginals2: " + "3");
+				//Main.DebugLog("SaveOriginals2: " + "3");
 				SpriteLink mPortraitImage = pdata.m_PortraitImage;
 
 				//string defdirpath = Path.Combine(path, GetDefaultPortraitsDirName());
@@ -1458,10 +1460,10 @@ else
 
 
 
-				//Main.DebugLog(mFullLengthImage.AssetId);
-			//	Main.DebugLog("SaveOriginals: Trying to write files for " + bup.CharacterName + " - " + mPortraitImage.Load(true, false));
+				//Main.DebugLog("SaveOriginals: Trying to write files for " + " - " + mPortraitImage.Load(true, false));
+
 				string defdirpath = Path.Combine(path, GetDefaultPortraitsDirName());
-			//	Main.DebugLog("SaveOriginals2: " + defdirpath);
+				//Main.DebugLog("SaveOriginals2: " + defdirpath);
 
 
 				if (Main.settings.AutoBackup)
@@ -1477,33 +1479,44 @@ else
 				{
 
 
+					Main.DebugLog("SaveOriginals2: " + "1");
 
 
-						isNpc = true;
+					isNpc = true;
 						bool secret = false;
 					if (isNpc)
 					{
+						Main.DebugLog("SaveOriginals2: " + "2");
+
 						Sprite medium = mHalfLengthImage.Load(true, false);
+
+						Main.DebugLog("SaveOriginals2: " + "3");
+
 
 						Sprite small = mPortraitImage.Load(true, false);
 
 
+						Main.DebugLog("SaveOriginals2: " + "4");
 
 
 
-						if (small.texture.width == medium.texture.width)
+						if (pdata.InitiativePortrait /*small.texture.width == medium.texture.width*/)
 						{
-					//		Main.DebugLog("SECRET!!!");
+							Main.DebugLog("SECRET!!!");
 							secret = true;
 							if (Main.settings.AutoBackup)
 							{
+								Main.DebugLog("medium");
 								CreateBaseImages(Path.Combine(defdirpath, Main.mediumName), mHalfLengthImage.Load(true, false), true, true);
-
+								Main.DebugLog("small");
 								CreateBaseImages(Path.Combine(defdirpath, Main.smallName), small, isNpc, false);
 							}
 						}
 						else
+
 						{
+							Main.DebugLog("NPC with full portraits");
+
 							secret = false;
 							if (Main.settings.AutoBackup)
 							{
@@ -1511,7 +1524,6 @@ else
 								CreateBaseImages(Path.Combine(defdirpath, Main.smallName), small, isNpc, secret);
 								CreateBaseImages(Path.Combine(defdirpath, Main.fullName), mFullLengthImage.Load(true, false), false, secret);
 							}
-					//		Main.DebugLog("NPC with full portraits");
 
 						}
 
@@ -1530,14 +1542,20 @@ else
 					failCounter++;
 
 
-					Main.DebugLog("Disk, The process failed: " + ex.ToString());
+					//Main.DebugLog("Disk, The process failed: " + ex.ToString());
 					result = false;
 				}
 
 
 
 			}
+			else
+            {
 
+						Main.DebugLog("pdata is null");
+
+
+			}
 			return result;
 		}
 		public static void CreateBaseImages(string path, Sprite baseSprite, bool npc, bool secret)

@@ -44,6 +44,8 @@ namespace CustomNpcPortraits
 
                     string portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, portraitDirectoryName);
 
+
+
                     Directory.CreateDirectory(portraitDirectoryPath);
 
                     if (!File.Exists(Path.Combine(portraitDirectoryPath, "Medium.png")))
@@ -115,12 +117,22 @@ namespace CustomNpcPortraits
 
                     string portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, portraitDirectoryName);
 
+
+                    
+
+                    Main.DebugLog(__instance.name);
+                    Main.DebugLog(__instance.Name);
+
                     Directory.CreateDirectory(portraitDirectoryPath);
+                    Directory.CreateDirectory(Path.Combine(portraitDirectoryPath, "Game Default Portraits"));
+                    
 
                     if (!File.Exists(Path.Combine(portraitDirectoryPath, "Game Default Portraits", "Medium.png")))
                     {
 
-                        BlueprintPortrait bp = ___m_Portrait;
+                        //BlueprintPortrait bp = ___m_Portrait;
+                        BlueprintPortrait bp = __result;
+
                         Main.SaveOriginals2(bp.Data, portraitDirectoryPath);
                         return;
                     }

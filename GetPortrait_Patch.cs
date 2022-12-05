@@ -151,78 +151,83 @@ namespace CustomNpcPortraits
 
                     BlueprintPortrait blueprintPortrait = bup.PortraitSafe;
 
-                    if (Main.settings.AutoSecret)
-                    {
 
                         //  Main.DebugLog("Getportrait() 2 "+ Path.Combine(portraitDirectoryPath, Main.mediumName));
                         bool enterHere = false;
 
-                        if ((portraitDirectoryPath == null) || (portraitDirectoryPath.Length == 0))
+                    if ((portraitDirectoryPath == null) || (portraitDirectoryPath.Length == 0))
+                    {
+
+                        if (!Main.settings.AutoSecret && blueprintPortrait.Data.InitiativePortrait)
                         {
-                            enterHere = true;
+                            Directory.CreateDirectory(Path.Combine(Main.GetNpcPortraitsDirectory(), characterName, blueprintUnit.name));
+                            return true;
                         }
-                        else
-                        {
-                            if (Main.settings.AutoBackup)
-                            {
-                                enterHere = !File.Exists(Path.Combine(portraitDirectoryPath, Main.GetDefaultPortraitsDirName(), Main.mediumName));
-
-                            }
-                        }
-
-                        if (enterHere)
-                        {
-                            //    Main.DebugLog("Getportrait() 3");
-
-
-
-                            if ((blueprintPortrait != null) && (blueprintPortrait.Data != null))
-                            {
-                                //      Main.DebugLog("Getportrait() 4");
-
-                                SpriteLink mHalfLengthImage = blueprintPortrait.Data.m_HalfLengthImage;
-
-                                if ((mHalfLengthImage != null) && (mHalfLengthImage.AssetId != null) && (mHalfLengthImage.AssetId.Length > 5))
-                                {
-                                    //        Main.DebugLog("Getportrait() 5");
-
-                                    
-
-                                    Main.SaveOriginals(bup, Path.Combine(Main.GetNpcPortraitsDirectory(), characterName));
-                                    Main.SaveOriginals(bup, Path.Combine(Main.GetNpcPortraitsDirectory(), characterName, blueprintUnit.name));
-
-                                }
-                            }
-                        }
+                        enterHere = true;
                     }
                     else
                     {
+                        if (Main.settings.AutoBackup)
+                        {
+                            enterHere = !File.Exists(Path.Combine(portraitDirectoryPath, Main.GetDefaultPortraitsDirName(), Main.mediumName));
 
-                        return true;
+                        }
                     }
 
-                    // 184
-/*
-                    Main.DebugLog(blueprintPortrait.Data.FullLengthPortrait.texture.width.ToString());
-                    Main.DebugLog(blueprintPortrait.Data.HalfLengthPortrait.texture.width.ToString());
-                    Main.DebugLog(blueprintPortrait.Data.SmallPortrait.texture.width.ToString());
 
 
 
-                    Sprite sprite = CustomPortraitsManager.Instance.LoadPortrait(Path.Combine(portraitDirectoryPath, "Small.png"), pdata.SmallPortrait, true);
 
-
-                    
-                    if (!TextureIsDefaultPortrait(sprite.texture, PortraitType.SmallPortrait))
+                    if (enterHere)
                     {
-                        // Main.DebugLog("huh 5");
+                        //    Main.DebugLog("Getportrait() 3");
 
-                        //__instance.Unit.Portrait.SmallPortrait.texture
 
-                        //   if (GetPseudoHash(pdata.SmallPortrait.texture) != GetPseudoHash(sprite.texture))
-                        //  {
 
-                        */
+                        if ((blueprintPortrait != null) && (blueprintPortrait.Data != null))
+                        {
+                            //      Main.DebugLog("Getportrait() 4");
+
+                            SpriteLink mHalfLengthImage = blueprintPortrait.Data.m_HalfLengthImage;
+
+                            if ((mHalfLengthImage != null) && (mHalfLengthImage.AssetId != null) && (mHalfLengthImage.AssetId.Length > 5))
+                            {
+                                //        Main.DebugLog("Getportrait() 5");
+
+
+
+                                Main.SaveOriginals(bup, Path.Combine(Main.GetNpcPortraitsDirectory(), characterName));
+                                Main.SaveOriginals(bup, Path.Combine(Main.GetNpcPortraitsDirectory(), characterName, blueprintUnit.name));
+
+                            }
+                        }
+                    }
+
+
+
+
+                        // 184
+                        /*
+                                            Main.DebugLog(blueprintPortrait.Data.FullLengthPortrait.texture.width.ToString());
+                                            Main.DebugLog(blueprintPortrait.Data.HalfLengthPortrait.texture.width.ToString());
+                                            Main.DebugLog(blueprintPortrait.Data.SmallPortrait.texture.width.ToString());
+
+
+
+                                            Sprite sprite = CustomPortraitsManager.Instance.LoadPortrait(Path.Combine(portraitDirectoryPath, "Small.png"), pdata.SmallPortrait, true);
+
+
+
+                                            if (!TextureIsDefaultPortrait(sprite.texture, PortraitType.SmallPortrait))
+                                            {
+                                                // Main.DebugLog("huh 5");
+
+                                                //__instance.Unit.Portrait.SmallPortrait.texture
+
+                                                //   if (GetPseudoHash(pdata.SmallPortrait.texture) != GetPseudoHash(sprite.texture))
+                                                //  {
+
+                                                */
 
 
 

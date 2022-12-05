@@ -43,7 +43,17 @@ namespace CustomNpcPortraits
 
                     string portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, portraitDirectoryName);
 
-                    Directory.CreateDirectory(portraitDirectoryPath);
+
+                if (characterName.Equals("Enemy Leader"))
+                {
+
+                    portraitDirectoryPath = Path.Combine(portraitDirectoryPath, __instance.name);
+
+
+                }
+
+
+                Directory.CreateDirectory(portraitDirectoryPath);
 
                     if (!File.Exists(Path.Combine(portraitDirectoryPath, "Medium.png")))
                     {
@@ -113,13 +123,22 @@ namespace CustomNpcPortraits
 
                     string portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, portraitDirectoryName);
 
+
+                    if (characterName.Equals("Enemy Leader"))
+                    {
+
+                        portraitDirectoryPath = Path.Combine(portraitDirectoryPath, __instance.name);
+
+
+                    }
+
                     Directory.CreateDirectory(portraitDirectoryPath);
 
                     if (!File.Exists(Path.Combine(portraitDirectoryPath, "Game Default Portraits", "Medium.png")))
                     {
                         // Main.DebugLog("GetPortraitSafeGeneral() -> Saveoriginals2 ");
 
-                        BlueprintPortrait bp = ___m_Portrait;
+                        BlueprintPortrait bp = __result;
                         Main.SaveOriginals2(bp.Data, portraitDirectoryPath);
 
                         return;
