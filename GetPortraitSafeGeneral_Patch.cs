@@ -12,6 +12,7 @@ using Kingmaker.GameModes;
 using Kingmaker.Localization;
 using UnityEngine.SceneManagement;
 
+
 namespace CustomNpcPortraits
 {
     // Token: 0x02000007 RID: 7

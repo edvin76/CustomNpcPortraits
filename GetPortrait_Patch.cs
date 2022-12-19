@@ -30,20 +30,17 @@ namespace CustomNpcPortraits
     public static class GetPortrait_Patch
     {
         // Token: 0x06000053 RID: 83 RVA: 0x00005694 File Offset: 0x00003894
-        public static bool Prefix(UnitUISettings __instance, ref PortraitData __result)
+        public static bool Prefix(UnitUISettings __instance, ref PortraitData __result, BlueprintPortrait ___m_Portrait, BlueprintPortrait ___m_CustomPortrait)
         {
             if (!Main.enabled)
                 return true;
             try
             {
 
-              //  Main.DebugLog("Getportrait() : " + __instance.Owner.CharacterName);
-
-
 
                 if (Game.Instance.CurrentMode != GameModeType.Dialog)
                 {
-                    // Main.DebugLog("Getportrait() : " + Game.Instance.CurrentMode);
+                   // Main.DebugLog("Getportrait() : " + Game.Instance.CurrentMode);
 
                     return true;
 
@@ -52,156 +49,238 @@ namespace CustomNpcPortraits
 
                 }
 
-
-                if (Game.Instance == null || Game.Instance.DialogController == null || Game.Instance.DialogController.CurrentSpeaker == null || Game.Instance.DialogController.CurrentSpeaker.CharacterName == null)
+                /*
+                Main.DebugLog("__instance.Owner.CharacterName : " + __instance.Owner.CharacterName);
+                Main.DebugLog("CurrentSpeakerBlueprint.CharacterName : " + Game.Instance.DialogController.CurrentSpeakerBlueprint.CharacterName);
+                if (Game.Instance.DialogController.CurrentCue.Listener != null)
+                Main.DebugLog("CurrentCue.Listener.CharacterName : " + Game.Instance.DialogController.CurrentCue.Listener.CharacterName);
+                if (Game.Instance.DialogController.CurrentCue.Speaker != null)
                 {
-                    //  Main.DebugLog("Getportrait() 2");
+                    Main.DebugLog("CurrentCue.Speaker != null");
+
+                    if (Game.Instance.DialogController.CurrentSpeakerName != null)
+                        Main.DebugLog("DialogController.CurrentSpeakerName : " + Game.Instance.DialogController.CurrentSpeakerName);
+                }
+                    Main.DebugLog("-------------------------------------------");
+
+
+  */
+
+
+                if (Game.Instance == null || Game.Instance.DialogController == null || Game.Instance.DialogController.CurrentSpeakerBlueprint == null || Game.Instance.DialogController.CurrentSpeakerBlueprint.CharacterName == null)
+                {
+                    Main.DebugLog("Getportrait() CurrentSpeakerBlueprint == null");
 
                     return true;
                 }
 
-                string characterName = Game.Instance.DialogController.CurrentSpeaker.CharacterName;
+                string characterName = Game.Instance.DialogController.CurrentSpeakerBlueprint.CharacterName;
                 //__instance.Owner.CharacterName;
 
-
-                if (__instance.Owner.IsMainCharacter)
+                if (Game.Instance.DialogController.CurrentSpeaker != null)
                 {
-                    //  Main.DebugLog("skip Getportrait for: " + characterName);
-                    return true;
-                }
+                    /*
+                    BlueprintPortrait mPortrait;
 
-
-
-                bool companion = Game.Instance.DialogController.CurrentSpeaker.Blueprint.IsCompanion;
-
-
-                if (companion && Main.settings.ManageCompanions)
-                {
-                    //Main.DebugLog("Getportrait() 1");
-
-                    string prefix = Main.GetCompanionPortraitDirPrefix();
-                    string portraitsDirectoryPath = Main.GetCompanionPortraitsDirectory();
-                    string portraitDirectoryName = prefix + characterName;
-                    string portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, portraitDirectoryName);
-
-                    if (!Directory.Exists(portraitDirectoryPath))
+                    if (___m_CustomPortrait != null)
                     {
-                        return true;
-                    }
-                    //Main.DebugLog("Getportrait() 3");
-                    bool missing = false;
-                    //Main.DebugLog("Getportrait() 4");
-                    // Main.DebugLog(Main.PortraitFileNames[0]);
+                        mPortrait = ___m_CustomPortrait;
+                        Main.DebugLog("BPUnitName: " + Game.Instance.DialogController.CurrentSpeaker.View.name);
+                        Main.DebugLog("customPortrait: " + mPortrait.Data.CustomId);
 
-                    foreach (string fileName in Main.PortraitFileNames)
-                    {
-                        //  Main.DebugLog("p: "+portraitDirectoryPath);
-
-                        //   Main.DebugLog("f: " + fileName);
-
-
-                        if (!File.Exists(Path.Combine(portraitDirectoryPath, fileName)))
-                        {
-                            //  Main.DebugLog("Getportrait() 6");
-
-                            missing = true;
-                            break;
-                        }
-                    }
-                    // Main.DebugLog("Getportrait() 7");
-
-                    if (!missing)
-                    {
-                        //Main.DebugLog("Getportrait() loaded portrait for Companion "+characterName);
-                        CustomPortraitsManager.Instance.Storage.Unload(Path.Combine(portraitDirectoryPath, "Medium.png"));
-
-
-                        PortraitData Data = new PortraitData(portraitDirectoryPath);
-
-                        Data.m_PetEyeImage = Game.Instance.DialogController.CurrentSpeaker.Blueprint.PortraitSafe.Data.m_PetEyeImage;
-
-
-                        __result = Data;
-                        return false;
                     }
                     else
                     {
-                        return true;
+                        if (___m_Portrait != null)
+                        {
+                            mPortrait = ___m_Portrait;
+                            Main.DebugLog("BPUnitName: " + Game.Instance.DialogController.CurrentSpeaker.View.name);
+                            Main.DebugLog("m_Portrait: " + mPortrait.name);
+
+                        }
+                        else
+                        {
+                            mPortrait = Game.Instance.DialogController.CurrentSpeaker.View.Blueprint.PortraitSafe;
+                            Main.DebugLog("BPUnitName: " + Game.Instance.DialogController.CurrentSpeaker.View.Blueprint.name);
+                            Main.DebugLog("unitBlueprintPortrait: " + mPortrait.name);
+                        }
+                    }
+                    */
+                    if (characterName.Equals("Asty"))
+                    {
+                        //Main.SaveOriginals2(Game.Instance.DialogController.CurrentSpeaker.View.Blueprint.PortraitSafe.Data, Path.Combine(Main.GetNpcPortraitsDirectory(), characterName));
+                        //return true;
+                        if (Game.Instance.DialogController.CurrentSpeaker.View.name.ToLower().Contains("drow"))
+                            characterName = "Asty - Drow";
+
+                    }
+                    if (characterName.Equals("Velhm"))
+                    {
+                        if (Game.Instance.DialogController.CurrentSpeaker.View.name.ToLower().Contains("drow"))
+                            characterName = "Velhm - Drow";
+
+                    }
+                    if (characterName.Equals("Tran"))
+                    {
+                        if (Game.Instance.DialogController.CurrentSpeaker.View.name.ToLower().Contains("drow"))
+                            characterName = "Tran - Drow";
+
                     }
 
+                    if (characterName.ToLower().Contains("aruesh"))
+                    {
+                        if (Game.Instance.DialogController.CurrentSpeaker.View.Blueprint.Race.name.ToLower().Contains("succubusrace"))
+                        {
+
+                            characterName = characterName + " - Evil";
+
+
+                        }
+                    }
                 }
-                else if(!companion)// Npc
+
+
+                if (!__instance.Owner.IsMainCharacter || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Wirlong Black Mask") && (Game.Instance.DialogController.CurrentCue.Speaker.Blueprint.CharacterName != Game.Instance.Player.GetMainPartyUnit().CharacterName)))
                 {
-
-                   
-                    //Main.DebugLog("Getportrait() 2");
-                    //string portraitsDirectoryPath = Main.GetNpcPortraitsDirectory();
-                    //string portraitDirectoryName = characterName;
-                    //string portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, portraitDirectoryName);
-                    BlueprintUnit blueprintUnit = Game.Instance.DialogController.CurrentSpeaker.Blueprint;
-                    string portraitDirectoryPath = GetUnitPortraitPath(blueprintUnit, characterName);
-
-
-                    // Main.DebugLog("Getportrait() 1");
-
-
-                    BlueprintUnit bup = Game.Instance.DialogController.CurrentSpeakerBlueprint;
+                    // Main.DebugLog("skip Getportrait for: " + characterName);
+                    //  return true;
 
 
 
-                    BlueprintPortrait blueprintPortrait = bup.PortraitSafe;
+
+
+                    bool companion = Game.Instance.DialogController.CurrentSpeakerBlueprint.IsCompanion;
+
+
+                    if (Main.settings.ManageCompanions && (companion || Main.companions.Contains(characterName)))
+                    {
+                      //  Main.DebugLog("Getportrait() 1");
+
+                        string prefix = Main.GetCompanionPortraitDirPrefix();
+                        string portraitsDirectoryPath = Main.GetCompanionPortraitsDirectory();
+                        string portraitDirectoryName = prefix + characterName;
+                        string portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, portraitDirectoryName);
+
+                        if (!Directory.Exists(portraitDirectoryPath))
+                        {
+                            return true;
+                        }
+                        //Main.DebugLog("Getportrait() 3");
+                        bool missing = false;
+                        //Main.DebugLog("Getportrait() 4");
+                        // Main.DebugLog(Main.PortraitFileNames[0]);
+
+                        foreach (string fileName in Main.PortraitFileNames)
+                        {
+                            //  Main.DebugLog("p: "+portraitDirectoryPath);
+
+                            //   Main.DebugLog("f: " + fileName);
+
+
+                            if (!File.Exists(Path.Combine(portraitDirectoryPath, fileName)))
+                            {
+                                //  Main.DebugLog("Getportrait() 6");
+
+                                missing = true;
+                                break;
+                            }
+                        }
+                        // Main.DebugLog("Getportrait() 7");
+
+                        if (!missing)
+                        {
+                            //Main.DebugLog("Getportrait() loaded portrait for Companion "+characterName);
+                            CustomPortraitsManager.Instance.Storage.Unload(Path.Combine(portraitDirectoryPath, "Medium.png"));
+
+
+                            PortraitData Data = new PortraitData(portraitDirectoryPath);
+
+                            Data.m_PetEyeImage = Game.Instance.DialogController.CurrentCue.Speaker.Blueprint.PortraitSafe.Data.m_PetEyeImage;
+
+
+                            __result = Data;
+                            return false;
+                        }
+                        else
+                        {
+                            return true;
+                        }
+
+                    }
+                    else if (!companion && !Main.companions.Contains(characterName))// Npc
+                    {
+
+
+                        //  Main.DebugLog("Getportrait() 2");
+                        //string portraitsDirectoryPath = Main.GetNpcPortraitsDirectory();
+                        //string portraitDirectoryName = characterName;
+                        //string portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, portraitDirectoryName);
+                        BlueprintUnit blueprintUnit = Game.Instance.DialogController.CurrentSpeakerBlueprint;
+                        string portraitDirectoryPath = GetUnitPortraitPath(blueprintUnit, characterName);
+
+
+
+
+                        if (Game.Instance.DialogController.CurrentCue.Speaker.Blueprint != null)
+                        {
+                            blueprintUnit = Game.Instance.DialogController.CurrentCue.Speaker.Blueprint;
+                        }
+                        //Main.DebugLog("bup: "+bup.name);
+
+                        BlueprintPortrait blueprintPortrait = blueprintUnit.PortraitSafe;
 
 
                         //  Main.DebugLog("Getportrait() 2 "+ Path.Combine(portraitDirectoryPath, Main.mediumName));
                         bool enterHere = false;
 
-                    if ((portraitDirectoryPath == null) || (portraitDirectoryPath.Length == 0))
-                    {
-
-                        if (!Main.settings.AutoSecret && blueprintPortrait.Data.InitiativePortrait)
+                        if ((portraitDirectoryPath == null) || (portraitDirectoryPath.Length == 0))
                         {
-                            Directory.CreateDirectory(Path.Combine(Main.GetNpcPortraitsDirectory(), characterName, blueprintUnit.name));
-                            return true;
-                        }
-                        enterHere = true;
-                    }
-                    else
-                    {
-                        if (Main.settings.AutoBackup)
-                        {
-                            enterHere = !File.Exists(Path.Combine(portraitDirectoryPath, Main.GetDefaultPortraitsDirName(), Main.mediumName));
 
-                        }
-                    }
-
-
-
-
-
-                    if (enterHere)
-                    {
-                        //    Main.DebugLog("Getportrait() 3");
-
-
-
-                        if ((blueprintPortrait != null) && (blueprintPortrait.Data != null))
-                        {
-                            //      Main.DebugLog("Getportrait() 4");
-
-                            SpriteLink mHalfLengthImage = blueprintPortrait.Data.m_HalfLengthImage;
-
-                            if ((mHalfLengthImage != null) && (mHalfLengthImage.AssetId != null) && (mHalfLengthImage.AssetId.Length > 5))
+                            if (!Main.settings.AutoSecret && blueprintPortrait.Data.InitiativePortrait)
                             {
-                                //        Main.DebugLog("Getportrait() 5");
-
-
-
-                                Main.SaveOriginals(bup, Path.Combine(Main.GetNpcPortraitsDirectory(), characterName));
-                                Main.SaveOriginals(bup, Path.Combine(Main.GetNpcPortraitsDirectory(), characterName, blueprintUnit.name));
+                                Directory.CreateDirectory(Path.Combine(Main.GetNpcPortraitsDirectory(), characterName, blueprintUnit.name));
+                                return true;
+                            }
+                            enterHere = true;
+                        }
+                        else
+                        {
+                            if (Main.settings.AutoBackup)
+                            {
+                                enterHere = !File.Exists(Path.Combine(portraitDirectoryPath, Main.GetDefaultPortraitsDirName(), Main.mediumName));
 
                             }
                         }
-                    }
+
+
+
+
+
+                        if (enterHere && !characterName.Equals("Asty") && !characterName.Equals("Tran") && !characterName.Equals("Velhm"))
+                        {
+                            //  Main.DebugLog("Getportrait() 3");
+
+
+
+                            if ((blueprintPortrait != null) && (blueprintPortrait.Data != null))
+                            {
+                                // Main.DebugLog("Getportrait() 4");
+
+                                SpriteLink mHalfLengthImage = blueprintPortrait.Data.m_HalfLengthImage;
+
+                                if ((mHalfLengthImage != null) && (mHalfLengthImage.AssetId != null) && (mHalfLengthImage.AssetId.Length > 5))
+                                {
+                                    //    Main.DebugLog("Getportrait() 5");
+
+
+
+                                    Main.SaveOriginals(blueprintUnit, Path.Combine(Main.GetNpcPortraitsDirectory(), characterName));
+                                    if (characterName != blueprintUnit.name)
+                                        Main.SaveOriginals(blueprintUnit, Path.Combine(Main.GetNpcPortraitsDirectory(), characterName, blueprintUnit.name));
+
+                                }
+                            }
+                        }
 
 
 
@@ -237,38 +316,40 @@ namespace CustomNpcPortraits
 
                         portraitDirectoryPath = GetUnitPortraitPath(blueprintUnit, characterName);
 
-                    if (!Directory.Exists(portraitDirectoryPath))
-                    {
-                        return true;
+                        if (!Directory.Exists(portraitDirectoryPath))
+                        {
+                            return true;
+                        }
+
+
+
+                        if (File.Exists(Path.Combine(portraitDirectoryPath, Main.mediumName)))
+                        {
+                            //Main.DebugLog("Getportrait() loaded portrait for NPC " + characterName);
+                            //if (Main.settings.AutoBackup) Main.SaveOriginals(Game.Instance.DialogController.CurrentSpeakerBlueprint, portraitDirectoryPath);
+                            CustomPortraitsManager.Instance.Storage.Unload(Path.Combine(portraitDirectoryPath, "Medium.png"));
+
+                            PortraitData Data = new PortraitData(portraitDirectoryPath);
+                            Data.m_PetEyeImage = Game.Instance.DialogController.CurrentSpeakerBlueprint.PortraitSafe.Data.m_PetEyeImage;
+
+                            __result = Data;
+                            return false;
+                        }
+                        else
+                        {
+                            return true;
+                        }
+
                     }
 
 
 
-                    if (File.Exists(Path.Combine(portraitDirectoryPath, Main.mediumName)))
-                    {
-                        //Main.DebugLog("Getportrait() loaded portrait for NPC " + characterName);
-                        //if (Main.settings.AutoBackup) Main.SaveOriginals(Game.Instance.DialogController.CurrentSpeakerBlueprint, portraitDirectoryPath);
-                        CustomPortraitsManager.Instance.Storage.Unload(Path.Combine(portraitDirectoryPath, "Medium.png"));
-
-                        PortraitData Data = new PortraitData(portraitDirectoryPath);
-                        Data.m_PetEyeImage = Game.Instance.DialogController.CurrentSpeaker.Blueprint.PortraitSafe.Data.m_PetEyeImage;
-
-                        __result = Data;
-                        return false;
-                    }
-                    else
-                    {
-                        return true;
-                    }
+                    return true;
 
                 }
-
-
-
                 return true;
 
             }
-
             catch (Exception e)
             {
                 Main.DebugError(e);

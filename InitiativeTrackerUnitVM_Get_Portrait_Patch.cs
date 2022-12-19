@@ -9,6 +9,7 @@ using Kingmaker.UI._ConsoleUI.TurnBasedMode;
 using Kingmaker.Enums;
 using Owlcat.Runtime.UI;
 using Kingmaker.ResourceManagement;
+using Kingmaker.UI.MVVM._VM.TacticalCombat.InitiativeTracker;
 
 namespace CustomNpcPortraits
 {
@@ -29,6 +30,7 @@ namespace CustomNpcPortraits
                 return true;
             }
 
+
             UnitEntityData unit = __instance.Unit;
             if (unit == null)
             {
@@ -46,7 +48,25 @@ namespace CustomNpcPortraits
                     string portraitDirectoryPath = GetPortrait_Patch.GetUnitPortraitPath(__instance.Unit.Blueprint, characterName);
 
 
-                    if (portraitDirectoryPath.Length > 0)
+                    if (portraitDirectoryPath.Length == 0)
+                    {
+
+                        string portraitsDirectoryPath = Main.GetArmyPortraitsDirectory();
+                        string portraitDirectoryName = characterName;
+
+                        portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, portraitDirectoryName);
+
+                        if (characterName.Equals("Enemy Leader"))
+                        {
+
+                            portraitDirectoryPath = Path.Combine(portraitDirectoryPath, __instance.Unit.Blueprint.name);
+
+
+                        }
+
+                    }
+
+                        if (portraitDirectoryPath.Length > 0)
                     {
 
                         if (File.Exists(Path.Combine(portraitDirectoryPath, "Small.png")))
@@ -96,40 +116,6 @@ namespace CustomNpcPortraits
 
 
 
-
-        private static int[] DefaultPortraitsHashes;
-        public static bool TextureIsDefaultPortrait(Texture2D texture, PortraitType portraitType)
-        {
-            if (DefaultPortraitsHashes == null || DefaultPortraitsHashes.Length == 0)
-            {
-                DefaultPortraitsHashes = new int[] { GetPseudoHash(BlueprintRoot.Instance.CharGen.BasePortraitSmall.texture), GetPseudoHash(BlueprintRoot.Instance.CharGen.BasePortraitMedium.texture), GetPseudoHash(BlueprintRoot.Instance.CharGen.BasePortraitBig.texture) };
-            }
-            return GetPseudoHash(texture) == DefaultPortraitsHashes[(int)portraitType];
-        }
-
-
-
-        private static int GetPseudoHash(Texture2D texture)
-        {
-            int num = 100;
-            int num1 = texture.width * texture.height;
-            int num2 = num1 / num;
-            Color32[] pixels32 = texture.GetPixels32();
-            int num3 = -2128831035;
-            for (int i = 0; i < num1 - 1; i += num2)
-            {
-                Color32 color32 = pixels32[i];
-                num3 = (num3 ^ color32.r) * 16777619;
-                num3 = (num3 ^ color32.g) * 16777619;
-                num3 = (num3 ^ color32.b) * 16777619;
-            }
-            num3 = num3 + (num3 << 13);
-            num3 = num3 ^ num3 >> 7;
-            num3 = num3 + (num3 << 3);
-            num3 = num3 ^ num3 >> 17;
-            num3 = num3 + (num3 << 5);
-            return num3;
-        }
 
 
     }

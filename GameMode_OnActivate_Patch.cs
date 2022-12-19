@@ -25,7 +25,7 @@ namespace CustomNpcPortraits
                     Game.Instance.CurrentMode != GameModeType.Pause )
 
                 {
-                    Main.DebugLog("Refresh companion potraits called after GameModeType.Dialog. The current GameModeType is: " + Game.Instance.CurrentMode + ":");
+                    //Main.DebugLog("Refresh companion potraits called after GameModeType.Dialog. The current GameModeType is: " + Game.Instance.CurrentMode + ":");
 
                     Main.SafeLoad(new Action(Main.SetPortraits), "Apply custom portraits after dialog ended");
 

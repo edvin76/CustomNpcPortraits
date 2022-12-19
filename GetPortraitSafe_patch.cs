@@ -9,6 +9,7 @@ using Kingmaker.Blueprints;
 using Kingmaker.Blueprints.Root;
 using Kingmaker.GameModes;
 using Kingmaker.Localization;
+using Kingmaker.ResourceLinks;
 using UnityEngine.SceneManagement;
 
 namespace CustomNpcPortraits
@@ -21,17 +22,83 @@ namespace CustomNpcPortraits
 
         public static bool Prefix(BlueprintUnit __instance, ref BlueprintPortrait __result, BlueprintPortrait ___m_Portrait)
         {
-            //  Main.DebugLog("Getportraitsafe_patch()");
+            /*
+              Main.DebugLog("Getportraitsafe_patch()");
+            Main.DebugLog("GetPortraitSafe() : " + __instance.CharacterName);
+            Main.DebugLog("GetPortraitSafe() Game.Instance.CurrentMode : " + Game.Instance.CurrentMode);
+            Main.DebugLog("GetPortraitSafe() SceneManager.GetActiveScene().name : " + SceneManager.GetActiveScene().name);
+            */
+           // Main.DebugLog("__instance.CharacterName : " + __instance.CharacterName);
+
+
             if (!Main.enabled)
             {
                 return true;
             }
             try
             {
-
-                if (Game.Instance.CurrentMode == GameModeType.GlobalMap && !__instance.IsCompanion && !Main.pauseGetPortraitsafe)
+                if (Game.Instance.CurrentMode == GameModeType.Dialog)
                 {
-                    //Main.DebugLog("GetPortraitSafeGeneral() : " + characterName);
+
+                    if ((Game.Instance.DialogController.CurrentSpeakerName.Equals("Wirlong Black Mask") && __instance.CharacterName.Equals("Wirlong Black Mask")) ||
+                        (Game.Instance.DialogController.CurrentSpeakerName.Equals("Nulkineth") && __instance.CharacterName.Equals("Nulkineth")))
+                    {
+                        string characterName = __instance.CharacterName;
+
+                        string portraitsDirectoryPath = Main.GetNpcPortraitsDirectory();
+                        string portraitDirectoryName = characterName;
+
+                      //  string portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, portraitDirectoryName);
+                        string portraitDirectoryPath = GetPortrait_Patch.GetUnitPortraitPath(__instance, portraitDirectoryName);
+
+
+                        if (Main.settings.AutoBackup && !File.Exists(Path.Combine(portraitDirectoryPath, Main.GetDefaultPortraitsDirName(), Main.mediumName)))
+                        {
+                            if ((___m_Portrait != null) && (___m_Portrait.Data != null))
+                            {
+                                // Main.DebugLog("Getportrait() 4");
+
+                                SpriteLink mHalfLengthImage = ___m_Portrait.Data.m_HalfLengthImage;
+
+                                if ((mHalfLengthImage != null) && (mHalfLengthImage.AssetId != null) && (mHalfLengthImage.AssetId.Length > 5))
+                                {
+                                    //    Main.DebugLog("Getportrait() 5");
+
+
+
+                                    Main.SaveOriginals(__instance, Path.Combine(Main.GetNpcPortraitsDirectory(), characterName));
+                                    if (characterName != __instance.name)
+                                        Main.SaveOriginals(__instance, Path.Combine(Main.GetNpcPortraitsDirectory(), characterName, __instance.name));
+
+                                }
+                            }
+                        }
+
+
+                        Directory.CreateDirectory(portraitDirectoryPath);
+
+                        if (!File.Exists(Path.Combine(portraitDirectoryPath, "Medium.png")))
+                        {
+                            //  Main.SaveOriginals2(__result, portraitDirectoryPath);
+                            return true;
+                        }
+
+
+                        PortraitData Data = new PortraitData(portraitDirectoryPath);
+                        BlueprintPortrait bp = new BlueprintPortrait();
+
+                        bp.Data = Data;
+
+                        __result = bp;
+                        return false;
+
+
+                    }
+
+                }
+
+                if ((Game.Instance.CurrentMode == GameModeType.GlobalMap || Game.Instance.CurrentMode == GameModeType.TacticalCombat || Game.Instance.CurrentMode == GameModeType.Kingdom) && !__instance.IsCompanion && !Main.pauseGetPortraitsafe)
+                {
 
                     //var dirs = Directory.GetDirectories(Main.GetArmyPortraitsDirectory());
 
@@ -120,8 +187,8 @@ namespace CustomNpcPortraits
 
                     
 
-                    Main.DebugLog(__instance.name);
-                    Main.DebugLog(__instance.Name);
+             //       Main.DebugLog(__instance.name);
+             //       Main.DebugLog(__instance.Name);
 
                     Directory.CreateDirectory(portraitDirectoryPath);
                     Directory.CreateDirectory(Path.Combine(portraitDirectoryPath, "Game Default Portraits"));
