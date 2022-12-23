@@ -45,6 +45,26 @@ namespace CustomNpcPortraits
 
                     string characterName = __instance.Unit.CharacterName;
 
+                    if (characterName.Equals("Asty"))
+                    {
+                        //Main.SaveOriginals2(Game.Instance.DialogController.CurrentSpeaker.View.Blueprint.PortraitSafe.Data, Path.Combine(Main.GetNpcPortraitsDirectory(), characterName));
+                        //return true;
+                      //  if (Game.Instance.DialogController.CurrentSpeaker.View.name.ToLower().Contains("drow"))
+                            characterName = "Asty - Drow";
+
+                    }
+                    if (characterName.Equals("Velhm"))
+                    {
+                        //if (Game.Instance.DialogController.CurrentSpeaker.View.name.ToLower().Contains("drow"))
+                            characterName = "Velhm - Drow";
+
+                    }
+                    if (characterName.Equals("Tran"))
+                    {
+                       // if (Game.Instance.DialogController.CurrentSpeaker.View.name.ToLower().Contains("drow"))
+                            characterName = "Tran - Drow";
+
+                    }
                     string portraitDirectoryPath = GetPortrait_Patch.GetUnitPortraitPath(__instance.Unit.Blueprint, characterName);
 
 
