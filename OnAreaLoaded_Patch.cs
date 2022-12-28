@@ -24,7 +24,7 @@ namespace CustomNpcPortraits
                     GetPortrait_Patch.maxNenioFixRun = 0;
                 */
                 Main.prevMode = GameModeType.None;
-                Main.DebugLog("Refresh companion potraits called after arealoded.");
+               // Main.DebugLog("Refresh companion potraits called after arealoded.");
 
                 Main.SafeLoad(new Action(Main.SetPortraits), "Apply custom portraits after saved game loaded");
             }

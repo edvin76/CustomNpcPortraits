@@ -15,7 +15,7 @@ namespace CustomNpcPortraits
             //Main.prevMode = GameModeType.None;
             try
             {
-               Main.DebugLog("Refresh companion potraits called after addcompanion.");
+              // Main.DebugLog("Refresh companion potraits called after addcompanion.");
 
                 Main.SafeLoad(new Action(Main.SetPortraits), "Apply custom portraits after new companion added");
 

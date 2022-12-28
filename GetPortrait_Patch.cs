@@ -39,7 +39,7 @@ namespace CustomNpcPortraits
             try
             {
 
-               //  Main.DebugLog("Getportrait()"+__instance.Owner.CharacterName);
+              //  Main.DebugLog("Getportrait()"+__instance.Owner.CharacterName);
 
 
 
@@ -197,6 +197,21 @@ namespace CustomNpcPortraits
                             characterName = "Ciar - Undead";
 
                     }
+
+                    if (characterName.Equals("Queen Galfrey"))
+                    {
+                        if (Game.Instance.DialogController.CurrentSpeaker.Blueprint.Alignment.ToString().ToLower().Contains("evil"))
+                            characterName = "Queen Galfrey - Undead";
+
+                    }
+                    if (characterName.Equals("Staunton Vhane"))
+                    {
+                        if (Game.Instance.DialogController.CurrentSpeaker.Descriptor.IsUndead)
+                            characterName = "Staunton Vhane - Undead";
+
+                    }
+
+                    
                 }
 
             //    Main.DebugLog("we're NOT YET in for " + characterName);
@@ -217,17 +232,24 @@ namespace CustomNpcPortraits
                     if (Main.settings.ManageCompanions && (companion || Main.companions.Contains(characterName)))
                     {
                      //    Main.DebugLog("Getportrait() 1" + companion.ToString());
-                     //   Main.DebugLog("Getportrait() 3 " +characterName  +" - "+ Main.companions.Contains(characterName).ToString());
+                      //  Main.DebugLog("Getportrait() 3 " +characterName  +" - "+ Main.companions.Contains(characterName).ToString());
 
                         string prefix = Main.GetCompanionPortraitDirPrefix();
                         string portraitsDirectoryPath = Main.GetCompanionPortraitsDirectory();
                         string portraitDirectoryName = prefix + characterName;
                         string portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, portraitDirectoryName);
 
+
+
+                        if (Main.compCycle.Length > 1)
+                            portraitDirectoryPath = Path.Combine(Main.GetCompanionPortraitsDirectory(), portraitDirectoryName, Main.compCycle);
+
+
                         Directory.CreateDirectory(portraitDirectoryPath);
-                      
+
+
                         bool missing = false;
-                          //   Main.DebugLog("Getportrait() 4");
+                         //    Main.DebugLog("Getportrait() 4");
                         // Main.DebugLog(Main.PortraitFileNames[0]);
 
                         foreach (string fileName in Main.PortraitFileNames)
@@ -239,13 +261,13 @@ namespace CustomNpcPortraits
                             if(characterName != "Ciar" && !fileName.Contains("Fullength"))
                             if (!File.Exists(Path.Combine(portraitDirectoryPath, fileName)))
                             {
-                                      //     Main.DebugLog("Getportrait() 6");
+                                           Main.DebugLog("Getportrait() 6");
 
                                 missing = true;
                                 break;
                             }
                         }
-                            //  Main.DebugLog("Getportrait() 7");
+                        //     Main.DebugLog("Getportrait() 7");
 
                         if (!missing)
                         {
@@ -258,7 +280,7 @@ namespace CustomNpcPortraits
 
                             PortraitData Data = new PortraitData(portraitDirectoryPath);
                             Main.pauseGetPortraitsafe = true;
-                       //     Main.DebugLog("Getportrait() 8");
+                          //  Main.DebugLog("Getportrait() 8");
 
                             Data.m_PetEyeImage = Game.Instance.DialogController.CurrentSpeakerBlueprint.PortraitSafe.Data.m_PetEyeImage;
                             Main.pauseGetPortraitsafe = false;
@@ -275,15 +297,24 @@ namespace CustomNpcPortraits
                         }
                         else
                         {
-                            BlueprintPortrait blueprintPortrait = null;
+                             BlueprintPortrait blueprintPortrait = null;
                              if (characterName.Equals("Ciar - Undead"))
                                blueprintPortrait = Utilities.GetBlueprintByGuid<BlueprintPortrait>("dc2f02dd42cfe2b40923eb014591a009");
+
+                            if (characterName.Equals("Queen Galfrey - Undead"))
+                                blueprintPortrait = Utilities.GetBlueprintByGuid<BlueprintPortrait>("767456b1656ca064dadac544d39d7e40");
+
+                            if (characterName.Equals("Staunton Vhane - Undead"))
+                                blueprintPortrait = Utilities.GetBlueprintByGuid<BlueprintPortrait>("f4bbe08217bcaa54c91fe73bcea70ede");
 
                             if (characterName.Equals("Arueshalae - Evil"))
                                 blueprintPortrait = Utilities.GetBlueprintByGuid<BlueprintPortrait>("484588d56f2c2894ab6d48b91509f5e3");
 
                             if (characterName.Equals("NenioFox_Portrait"))
                                 blueprintPortrait = Utilities.GetBlueprintByGuid<BlueprintPortrait>("2b4b8a23024093e42a5db714c2f52dbc");
+
+                           // Main.DebugLog("8b");
+
 
                             if (blueprintPortrait == null)
                             {
@@ -297,14 +328,29 @@ namespace CustomNpcPortraits
 
                                 if (enterHere)
                                 {
+                                    Main.pauseGetPortraitsafe = true;
 
-                                    Main.SaveOriginals2(blueprintPortrait.Data, portraitDirectoryPath);
+                                    Main.SaveOriginals2(Game.Instance.DialogController.CurrentSpeakerBlueprint.PortraitSafe.Data, portraitDirectoryPath);
+                                    Main.pauseGetPortraitsafe = false;
+
                                 }
+
+                                //Main.DebugLog("9");
+                                Main.pauseGetPortraitsafe = true;
+
+                                __result = Game.Instance.DialogController.CurrentSpeakerBlueprint.PortraitSafe.Data;
+                                Main.pauseGetPortraitsafe = false;
+
+                                return false;
+                            }
+                            else
+                            {
+                               // Main.DebugLog("10");
+                                Main.SaveOriginals2(blueprintPortrait.Data, portraitDirectoryPath);
 
                                 __result = blueprintPortrait.Data;
                                 return false;
                             }
-
 
 
 
@@ -339,11 +385,13 @@ namespace CustomNpcPortraits
                         //  Main.DebugLog("Getportrait() 2 "+ Path.Combine(portraitDirectoryPath, Main.mediumName));
                         bool enterHere = false;
 
+                        Directory.CreateDirectory(Path.Combine(Main.GetNpcPortraitsDirectory(), characterName));
+                        if (characterName != blueprintUnit.name && !characterName.Equals("Asty - Drow") && !characterName.Equals("Tran - Drow") && !characterName.Equals("Velhm - Drow"))
+                            Directory.CreateDirectory(Path.Combine(Main.GetNpcPortraitsDirectory(), characterName, blueprintUnit.name));
+
                         if ((portraitDirectoryPath == null) || (portraitDirectoryPath.Length == 0))
                         {
-                            Directory.CreateDirectory(Path.Combine(Main.GetNpcPortraitsDirectory(), characterName));
-                            if (characterName != blueprintUnit.name && !characterName.Equals("Asty - Drow") && !characterName.Equals("Tran - Drow") && !characterName.Equals("Velhm - Drow"))
-                                Directory.CreateDirectory(Path.Combine(Main.GetNpcPortraitsDirectory(), characterName, blueprintUnit.name));
+
 
                             if (!Main.settings.AutoSecret && blueprintPortrait.Data.InitiativePortrait)
                             {
@@ -381,8 +429,8 @@ namespace CustomNpcPortraits
                                     //    Main.DebugLog("Getportrait() 5");
 
 
-
-                                    Main.SaveOriginals(blueprintUnit, Path.Combine(Main.GetNpcPortraitsDirectory(), characterName));
+                                    if (!characterName.Equals("Asty") && !characterName.Equals("Tran") && !characterName.Equals("Velhm"))
+                                        Main.SaveOriginals(blueprintUnit, Path.Combine(Main.GetNpcPortraitsDirectory(), characterName));
                                     if (characterName != blueprintUnit.name && !characterName.Equals("Asty - Drow") && !characterName.Equals("Tran - Drow") && !characterName.Equals("Velhm - Drow"))
                                         Main.SaveOriginals(blueprintUnit, Path.Combine(Main.GetNpcPortraitsDirectory(), characterName, blueprintUnit.name));
 
@@ -421,8 +469,12 @@ namespace CustomNpcPortraits
 
 
 
-
-                        portraitDirectoryPath = GetUnitPortraitPath(blueprintUnit, characterName);
+                        if (Main.npcCycle.Length > 1)
+                            portraitDirectoryPath = Path.Combine(Main.GetNpcPortraitsDirectory(), characterName, Main.npcCycle);
+                        else if (Main.npcSubCycle.Length > 1)
+                            portraitDirectoryPath = Path.Combine(Main.GetNpcPortraitsDirectory(), characterName, blueprintUnit.name, Main.npcSubCycle);
+                        else
+                            portraitDirectoryPath = GetUnitPortraitPath(blueprintUnit, characterName);
 
                         if (!Directory.Exists(portraitDirectoryPath))
                         {
@@ -564,9 +616,19 @@ namespace CustomNpcPortraits
                 string portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName);
                 string unitCharNameDirNames = Path.Combine(charcterNameDirectoryName);
 
+            
+            if (Directory.Exists(Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName, unitNameDirectoryName)) && Directory.GetFiles(Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName, unitNameDirectoryName), "*.current").Length != 0)
+            {
+                string[] dirs = Directory.GetFiles(Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName, unitNameDirectoryName), "*.current");
 
-                // Dovan From Nisroch/Dovan
-                if (File.Exists(Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName, unitNameDirectoryName, "Medium.png")))
+                string dir = Path.GetFileNameWithoutExtension(dirs[0]);
+                // Main.DebugLog(dir);
+                unitCharNameDirNames = Path.Combine(charcterNameDirectoryName, unitNameDirectoryName);
+                portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName, unitNameDirectoryName, dir);
+
+            }
+            // Dovan From Nisroch/Dovan
+            else if (File.Exists(Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName, unitNameDirectoryName, "Medium.png")))
                 {
 
                     unitCharNameDirNames = Path.Combine(charcterNameDirectoryName, unitNameDirectoryName);
@@ -588,8 +650,17 @@ namespace CustomNpcPortraits
                     portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName, charcterNameDirectoryName);
 
                 }
-                // all portraits/Oleg Leveton/medium.png
-                else if (File.Exists(Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName, "Medium.png")))
+            else if (Directory.GetFiles(Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName), "*.current").Length != 0)
+            {
+                string[] dirs = Directory.GetFiles(Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName), "*.current");
+
+                string dir = Path.GetFileNameWithoutExtension(dirs[0]);
+               // Main.DebugLog(dir);
+                unitCharNameDirNames = Path.Combine(charcterNameDirectoryName);
+                portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName, dir);
+
+            }                // all portraits/Oleg Leveton/medium.png
+            else if (File.Exists(Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName, "Medium.png")))
                 {
                     unitCharNameDirNames = Path.Combine(charcterNameDirectoryName);
                     portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName);
