@@ -125,8 +125,9 @@ namespace CustomNpcPortraits
 					tempList.AddRange(Game.Instance.Player.Party.Where<UnitEntityData>((UnitEntityData pc) => {
 						if (pc.IsMainCharacter || pc.IsPet)
 						{
-							return false;
+							return true;
 						}
+
 						return !pc.IsCustomCompanion();
 					}));
 					if (!tempList.Empty<UnitEntityData>())
