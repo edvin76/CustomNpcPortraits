@@ -25,14 +25,13 @@ namespace CustomNpcPortraits
 
         public static bool Prefix(BlueprintUnit __instance, ref BlueprintPortrait __result, BlueprintPortrait ___m_Portrait)
         {
-            Main.DebugLog("GetPortraitSafe() : " + __instance.CharacterName);
+           // Main.DebugLog("GetPortraitSafe() : " + __instance.CharacterName);
 
-            Main.DebugLog("GetPortraitSafe() SceneManager.GetActiveScene().name : " + SceneManager.GetActiveScene().name);
-            
-              Main.DebugLog("Game.Instance.CurrentMode : " + Game.Instance.CurrentMode);
+              // Main.DebugLog("GetPortraitSafe() SceneManager.GetActiveScene().name : " + SceneManager.GetActiveScene().name);
+                //              Main.DebugLog("Game.Instance.CurrentMode : " + Game.Instance.CurrentMode);
 
 
-            if (!Main.enabled && Main.pauseGetPortraitsafe)
+            if (!Main.enabled || Main.pauseGetPortraitsafe)
             {
                 return true;
             }
@@ -43,6 +42,7 @@ namespace CustomNpcPortraits
                 if ((Game.Instance.CurrentMode == GameModeType.GlobalMap || Game.Instance.CurrentMode == GameModeType.CutsceneGlobalMap)
 &&                        Main.companions.Contains(__instance.CharacterName))
                 {
+                    //Main.DebugLog("getportraitsafe: companion for quest panel on map");
                     string characterName = __instance.CharacterName.cleanCharname();
                     string prefix = Main.GetCompanionPortraitDirPrefix();
                     string portraitsDirectoryPath = Main.GetCompanionPortraitsDirectory();
@@ -56,7 +56,7 @@ namespace CustomNpcPortraits
 
 
                         }
-                        //Main.DebugLog(unitEntityData.View.Blueprint.Race.name);
+                       
                     }
 
                     if (characterName.Equals("Ciar"))
@@ -176,7 +176,7 @@ namespace CustomNpcPortraits
 
                     if (Main.settings.ManageCompanions && (Game.Instance.DialogController != null) && (Game.Instance.DialogController.CurrentSpeaker != null) && __instance.CharacterName.Equals("Nenio") && Game.Instance.DialogController.CurrentCue.AssetGuid.ToString().Equals("45450b2f327797e41bce701b91118cb4"))
                     {
-                               //              Main.DebugLog("GetportraitSafe we are in for Nenio renamed to NenioFox!");
+                       // Main.DebugLog("GetportraitSafe we are in for Nenio renamed to NenioFox!");
 
                         string characterName = "NenioFox_Portrait";
                         string prefix = Main.GetCompanionPortraitDirPrefix();
@@ -306,9 +306,13 @@ namespace CustomNpcPortraits
 
                 }
 
-                if ((Game.Instance.CurrentMode == GameModeType.CutsceneGlobalMap || Game.Instance.CurrentMode == GameModeType.GlobalMap || Game.Instance.CurrentMode == GameModeType.TacticalCombat || Game.Instance.CurrentMode == GameModeType.Kingdom) && !__instance.IsCompanion)
+                if ( ( Game.Instance.CurrentMode == GameModeType.CutsceneGlobalMap 
+                    || Game.Instance.CurrentMode == GameModeType.GlobalMap 
+                    || Game.Instance.CurrentMode == GameModeType.TacticalCombat 
+                    || Game.Instance.CurrentMode == GameModeType.Kingdom ) 
+                    && !__instance.IsCompanion)
                 {
-
+                   // Main.DebugLog("setportraits prefix Army");
                     //var dirs = Directory.GetDirectories(Main.GetArmyPortraitsDirectory());
 
                     // if (dirs.Contains(characterName))
@@ -384,8 +388,8 @@ namespace CustomNpcPortraits
 
                 if (Main.settings.AutoBackup && Game.Instance.CurrentMode == GameModeType.GlobalMap && !__instance.IsCompanion && !Main.pauseGetPortraitsafe)
                 {
-                    //Main.DebugLog("GetPortraitSafeGeneral() : " + characterName);
-
+                   // Main.DebugLog("GetPortraitSafeArmy() postfix: ");
+                    
                     //var dirs = Directory.GetDirectories(Main.GetArmyPortraitsDirectory());
 
                     // if (dirs.Contains(characterName))

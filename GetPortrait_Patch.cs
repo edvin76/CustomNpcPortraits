@@ -34,12 +34,32 @@ namespace CustomNpcPortraits
         // Token: 0x06000053 RID: 83 RVA: 0x00005694 File Offset: 0x00003894
         public static bool Prefix(UnitUISettings __instance, ref PortraitData __result, BlueprintPortrait ___m_Portrait, BlueprintPortrait ___m_CustomPortrait)
         {
-            if (!Main.enabled)
+            //Game.Instance.ReloadUI();
+
+            
+
+        //    Main.DebugLog("Getportrait() " +__instance.Owner.Unit.CharacterName);
+
+         //   Main.DebugLog("Getportrait() " + __instance.Owner.IsMainCharacter.ToString() +" - "+ Main.areaLoaded.ToString());
+            //if ((__instance.Owner.IsMainCharacter  /*|| Main.companions.Contains(__instance.Owner.Unit.CharacterName) */|| (Game.Instance.CurrentMode != GameModeType.Dialog && Game.Instance.CurrentMode != GameModeType.Cutscene)) && Main.areaLoaded && __instance.Owner.Unit.CharacterName != "Player Character")
+            if((Game.Instance.Player.AllCharacters.Contains(__instance.Owner.Unit) || Main.companions.Contains(__instance.Owner.Unit.CharacterName))&& Main.areaLoaded && __instance.Owner.Unit.CharacterName != "Player Character")
+            {
+
+               // Main.DebugLog("We are in all set for " + __instance.Owner.Unit.CharacterName);
+                __result = Main.SetPortrait(__instance.Owner.Unit);
+                        //Main.SetPortrait(__instance.Owner.Unit);
+                        if (__result != null)
+                        return false;
+                    else
+                    return true;
+             }
+
+
+            if (!Main.enabled || Main.isSetPortrait)
                 return true;
             try
             {
 
-              //  Main.DebugLog("Getportrait()"+__instance.Owner.CharacterName);
 
 
 
@@ -47,15 +67,17 @@ namespace CustomNpcPortraits
 
                 if (Game.Instance == null || Game.Instance.DialogController == null || Game.Instance.DialogController.CurrentSpeakerBlueprint == null || Game.Instance.DialogController.CurrentSpeakerBlueprint.CharacterName == null)
                 {
-                    //   Main.DebugLog("Getportrait() CurrentSpeakerBlueprint == null");
-
+//Main.DebugLog("Getportrait() CurrentSpeakerBlueprint == null");
+                   // return true;
                 }
                 else
                 {
-                 //    Main.DebugLog("Getportrait() CurrentSpeakerBlueprint != null");
+  //                   Main.DebugLog("Getportrait() CurrentSpeakerBlueprint != null");
 
 
                 }
+
+                /*
                 if (Game.Instance.CurrentMode != GameModeType.Dialog && Game.Instance.CurrentMode != GameModeType.Cutscene)
                 {
 
@@ -74,9 +96,10 @@ namespace CustomNpcPortraits
 
 
                 }
+                */
+              //  Main.DebugLog("__instance.Owner.CharacterName : " + __instance.Owner.CharacterName);
 
                 /*
-                Main.DebugLog("__instance.Owner.CharacterName : " + __instance.Owner.CharacterName);
                 Main.DebugLog("CurrentSpeakerBlueprint.CharacterName : " + Game.Instance.DialogController.CurrentSpeakerBlueprint.CharacterName);
                 if (Game.Instance.DialogController.CurrentCue.Listener != null)
                 Main.DebugLog("CurrentCue.Listener.CharacterName : " + Game.Instance.DialogController.CurrentCue.Listener.CharacterName);
@@ -100,17 +123,21 @@ namespace CustomNpcPortraits
                 }
                 //    Main.DebugLog("Getportrait() CurrentSpeakerBlueprint != null");
 
-                string characterName = __instance.Owner.CharacterName;
+           //     Main.DebugLog("dialog instance : we are in" );
 
-                if (Game.Instance.DialogController.CurrentSpeakerName != null && Game.Instance.DialogController.CurrentSpeakerName.Length > 0)
-                    characterName = Game.Instance.DialogController.CurrentSpeakerName;   
-                
-                else if (Game.Instance.DialogController.CurrentSpeaker.CharacterName != null && Game.Instance.DialogController.CurrentSpeaker.CharacterName.Length > 0)
-                    characterName = Game.Instance.DialogController.CurrentSpeaker.CharacterName;
+                string characterName = __instance.Owner.Unit.CharacterName;
 
-                else if (Game.Instance.DialogController.CurrentSpeakerBlueprint != null && Game.Instance.DialogController.CurrentSpeakerBlueprint.CharacterName.Length > 0)
-                    characterName = Game.Instance.DialogController.CurrentSpeakerBlueprint.CharacterName;
-                
+                if (!Game.Instance.Player.ActiveCompanions.Contains(__instance.Owner.Unit) && !Game.Instance.Player.RemoteCompanions.Contains(__instance.Owner.Unit))
+                {
+                    if (Game.Instance.DialogController.CurrentSpeakerName != null && Game.Instance.DialogController.CurrentSpeakerName.Length > 0)
+                        characterName = Game.Instance.DialogController.CurrentSpeakerName;
+
+                    else if (Game.Instance.DialogController.CurrentSpeaker.CharacterName != null && Game.Instance.DialogController.CurrentSpeaker.CharacterName.Length > 0)
+                        characterName = Game.Instance.DialogController.CurrentSpeaker.CharacterName;
+
+                    else if (Game.Instance.DialogController.CurrentSpeakerBlueprint != null && Game.Instance.DialogController.CurrentSpeakerBlueprint.CharacterName.Length > 0)
+                        characterName = Game.Instance.DialogController.CurrentSpeakerBlueprint.CharacterName;
+                }
 
                 //__instance.Owner.CharacterName;
 
@@ -214,9 +241,9 @@ namespace CustomNpcPortraits
                     
                 }
 
-            //    Main.DebugLog("we're NOT YET in for " + characterName);
+                //Main.DebugLog("we're NOT YET in for " + characterName);
 
-                if (!__instance.Owner.IsMainCharacter || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Wirlong Black Mask")/* ||Game.Instance.DialogController.CurrentSpeakerName.Equals("Nenio"))*/&& (Game.Instance.DialogController.CurrentCue.Speaker.Blueprint.CharacterName != Game.Instance.Player.GetMainPartyUnit().CharacterName)))
+                if (!__instance.Owner.Unit.IsMainCharacter || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Wirlong Black Mask")/* ||Game.Instance.DialogController.CurrentSpeakerName.Equals("Nenio"))*/&& (Game.Instance.DialogController.CurrentCue.Speaker.Blueprint.CharacterName != Game.Instance.Player.GetMainPartyUnit().CharacterName)))
                 {
               //        Main.DebugLog("we're in for " + characterName);
                     //  return true;
@@ -225,14 +252,14 @@ namespace CustomNpcPortraits
                         characterName = "NenioFox_Portrait";
 
 
+                    //bool companion = Game.Instance.Player.ActiveCompanions.Contains(__instance.Owner.Unit) || Game.Instance.Player.RemoteCompanions.Contains(__instance.Owner.Unit);
+                    //bool companion = Game.Instance.DialogController.CurrentSpeakerBlueprint.IsCompanion;
 
-                    bool companion = Game.Instance.DialogController.CurrentSpeakerBlueprint.IsCompanion;
 
-
-                    if (Main.settings.ManageCompanions && (companion || Main.companions.Contains(characterName)))
+                    if (Main.settings.ManageCompanions && (Game.Instance.Player.ActiveCompanions.Contains(__instance.Owner.Unit) || Game.Instance.Player.RemoteCompanions.Contains(__instance.Owner.Unit)))
                     {
                      //    Main.DebugLog("Getportrait() 1" + companion.ToString());
-                      //  Main.DebugLog("Getportrait() 3 " +characterName  +" - "+ Main.companions.Contains(characterName).ToString());
+                    //   Main.DebugLog("Getportrait() 3 " +characterName  +" - "+ Main.companions.Contains(characterName).ToString());
 
                         string prefix = Main.GetCompanionPortraitDirPrefix();
                         string portraitsDirectoryPath = Main.GetCompanionPortraitsDirectory();
@@ -261,13 +288,13 @@ namespace CustomNpcPortraits
                             if(characterName != "Ciar" && !fileName.Contains("Fullength"))
                             if (!File.Exists(Path.Combine(portraitDirectoryPath, fileName)))
                             {
-                                           Main.DebugLog("Getportrait() 6");
+                                         //  Main.DebugLog("Getportrait() 6");
 
                                 missing = true;
                                 break;
                             }
                         }
-                        //     Main.DebugLog("Getportrait() 7");
+                         //    Main.DebugLog("Getportrait() 7");
 
                         if (!missing)
                         {
@@ -280,15 +307,15 @@ namespace CustomNpcPortraits
 
                             PortraitData Data = new PortraitData(portraitDirectoryPath);
                             Main.pauseGetPortraitsafe = true;
-                          //  Main.DebugLog("Getportrait() 8");
+                         //   Main.DebugLog("Getportrait() 8");
 
                             Data.m_PetEyeImage = Game.Instance.DialogController.CurrentSpeakerBlueprint.PortraitSafe.Data.m_PetEyeImage;
                             Main.pauseGetPortraitsafe = false;
-//Main.DebugLog("Getportrait() 9");
+                        //Main.DebugLog("Getportrait() 9");
 
 
                             __result = Data;
-                       //     Main.DebugLog("Getportrait() loaded portrait for Companion " + characterName);
+                      //      Main.DebugLog("Getportrait() loaded portrait for Companion " + characterName);
 
                            // Main.DebugLog("are we");
 
@@ -313,7 +340,7 @@ namespace CustomNpcPortraits
                             if (characterName.Equals("NenioFox_Portrait"))
                                 blueprintPortrait = Utilities.GetBlueprintByGuid<BlueprintPortrait>("2b4b8a23024093e42a5db714c2f52dbc");
 
-                           // Main.DebugLog("8b");
+                        //    Main.DebugLog("8b");
 
 
                             if (blueprintPortrait == null)
@@ -335,7 +362,7 @@ namespace CustomNpcPortraits
 
                                 }
 
-                                //Main.DebugLog("9");
+                            //    Main.DebugLog("9");
                                 Main.pauseGetPortraitsafe = true;
 
                                 __result = Game.Instance.DialogController.CurrentSpeakerBlueprint.PortraitSafe.Data;
@@ -345,7 +372,7 @@ namespace CustomNpcPortraits
                             }
                             else
                             {
-                               // Main.DebugLog("10");
+                            //   Main.DebugLog("10");
                                 Main.SaveOriginals2(blueprintPortrait.Data, portraitDirectoryPath);
 
                                 __result = blueprintPortrait.Data;
@@ -359,30 +386,37 @@ namespace CustomNpcPortraits
 
 
                     }
-                    else if (!companion && !Main.companions.Contains(characterName))// Npc
+                    else if (!Game.Instance.Player.ActiveCompanions.Contains(__instance.Owner.Unit) && !Game.Instance.Player.RemoteCompanions.Contains(__instance.Owner.Unit))// Npc
                     {
 
 
-                        //    Main.DebugLog("Getportrait() 2");
+                      //    Main.DebugLog("Getportrait() 2b");
                         //string portraitsDirectoryPath = Main.GetNpcPortraitsDirectory();
                         //string portraitDirectoryName = characterName;
                         //string portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, portraitDirectoryName);
                         BlueprintUnit blueprintUnit = Game.Instance.DialogController.CurrentSpeakerBlueprint;
+
+                    ////    Main.DebugLog("Getportrait() 3b");
+
                         string portraitDirectoryPath = GetUnitPortraitPath(blueprintUnit, characterName);
 
+                    //    Main.DebugLog("Getportrait() 4b");
 
 
 
                         if (Game.Instance.DialogController.CurrentCue.Speaker.Blueprint != null)
                         {
+                    //        Main.DebugLog("Getportrait() 5b");
+
                             blueprintUnit = Game.Instance.DialogController.CurrentCue.Speaker.Blueprint;
                         }
-                        //Main.DebugLog("bup: "+bup.name);
+
+                  //      Main.DebugLog("6b");
 
                         BlueprintPortrait blueprintPortrait = blueprintUnit.PortraitSafe;
 
 
-                        //  Main.DebugLog("Getportrait() 2 "+ Path.Combine(portraitDirectoryPath, Main.mediumName));
+                    //      Main.DebugLog("Getportrait() 2 "+ Path.Combine(portraitDirectoryPath, Main.mediumName));
                         bool enterHere = false;
 
                         Directory.CreateDirectory(Path.Combine(Main.GetNpcPortraitsDirectory(), characterName));
@@ -414,19 +448,20 @@ namespace CustomNpcPortraits
 
                         if (enterHere && !characterName.Equals("Asty") && !characterName.Equals("Tran") && !characterName.Equals("Velhm"))
                         {
-                            //   Main.DebugLog("Getportrait() 3");
+                   //            Main.DebugLog("Getportrait() 3");
 
 
 
                             if ((blueprintPortrait != null) && (blueprintPortrait.Data != null))
                             {
-                                // Main.DebugLog("Getportrait() 4");
+                     //            Main.DebugLog("Getportrait() 4");
 
                                 SpriteLink mHalfLengthImage = blueprintPortrait.Data.m_HalfLengthImage;
 
                                 if ((mHalfLengthImage != null) && (mHalfLengthImage.AssetId != null) && (mHalfLengthImage.AssetId.Length > 5))
                                 {
-                                    //    Main.DebugLog("Getportrait() 5");
+                       
+                                    //Main.DebugLog("Getportrait() 5");
 
 
                                     if (!characterName.Equals("Asty") && !characterName.Equals("Tran") && !characterName.Equals("Velhm"))
@@ -551,7 +586,7 @@ namespace CustomNpcPortraits
                         // {
                         //       if (typeof(DialogSpeaker).GetField("m_SpeakerPortrait", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(Game.Instance.DialogController.CurrentCue.Speaker) != null)
                         //     {
-                        Main.DebugLog("------------------------------------here");
+                     //   Main.DebugLog("------------------------------------here");
 
 
                         typeof(DialogSpeaker).GetField("m_SpeakerPortrait", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(Game.Instance.DialogController.CurrentCue.Speaker, null);
@@ -624,8 +659,10 @@ namespace CustomNpcPortraits
                 string dir = Path.GetFileNameWithoutExtension(dirs[0]);
                 // Main.DebugLog(dir);
                 unitCharNameDirNames = Path.Combine(charcterNameDirectoryName, unitNameDirectoryName);
-                portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName, unitNameDirectoryName, dir);
-
+                if (!dir.Equals("root"))
+                    portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName, unitNameDirectoryName, dir);
+                else
+                    portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName, unitNameDirectoryName);
             }
             // Dovan From Nisroch/Dovan
             else if (File.Exists(Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName, unitNameDirectoryName, "Medium.png")))
@@ -650,14 +687,18 @@ namespace CustomNpcPortraits
                     portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName, charcterNameDirectoryName);
 
                 }
-            else if (Directory.GetFiles(Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName), "*.current").Length != 0)
+            else if (Directory.Exists(Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName)) && Directory.GetFiles(Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName), "*.current").Length != 0)
             {
                 string[] dirs = Directory.GetFiles(Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName), "*.current");
 
                 string dir = Path.GetFileNameWithoutExtension(dirs[0]);
                // Main.DebugLog(dir);
                 unitCharNameDirNames = Path.Combine(charcterNameDirectoryName);
-                portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName, dir);
+                if (!dir.Equals("root"))
+                    portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName, dir);
+                else
+                    portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName);
+
 
             }                // all portraits/Oleg Leveton/medium.png
             else if (File.Exists(Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName, "Medium.png")))

@@ -17,7 +17,7 @@ namespace CustomNpcPortraits
             
             try
             {
-                // Main.DebugLog("prevMode:" + Main.prevMode);
+               //  Main.DebugLog("prevMode:" + Main.prevMode);
                 if (Main.prevMode == GameModeType.Dialog &&
                     Game.Instance.CurrentMode != GameModeType.Cutscene
                     /*Game.Instance.CurrentMode != GameModeType.BugReport &&
@@ -26,9 +26,9 @@ namespace CustomNpcPortraits
                     Game.Instance.CurrentMode != GameModeType.Pause*/ )
 
                 {
-                    Main.DebugLog("Refresh companion potraits called after GameModeType.Dialog. The current GameModeType is: " + Game.Instance.CurrentMode + ":");
+                    //Main.DebugLog("Refresh companion potraits called after GameModeType.Dialog. The current GameModeType is: " + Game.Instance.CurrentMode + ":");
 
-                   Main.SafeLoad(new Action(Main.SetPortraits), "Apply custom portraits after dialog ended");
+                  // Main.SafeLoad(new Action(Main.SetPortraits), "Apply custom portraits after dialog ended");
 
 
                     //Main.DebugLog("SetPortraits()");
