@@ -25,9 +25,9 @@ namespace CustomNpcPortraits
 
         public static bool Prefix(BlueprintUnit __instance, ref BlueprintPortrait __result, BlueprintPortrait ___m_Portrait)
         {
-           // Main.DebugLog("GetPortraitSafe() : " + __instance.CharacterName);
+            Main.DebugLog("GetPortraitSafe() : " + __instance.CharacterName);
 
-              // Main.DebugLog("GetPortraitSafe() SceneManager.GetActiveScene().name : " + SceneManager.GetActiveScene().name);
+          //    Main.DebugLog("GetPortraitSafe() SceneManager.GetActiveScene().name : " + SceneManager.GetActiveScene().name);
                 //              Main.DebugLog("Game.Instance.CurrentMode : " + Game.Instance.CurrentMode);
 
 
@@ -36,7 +36,7 @@ namespace CustomNpcPortraits
                 return true;
             }
 
-
+            Main.DebugLog("GetPortraitSafe() 1");
             try
             {
                 if ((Game.Instance.CurrentMode == GameModeType.GlobalMap || Game.Instance.CurrentMode == GameModeType.CutsceneGlobalMap)
@@ -170,13 +170,14 @@ namespace CustomNpcPortraits
                 }
 
 
-
+                Main.DebugLog("GetPortraitSafe() 2");
                 if (Game.Instance.CurrentMode == GameModeType.Cutscene || Game.Instance.CurrentMode == GameModeType.Dialog)
                 {
-
+                    Main.DebugLog("GetPortraitSafe() 3");
                     if (Main.settings.ManageCompanions && (Game.Instance.DialogController != null) && (Game.Instance.DialogController.CurrentSpeaker != null) && __instance.CharacterName.Equals("Nenio") && Game.Instance.DialogController.CurrentCue.AssetGuid.ToString().Equals("45450b2f327797e41bce701b91118cb4"))
                     {
-                       // Main.DebugLog("GetportraitSafe we are in for Nenio renamed to NenioFox!");
+                        // Main.DebugLog("GetportraitSafe we are in for Nenio renamed to NenioFox!");
+                        Main.DebugLog("GetPortraitSafe() 4");
 
                         string characterName = "NenioFox_Portrait";
                         string prefix = Main.GetCompanionPortraitDirPrefix();
@@ -241,16 +242,21 @@ namespace CustomNpcPortraits
                         }
 
                     }
+                    Main.DebugLog("GetPortraitSafe() 5");
 
                     if ((Game.Instance.DialogController.CurrentSpeakerName.Equals("Wirlong Black Mask") && __instance.CharacterName.Equals("Wirlong Black Mask")) 
                        || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Nulkineth") && __instance.CharacterName.Equals("Nulkineth"))
                        || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Langrat Messini") && __instance.CharacterName.Equals("Langrat Messini"))
                        || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Terta") && __instance.CharacterName.Equals("Terta"))
+                       || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Baphomet Cultist") && __instance.CharacterName.Equals("Baphomet Cultist"))
+                       || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Eagle Watch Crusader") && __instance.CharacterName.Equals("Eagle Watch Crusader"))
+
 
                        )
                     {
+                        Main.DebugLog("GetPortraitSafe() 6");
 
-                        
+
                         string characterName = __instance.CharacterName;
 
                         string portraitsDirectoryPath = Main.GetNpcPortraitsDirectory();
@@ -303,16 +309,17 @@ namespace CustomNpcPortraits
 
                     }
 
-
                 }
-
+                Main.DebugLog("GetPortraitSafe() 7");
                 if ( ( Game.Instance.CurrentMode == GameModeType.CutsceneGlobalMap 
                     || Game.Instance.CurrentMode == GameModeType.GlobalMap 
                     || Game.Instance.CurrentMode == GameModeType.TacticalCombat 
                     || Game.Instance.CurrentMode == GameModeType.Kingdom ) 
                     && !__instance.IsCompanion)
                 {
-                   // Main.DebugLog("setportraits prefix Army");
+                    Main.DebugLog("GetPortraitSafe() 8");
+
+                    // Main.DebugLog("setportraits prefix Army");
                     //var dirs = Directory.GetDirectories(Main.GetArmyPortraitsDirectory());
 
                     // if (dirs.Contains(characterName))
@@ -345,6 +352,7 @@ namespace CustomNpcPortraits
                     return false;
 
                 }
+                
                 else
                 {
 
@@ -375,6 +383,9 @@ namespace CustomNpcPortraits
 
         public static void Postfix(BlueprintUnit __instance, ref BlueprintPortrait __result, BlueprintPortrait ___m_Portrait)
         {
+           // Main.DebugLog(__instance.CharacterName);
+          //  Main.DebugLog(___m_CustomPortrait?.name);
+
             if (!Main.enabled)
             {
                 return;

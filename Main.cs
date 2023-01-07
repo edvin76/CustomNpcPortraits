@@ -2356,7 +2356,7 @@ namespace CustomNpcPortraits
 		public static bool isSetPortrait = false;
 		public static PortraitData SetPortrait(UnitEntityData unitEntityData)
 		{
-			//Main.DebugLog("SetPortrait(!!!!!!!) "+ unitEntityData.CharacterName);
+			Main.DebugLog("SetPortrait(!!!!!!!) "+ unitEntityData.CharacterName);
 
 			try
 			{
@@ -2376,6 +2376,8 @@ namespace CustomNpcPortraits
 					//Main.DebugLog(unitEntityData.View.Blueprint.Race.name);
 				}
 
+		//		Main.DebugLog("SetPortrait() 1");
+
 				if (characterName.Equals("Ciar"))
 				{
 					if (unitEntityData.View.Blueprint.Alignment.ToString().ToLower().Contains("evil"))
@@ -2383,6 +2385,7 @@ namespace CustomNpcPortraits
 
 				}
 
+			//	Main.DebugLog("SetPortrait() 2");
 				if (characterName.Equals("Queen Galfrey"))
 				{
 					if (unitEntityData.View.Blueprint.Alignment.ToString().ToLower().Contains("evil"))
@@ -2390,14 +2393,14 @@ namespace CustomNpcPortraits
 
 				}
 
-
+		//		Main.DebugLog("SetPortrait() 3");
 				if (characterName.Equals("Staunton Vhane"))
 				{
 					if (unitEntityData.Descriptor.IsUndead)
 						characterName = "Staunton Vhane - Undead";
 
 				}
-
+			//	Main.DebugLog("SetPortrait() 4");
 
 				//AscendingSuccubus
 				/*}
@@ -2428,7 +2431,7 @@ namespace CustomNpcPortraits
 					characterName = "NenioFox_Portrait";
 				}
 
-
+			//	Main.DebugLog("SetPortrait() 5");
 				string portraitDirectoryName = prefix + characterName;
 
 				string portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, portraitDirectoryName);
@@ -2437,7 +2440,7 @@ namespace CustomNpcPortraits
 
 
 
-
+		//		Main.DebugLog("SetPortrait() 6");
 
 
 				//Main.DebugLog("SetPortrait() 1");
@@ -2447,7 +2450,7 @@ namespace CustomNpcPortraits
 				BlueprintPortrait blueprintPortrait  = (BlueprintPortrait)typeof(UnitUISettings).GetField("m_Portrait", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(unitEntityData.Descriptor.UISettings);
 
 				BlueprintPortrait oldBp = blueprintPortrait;
-					//Main.DebugLog("SetPortrait() 2");
+	//				Main.DebugLog("SetPortrait() 7");
 
 				if (blueprintPortrait != null)
 					if (Main.settings.AutoBackup)
@@ -2519,7 +2522,12 @@ namespace CustomNpcPortraits
 					else
 					data.m_PetEyeImage = blueprintPortrait.Data.m_PetEyeImage;
 
-				//		Main.DebugLog("SetPortrait() 8");
+					//		Main.DebugLog("SetPortrait() 8");
+
+					typeof(UnitUISettings).GetField("m_CustomPortrait", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(unitEntityData.UISettings, data);
+					//typeof(string).GetField("m_CustomPortraitId", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(unitEntityData.UISettings, blueprintPortrait.Data);
+
+					typeof(UnitUISettings).GetField("m_Portrait", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(unitEntityData.UISettings, null);
 
 					return data;
 
@@ -2595,9 +2603,14 @@ namespace CustomNpcPortraits
 
 					Main.pauseGetPortraitsafe = true;
 					data.m_PetEyeImage = unitEntityData.Descriptor.Blueprint.PortraitSafe.Data.m_PetEyeImage;
+					blueprintPortrait.Data.m_PetEyeImage = unitEntityData.Descriptor.Blueprint.PortraitSafe.Data.m_PetEyeImage;
 					Main.pauseGetPortraitsafe = false;
 					//	Main.DebugLog("SetPortrait() no custom portrait");
 
+					typeof(UnitUISettings).GetField("m_CustomPortrait", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(unitEntityData.UISettings, null);
+					//typeof(string).GetField("m_CustomPortraitId", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(unitEntityData.UISettings, blueprintPortrait.Data);
+
+					typeof(UnitUISettings).GetField("m_Portrait", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(unitEntityData.UISettings, blueprintPortrait);
 					return data;
 					//isSetPortrait = true;
 					//unitEntityData.Descriptor.UISettings.SetPortrait(blueprintPortrait);
@@ -2822,10 +2835,10 @@ Main.DebugLog("SetPortrait() 5");
 						//unitEntityData.UISettings.SetPortrait(blueprintPortrait);
 
 						//typeof(UnitUISettings).GetField("m_CustomPortrait", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(unitEntityData.UISettings, blueprintPortrait.Data);
+						//typeof(UnitUISettings).GetField("m_Portrait", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(unitEntityData.UISettings, null);
 
 						//Main.DebugLog("SetPortrait() 11");
-					
-						//typeof(UnitUISettings).GetField("m_Portrait", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(unitEntityData.UISettings, null);
+
 
 						//Main.DebugLog("SetPortrait() 12");
 

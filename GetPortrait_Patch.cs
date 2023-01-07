@@ -38,11 +38,13 @@ namespace CustomNpcPortraits
 
             
 
-        //    Main.DebugLog("Getportrait() " +__instance.Owner.Unit.CharacterName);
+           Main.DebugLog("Getportrait() " + __instance.Owner.CharacterName);
+           // return true;
 
-         //   Main.DebugLog("Getportrait() " + __instance.Owner.IsMainCharacter.ToString() +" - "+ Main.areaLoaded.ToString());
+         //   Main.DebugLog("Getp
+         //   ortrait() " + __instance.Owner.IsMainCharacter.ToString() +" - "+ Main.areaLoaded.ToString());
             //if ((__instance.Owner.IsMainCharacter  /*|| Main.companions.Contains(__instance.Owner.Unit.CharacterName) */|| (Game.Instance.CurrentMode != GameModeType.Dialog && Game.Instance.CurrentMode != GameModeType.Cutscene)) && Main.areaLoaded && __instance.Owner.Unit.CharacterName != "Player Character")
-            if((Game.Instance.Player.AllCharacters.Contains(__instance.Owner.Unit) || Main.companions.Contains(__instance.Owner.Unit.CharacterName))&& Main.areaLoaded && __instance.Owner.Unit.CharacterName != "Player Character")
+            if((Game.Instance.Player.AllCharacters.Contains(__instance.Owner.Unit) || Main.companions.Contains(__instance.Owner.Unit.CharacterName)) /*&& Main.areaLoaded */&& __instance.Owner.Unit.CharacterName != "Player Character")
             {
 
                // Main.DebugLog("We are in all set for " + __instance.Owner.Unit.CharacterName);
@@ -245,7 +247,7 @@ namespace CustomNpcPortraits
 
                 if (!__instance.Owner.Unit.IsMainCharacter || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Wirlong Black Mask")/* ||Game.Instance.DialogController.CurrentSpeakerName.Equals("Nenio"))*/&& (Game.Instance.DialogController.CurrentCue.Speaker.Blueprint.CharacterName != Game.Instance.Player.GetMainPartyUnit().CharacterName)))
                 {
-              //        Main.DebugLog("we're in for " + characterName);
+                      Main.DebugLog("we're in for " + characterName);
                     //  return true;
 
                     if(Game.Instance.DialogController.CurrentCue.AssetGuid.ToString().Equals("45450b2f327797e41bce701b91118cb4"))
@@ -416,7 +418,7 @@ namespace CustomNpcPortraits
                         BlueprintPortrait blueprintPortrait = blueprintUnit.PortraitSafe;
 
 
-                    //      Main.DebugLog("Getportrait() 2 "+ Path.Combine(portraitDirectoryPath, Main.mediumName));
+                          Main.DebugLog("Getportrait() 2 "+ Path.Combine(portraitDirectoryPath, Main.mediumName));
                         bool enterHere = false;
 
                         Directory.CreateDirectory(Path.Combine(Main.GetNpcPortraitsDirectory(), characterName));
@@ -448,20 +450,20 @@ namespace CustomNpcPortraits
 
                         if (enterHere && !characterName.Equals("Asty") && !characterName.Equals("Tran") && !characterName.Equals("Velhm"))
                         {
-                   //            Main.DebugLog("Getportrait() 3");
+                               Main.DebugLog("Getportrait() 3");
 
 
 
                             if ((blueprintPortrait != null) && (blueprintPortrait.Data != null))
                             {
-                     //            Main.DebugLog("Getportrait() 4");
+                                 Main.DebugLog("Getportrait() 4");
 
                                 SpriteLink mHalfLengthImage = blueprintPortrait.Data.m_HalfLengthImage;
 
                                 if ((mHalfLengthImage != null) && (mHalfLengthImage.AssetId != null) && (mHalfLengthImage.AssetId.Length > 5))
                                 {
                        
-                                    //Main.DebugLog("Getportrait() 5");
+                                    Main.DebugLog("Getportrait() 5");
 
 
                                     if (!characterName.Equals("Asty") && !characterName.Equals("Tran") && !characterName.Equals("Velhm"))
@@ -563,6 +565,10 @@ namespace CustomNpcPortraits
 
         public static void Postfix(UnitUISettings __instance, ref PortraitData __result, BlueprintPortrait ___m_Portrait, BlueprintPortrait ___m_CustomPortrait)
         {
+            //Main.DebugLog(__instance.Owner.Unit.CharacterName);
+          //  Main.DebugLog(___m_Portrait?.name);
+           // Main.DebugLog(___m_CustomPortrait?.name);
+
             if (!Main.enabled)
             {
                 return;
