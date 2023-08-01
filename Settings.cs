@@ -6,6 +6,19 @@ namespace CustomNpcPortraits
 	public class Settings : UnityModManager.ModSettings
 	{
 
+		public bool RightverseGroupPortraits = true;
+
+
+		public bool ArueHalo = false;
+
+		public bool EmberHalo = false;
+
+		public bool ArueHaloAdded = false;
+
+		public bool EmberHaloAdded = false;
+
+		public bool DollroomHalo = true;
+
 		public bool AutoBackup = true;
 
 		public bool AutoSecret = true;

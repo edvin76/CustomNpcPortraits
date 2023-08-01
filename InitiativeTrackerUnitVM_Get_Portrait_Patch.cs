@@ -102,8 +102,11 @@ namespace CustomNpcPortraits
 
                                 PortraitData pdata = new PortraitData(portraitDirectoryPath);
 
+                                Main.pauseGetPortraitsafe = true;
+
                                 pdata.m_PetEyeImage = __instance.Unit.Blueprint.PortraitSafe.Data.m_PetEyeImage;
 
+                                Main.pauseGetPortraitsafe = false;
 
 
                                 //Main.DebugLog("huh 3 " + Path.Combine(portraitDirectoryPath, "Small.png"));

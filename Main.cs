@@ -58,9 +58,97 @@ using Kingmaker.UI.Common;
 using Kingmaker.UI.MVVM;
 using Kingmaker.UI.MVVM._VM.Party;
 using Kingmaker.UI.FullScreenUITypes;
+using Kingmaker.UI.ServiceWindow;
+using Kingmaker.Visual.CharacterSystem;
+using Kingmaker.UnitLogic.Parts;
+using Kingmaker.Controllers;
+using Kingmaker.UnitLogic.ActivatableAbilities;
+using Kingmaker.UnitLogic.Buffs.Blueprints;
+using Kingmaker.UnitLogic.Buffs;
+using Kingmaker.UnitLogic.Mechanics;
+using Kingmaker.Visual.Particles.FxSpawnSystem;
+using Kingmaker.Visual.Particles;
+using Owlcat.Runtime.Core.Physics.PositionBasedDynamics;
+using Kingmaker.Visual.Trails;
+using UnityEngine.Rendering;
+using Kingmaker.Visual.Decals;
+using System.Drawing;
+using Kingmaker.UI.MVVM._PCView.InGame;
+using Kingmaker.Visual;
+using Kingmaker.Blueprints.Items.Equipment;
+using static Kingmaker.Blueprints.Items.BlueprintItem;
+using Kingmaker.Blueprints.Items.Ecnchantments;
+using Kingmaker.UnitLogic.FactLogic;
+using Kingmaker.Blueprints.Classes.Selection;
+using Kingmaker.Designers.Mechanics.EquipmentEnchants;
+using Kingmaker.Enums;
+using Kingmaker.ResourceManagement;
+using Kingmaker.UI.MVVM._PCView.ServiceWindows.CharacterInfo.Sections.NameAndPortrait;
+using Kingmaker.UI.MVVM._PCView.ServiceWindows.CharacterInfo;
+using Kingmaker.UI.MVVM._VM.ServiceWindows.CharacterInfo;
+using Kingmaker.UI.Group;
 
 namespace ExtensionMethods
 {
+
+
+
+	public class PortraitLoader
+	{
+
+		// Loosely based on https://forum.unity.com/threads/generating-sprites-dynamically-from-png-or-jpeg-files-in-c.343735/
+		public static class Image2Sprite
+		{
+			public static string icons_folder = "";
+			public static Sprite Create(string filePath, Vector2Int size, TextureFormat format)
+			{
+				
+				var bytes = File.ReadAllBytes(icons_folder + filePath);
+				var texture = new Texture2D(size.x, size.y, format, false);
+				texture.mipMapBias = 15.0f;
+				_ = texture.LoadImage(bytes);
+				return Sprite.Create(texture, new Rect(0, 0, size.x, size.y), new Vector2(0, 0));
+			}
+		}
+
+		public static PortraitData LoadPortraitData(string imageFolderPath)
+		{
+			//var imageFolderPath = Path.Combine(ModSettings.ModEntry.Path, "Assets", "Portraits");
+			var smallImagePath = Path.Combine(imageFolderPath, $"Small.png");
+			var mediumImagePath = Path.Combine(imageFolderPath, $"Medium.png");
+			var fullImagePath = Path.Combine(imageFolderPath, $"FullLength.png");
+			var smallPortraitHandle = new CustomPortraitHandle(smallImagePath, PortraitType.SmallPortrait, CustomPortraitsManager.Instance.Storage)
+			{
+				Request = new SpriteLoadingRequest(smallImagePath)
+				{
+					Resource = Image2Sprite.Create(smallImagePath, new Vector2Int(184, 242), TextureFormat.RGBA32)
+				}
+			};
+			var mediumPortraitHandle = new CustomPortraitHandle(mediumImagePath, PortraitType.HalfLengthPortrait, CustomPortraitsManager.Instance.Storage)
+			{
+				Request = new SpriteLoadingRequest(mediumImagePath)
+				{
+					Resource = Image2Sprite.Create(mediumImagePath, new Vector2Int(330, 432), TextureFormat.RGBA32)
+				}
+			};
+			var fullPortraitHandle = new CustomPortraitHandle(fullImagePath, PortraitType.FullLengthPortrait, CustomPortraitsManager.Instance.Storage)
+			{
+				Request = new SpriteLoadingRequest(fullImagePath)
+				{
+					Resource = Image2Sprite.Create(fullImagePath, new Vector2Int(692, 1024), TextureFormat.RGBA32)
+				}
+			};
+			return new PortraitData(imageFolderPath)
+			{
+				SmallPortraitHandle = smallPortraitHandle,
+				HalfPortraitHandle = mediumPortraitHandle,
+				FullPortraitHandle = fullPortraitHandle,
+				PortraitCategory = PortraitCategory.None,
+				IsDefault = false,
+				InitiativePortrait = false
+			};
+		}
+	}
 	public static class MyExtensions
 	{
 		public static int WordCount(this string str)
@@ -70,7 +158,9 @@ namespace ExtensionMethods
 		}
 
 		public static string cleanCharname(this string filename)
-		{
+		{ 
+			
+			
 			string invalid = new string(Path.GetInvalidFileNameChars()) + new string(Path.GetInvalidPathChars());
 
 			foreach (char c in invalid)
@@ -97,6 +187,268 @@ namespace ExtensionMethods
 namespace CustomNpcPortraits
 {
 
+	[Harmony12.HarmonyPatch(typeof(Polymorph), "OnDeactivate", MethodType.Normal)]
+	public static class Polymorph_OnDeactivate_Patch
+	{
+		// Token: 0x06000053 RID: 83 RVA: 0x00005694 File Offset: 0x00003894
+		public static void Postfix(Polymorph __instance)
+		{
+			//return;
+			//Main.DebugLog("OnDeactivate");
+			string characterName = __instance.Owner.CharacterName;
+			if (characterName.Equals("Nenio"))
+			{
+				characterName = "NenioFox_Portrait";
+
+
+				string prefix = Main.GetCompanionPortraitDirPrefix();
+				string portraitsDirectoryPath = Main.GetCompanionPortraitsDirectory();
+				string portraitDirectoryName = prefix + characterName;
+
+				//Main.DebugLog("1 - " + Path.Combine(portraitsDirectoryPath, portraitDirectoryName));
+				string portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, portraitDirectoryName);
+
+				if (Directory.Exists(portraitDirectoryPath))
+				{
+					if (Directory.GetFiles(portraitDirectoryPath, "*.current").Length != 0)
+					{
+						string[] dirs = Directory.GetFiles(portraitDirectoryPath, "*.current");
+
+						string dir = Path.GetFileNameWithoutExtension(dirs[0]);
+						//Main.DebugLog(dir);
+						if (!dir.Equals("root"))
+							portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, portraitDirectoryName, dir);
+						//Main.DebugLog(portraitDirectoryPath);
+					}
+
+
+					if (File.Exists(Path.Combine(portraitDirectoryPath, "Medium.png")))
+					{
+						//Main.DebugLog("Poly: " + portraitDirectoryPath);
+						PortraitData Data = new PortraitData(portraitDirectoryPath);
+						BlueprintPortrait bp = new BlueprintPortrait();
+
+						bp.Data = Data;
+
+						Main.pauseGetPortraitsafe = true;
+						__instance.Owner.UISettings.SetPortrait(bp);
+						Main.pauseGetPortraitsafe = false;
+
+
+					}
+				}
+			}
+			return;
+		}
+	}
+	[Harmony12.HarmonyPatch(typeof(Polymorph), "OnActivate", MethodType.Normal)]
+	public static class Polymorph_OnActivate_Patch
+	{
+		// Token: 0x06000053 RID: 83 RVA: 0x00005694 File Offset: 0x00003894
+		public static void Postfix(Polymorph __instance)
+		{
+			//return;
+			Main.DebugLog("OnActivate");
+
+
+
+			string characterName = __instance.Owner.CharacterName;
+			if (characterName.Equals("Nenio"))
+			{
+
+
+
+				string prefix = Main.GetCompanionPortraitDirPrefix();
+				string portraitsDirectoryPath = Main.GetCompanionPortraitsDirectory();
+				string portraitDirectoryName = prefix + characterName;
+
+				//Main.DebugLog("1 - " + Path.Combine(portraitsDirectoryPath, portraitDirectoryName));
+				string portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, portraitDirectoryName);
+
+				if (Directory.Exists(portraitDirectoryPath))
+				{
+					if (Directory.GetFiles(portraitDirectoryPath, "*.current").Length != 0)
+					{
+						string[] dirs = Directory.GetFiles(portraitDirectoryPath, "*.current");
+
+						string dir = Path.GetFileNameWithoutExtension(dirs[0]);
+						//Main.DebugLog(dir);
+						if (!dir.Equals("root"))
+							portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, portraitDirectoryName, dir);
+						//Main.DebugLog(portraitDirectoryPath);
+					}
+
+
+					if (File.Exists(Path.Combine(portraitDirectoryPath, "Medium.png")))
+					{
+
+
+						//	Main.DebugLog("Poly: " + portraitDirectoryPath);
+						PortraitData Data = new PortraitData(Path.Combine(portraitDirectoryPath));
+
+
+
+						//var portrait = ResourcesLibrary.TryGetBlueprint<BlueprintPortrait>("a6e4ff25a8da46a44a24ecc5da296073");
+						var buff = ResourcesLibrary.TryGetBlueprint<BlueprintBuff>("a13e2e71485901045b1722824019d6f5");
+
+						var poly = buff.ComponentsArray.OfType<Polymorph>().FirstOrDefault();
+
+
+						BlueprintPortrait bp2 = poly.m_Portrait;
+
+						bp2.Data = Data;
+						poly.m_Portrait = bp2.ToReference<BlueprintPortraitReference>();
+
+
+
+
+						BlueprintPortrait bp = new BlueprintPortrait();
+
+						bp.Data = Data;
+
+
+
+
+						//	__instance.m_Portrait = bp.ToReference<BlueprintPortraitReference>();
+
+						//	__instance.Owner.UISettings.SetOverridePortrait(bp);
+
+						Main.pauseGetPortraitsafe = true;
+						__instance.Owner.UISettings.SetPortrait(bp);
+						Main.pauseGetPortraitsafe = false;
+
+					}
+				}
+			}
+			return;
+		}
+	}
+
+
+	public static class Helpers
+	{
+		public static void SetComponents(this BlueprintScriptableObject obj, params BlueprintComponent[] components)
+		{
+			string name;
+			HashSet<string> names = new HashSet<string>();
+			BlueprintComponent[] blueprintComponentArray = components;
+			for (int num = 0; num < (int)blueprintComponentArray.Length; num++)
+			{
+				BlueprintComponent c = blueprintComponentArray[num];
+				if (string.IsNullOrEmpty(c.name))
+				{
+					c.name = string.Concat("$", c.GetType().Name);
+				}
+				if (!names.Add(c.name))
+				{
+					int i = 0;
+					while (true)
+					{
+						string str = string.Format("{0}${1}", c.name, i);
+						name = str;
+						if (names.Add(str))
+						{
+							break;
+						}
+						i++;
+					}
+					c.name = name;
+				}
+			}
+			obj.ComponentsArray = components;
+		}
+
+		public static T[] AppendToArray<T>(this T[] array, T value)
+		{
+			int len = (int)array.Length;
+			T[] result = new T[len + 1];
+			Array.Copy(array, result, len);
+			result[len] = value;
+			return result;
+		}
+
+		public static T Create<T>(Action<T> init = null)
+		where T : new()
+		{
+			T result = Activator.CreateInstance<T>();
+			if (init != null)
+			{
+				init(result);
+			}
+			return result;
+		}
+
+		public static void AddComponent<T>(this BlueprintScriptableObject obj, Action<T> init = null)
+  where T : BlueprintComponent, new()
+		{
+			obj.SetComponents(obj.ComponentsArray.AppendToArray<BlueprintComponent>(Helpers.Create<T>(init)));
+		}
+
+		private static Dictionary<string, LocalizedString> textToLocalizedString;
+
+		static Helpers()
+		{
+			Helpers.textToLocalizedString = new Dictionary<string, LocalizedString>();
+		}
+		public static LocalizedString CreateString(string key, string value)
+		{
+			LocalizedString localizedString;
+			LocalizationPack.StringEntry stringEntry;
+			if (Helpers.textToLocalizedString.TryGetValue(value, out localizedString))
+			{
+				return localizedString;
+			}
+			Dictionary<string, LocalizationPack.StringEntry> mStrings = LocalizationManager.CurrentPack.m_Strings;
+			if (mStrings.TryGetValue(key, out stringEntry))
+			{
+				bool flag = value != stringEntry.Text;
+			}
+			mStrings[key] = new LocalizationPack.StringEntry()
+			{
+				Text = value
+			};
+			localizedString = new LocalizedString()
+			{
+				m_Key = key
+			};
+			Helpers.textToLocalizedString[value] = localizedString;
+			return localizedString;
+		}
+
+
+
+
+	}
+	public static class AssetLoader
+	{
+
+		public static Sprite LoadInternal(string folder, string file)
+		{
+			return AssetLoader.Image2Sprite.Create(Path.Combine(folder, file));
+		}
+		
+		public static class Image2Sprite
+		{
+			
+			public static string icons_folder;
+
+			static Image2Sprite()
+			{
+				
+				AssetLoader.Image2Sprite.icons_folder = "";
+			}
+
+			public static Sprite Create(string filePath)
+			{
+				byte[] bytes = File.ReadAllBytes(string.Concat(AssetLoader.Image2Sprite.icons_folder, filePath));
+				Texture2D texture2D = new Texture2D(64, 64, TextureFormat.DXT5, false);
+				texture2D.LoadImage(bytes);
+				return Sprite.Create(texture2D, new Rect(0f, 0f, 64f, 64f), new Vector2(0f, 0f));
+			}
+		}
+	}
+
+	/*
 	[HarmonyPatch(typeof(PortraitData), "get_PetEyePortrait")]
 	public static class EyePortraitInjecotr
 	{
@@ -108,12 +460,465 @@ namespace CustomNpcPortraits
 			return true;
 		}
 	}
+	*/
 
+	[HarmonyPatch(typeof(SelectionCharacterController), nameof(SelectionCharacterController.GetGroup), new Type[] { typeof(bool), typeof(bool) } )]
+	public static class GetGroup_Patch
+	{
+		public static bool Prefix(ref List<UnitEntityData> __result, bool withRemote, bool withoutPets)
+		{
+			if (!Main.enabled || !Main.settings.RightverseGroupPortraits)
+				return true;
+
+			List<UnitEntityData> list = Game.Instance.Player.Party.ToList<UnitEntityData>();
+
+			if (withoutPets)
+			{
+				list.RemoveAll(c => c.IsPet);
+			}
+			else
+			{
+				list.AddRange(Game.Instance.Player.Party
+					.Where(c => c.IsPet && c.Master != null)
+					.ToList());
+			}
+
+			if (withRemote)
+			{
+				list.AddRange(Game.Instance.Player.RemoteCompanions.ToList<UnitEntityData>());
+
+
+				if (withoutPets)
+				{
+					list.RemoveAll(c => c.IsPet);
+				}
+				else
+				{
+					list.AddRange(Game.Instance.Player.AllCharacters
+						.Where(c => c.IsPet && c.Master != null
+									&& (c.Master.Get<UnitPartCompanion>().State == CompanionState.Remote
+										|| c.Master.Get<UnitPartCompanion>().State == CompanionState.InParty))
+						.ToList());
+				}
+			}
+			__result = list;
+			return false;
+		}
+
+		/*
+		public static bool Prefix(ref List<UnitEntityData> __result, bool withRemote, bool withoutPets)
+		{
+			if (Main.enabled && Main.settings.RightverseGroupPortraits)
+			{
+				List<UnitEntityData> list = Game.Instance.Player.Party.ToList<UnitEntityData>();
+				if (withRemote)
+				{
+					List<UnitEntityData> unitEntityDatas = Game.Instance.Player.RemoteCompanions.ToList<UnitEntityData>();
+					//unitEntityDatas.Reverse();
+					list.AddRange(unitEntityDatas);
+					if (withoutPets)
+					{
+						list.RemoveAll((UnitEntityData c) => c.IsPet);
+					}
+					else
+					{
+						foreach (UnitEntityData unitEntityDatum1 in Game.Instance.Player.AllCharacters.Where<UnitEntityData>((UnitEntityData c) =>
+						{
+							CompanionState? nullable;
+							CompanionState companionState;
+							CompanionState? nullable1;
+							CompanionState? nullable2;
+							bool valueOrDefault;
+							CompanionState? nullable3;
+							bool flag;
+							if (c.IsPet)
+							{
+								UnitEntityData master = c.Master;
+								if (master != null)
+								{
+									UnitPartCompanion unitPartCompanion = master.Get<UnitPartCompanion>();
+									if (unitPartCompanion != null)
+									{
+										nullable2 = new CompanionState?(unitPartCompanion.State);
+									}
+									else
+									{
+										nullable1 = null;
+										nullable2 = nullable1;
+									}
+									nullable = nullable2;
+									companionState = CompanionState.Remote;
+									valueOrDefault = nullable.GetValueOrDefault() == companionState & nullable.HasValue;
+								}
+								else
+								{
+									valueOrDefault = false;
+								}
+								if (!valueOrDefault)
+								{
+									UnitEntityData unitEntityDatum = c.Master;
+									if (unitEntityDatum != null)
+									{
+										UnitPartCompanion unitPartCompanion1 = unitEntityDatum.Get<UnitPartCompanion>();
+										if (unitPartCompanion1 != null)
+										{
+											nullable3 = new CompanionState?(unitPartCompanion1.State);
+										}
+										else
+										{
+											nullable1 = null;
+											nullable3 = nullable1;
+										}
+										nullable = nullable3;
+										companionState = CompanionState.InParty;
+										flag = nullable.GetValueOrDefault() == companionState & nullable.HasValue;
+									}
+									else
+									{
+										flag = false;
+									}
+									if (!flag)
+									{
+
+										return false;
+									}
+								}
+								return !list.Contains(c);
+							}
+							return false;
+						}))
+						{
+							list.Add(unitEntityDatum1);
+						}
+					}
+				}
+				else if (withoutPets)
+				{
+					list.RemoveAll((UnitEntityData c) => c.IsPet);
+				}
+				else
+				{
+					foreach (UnitEntityData unitEntityDatum2 in
+						from c in Game.Instance.Player.PartyAndPets
+						where c.IsPet
+						select c)
+					{
+						list.Add(unitEntityDatum2);
+					}
+				}
+				__result = list;
+				return false;
+			}
+			else
+				return true;
+		}
+		*/
+	}
+
+	//UnitHelper.AddBuff(__instance.GetAvatar()., LightHaloBuff, __instance.Unit);
+
+	/*
+	foreach (ActivatableAbility a in __instance.Unit.ActivatableAbilities.RawFacts)
+	{
+
+
+		Main.DebugLog(a.Name +" - "+a.IsActive + " - ");
+	}
+		*/
+
+
+	//var LightHaloFeature = ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("d3f14f00f675a6341a41d2194186835c");
+	//LightHaloBuff.FxOnStart
+	//__instance.Unit.GetFeature(LightHaloFeature).Activate();
+
+
+
+
+	[HarmonyPatch(typeof(DollRoom), "UpdateCharacter")]
+	public static class DollRoomHalo
+	{
+		public static void Postfix(DollRoom __instance)
+		{
+			if (Main.enabled && Main.settings.DollroomHalo)
+			{
+				if (__instance.Unit != null && !__instance.Unit.CharacterName.IsNullOrEmpty() && __instance.Unit.CharacterName.Equals("Arueshalae") )
+				{
+					/*
+					//whole body holy lights
+					buffs.Add(ResourcesLibrary.TryGetBlueprint<BlueprintBuff>("2370ee24b03d4cd3b2eb346b7a1a18c0"));
+					//triangle halo
+					buffs.Add(ResourcesLibrary.TryGetBlueprint<BlueprintBuff>("840bbe624d7dad4439199aa2dc410b1a"));
+					//lighthalo
+					buffs.Add(ResourcesLibrary.TryGetBlueprint<BlueprintBuff>("0b1c9d2964b042e4aadf1616f653eb95"));
+					//devil horns
+					buffs.Add(ResourcesLibrary.TryGetBlueprint<BlueprintBuff>("d0649010d93907745a44034ad6eeeb5e"));
+					//demon eyes
+					buffs.Add(ResourcesLibrary.TryGetBlueprint<BlueprintBuff>("5f2faadfbe412fd41b2823f70f5820df"));
+					// electric halo
+					buffs.Add(ResourcesLibrary.TryGetBlueprint<BlueprintBuff>("00ca55e6c8dc07142807e40da6e3b13f"));
+					 */
+
+
+					//BlueprintBuff LightHaloBuff = ResourcesLibrary.TryGetBlueprint<BlueprintBuff>(Main.bpbuffs[Main.k].AssetGuid);
+					BlueprintBuff LightHaloBuff = ResourcesLibrary.TryGetBlueprint<BlueprintBuff>("0b1c9d2964b042e4aadf1616f653eb95");
+
+					Main.dollRoomxtraFxBrightness = false;
+
+					//foreach (BlueprintBuff buff in Main.buffs)
+					//{
+						if (__instance.Unit.HasFact(LightHaloBuff))
+						{
+							
+							//UIUtility.SendWarning("yes");
+							//MechanicsContext mechanicsContext = new MechanicsContext(__instance.Unit, __instance.Unit, LightHaloBuff, null, null);
+							//__instance.Unit.Facts.Add<Buff>(new Buff(LightHaloBuff, mechanicsContext, null));
+
+							var fxHandle = FxHelper.SpawnFxOnGameObject(LightHaloBuff.FxOnStart.Load(), __instance.GetAvatar().gameObject, true, null, default(Vector3), 1f, FxPriority.EventuallyImportant);
+							__instance.GetAvatar().m_AdditionalFXs.Add(fxHandle);
+
+							Main.fxHandles.Add(LightHaloBuff.AssetGuid.ToString(),fxHandle);
+
+
+							fxHandle.RunAfterSpawn(new Action<GameObject>(DollRoom.UnscaleFxTimes));
+
+		
+						}
+						else
+						{
+							//UIUtility.SendWarning("no");
+							IFxHandle value;
+							if (Main.fxHandles.TryGetValue(LightHaloBuff.AssetGuid.ToString(), out value))
+							{
+								FxHelper.Destroy(value, true);
+								Main.fxHandles.Remove(LightHaloBuff.AssetGuid.ToString());
+							}
+						}
+					//}
+				}
+			}
+			return;
+		}
+	}
+
+
+	[HarmonyPatch(typeof(DollCamera), nameof(DollCamera.OnEnable))]
+	internal static class DollCamera_OnEnable
+	{
+		static void Postfix(DollCamera __instance)
+		{
+			//if(Main.dollRoomxtraFxBrightness)
+			if (!Main.settings.DollroomHalo) return;
+
+			__instance.GetComponentInChildren<UnityEngine.Rendering.Volume>().gameObject.SetActive(false);
+		}
+	}
+
+
+
+
+
+	[HarmonyPatch(typeof(Character), nameof(Character.ApplyAdditionalVisualSettings))]
+	static class Character_ApplyAdditionalVisualSettings
+	{
+		static void Postfix(Character __instance)
+		{
+
+			
+			if (!__instance.IsInDollRoom) return;
+			if (!Main.settings.DollroomHalo) return;
+
+			//var LightHaloFeature = ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("8fb2ee1d545f46f2be5b33bdcdd5f138");
+
+#if DEBUG
+			/*
+			if (Main.k > -1 && Main.k < 1070)
+			{
+				if (Main.bpbuffs != null && Main.bpbuffs.Count() > 0 && Main.bpbuffs[Main.k] != null)
+				{
+					BlueprintBuff LightHaloBuff = ResourcesLibrary.TryGetBlueprint<BlueprintBuff>(Main.bpbuffs[Main.k].AssetGuid);
+					var fxPrefab = LightHaloBuff.FxOnStart;
+
+					//var fxPrefab = ResourcesLibrary.TryGetBlueprint<BlueprintBuff>("840bbe624d7dad4439199aa2dc410b1a").FxOnStart;
+
+					var fxHandle = FxHelper.SpawnFxOnGameObject(fxPrefab.Load(), __instance.gameObject, partySource: true);
+
+					__instance.m_AdditionalFXs.Add(fxHandle);
+
+					fxHandle.RunAfterSpawn(gameObject =>
+					{
+						DollRoom.UnscaleFxTimes(gameObject);
+
+					});
+				}
+			}
+			*/
+#endif
+
+			//Main.DebugLog(__instance.name);
+			UnitEntityData result;
+			//foreach (BlueprintBuff buff in Main.buffs)
+			//{
+				BlueprintBuff LightHaloBuff = ResourcesLibrary.TryGetBlueprint<BlueprintBuff>("0b1c9d2964b042e4aadf1616f653eb95");
+				if (Game.Instance.Player.Party.TryFind(u => __instance.name.Contains(u.CharacterName), out result))
+					if (result.HasFact(LightHaloBuff))
+					{
+						//Main.DebugLog("yee");
+						//
+						var fxPrefab2 = LightHaloBuff.FxOnStart;
+
+						//var fxPrefab = ResourcesLibrary.TryGetBlueprint<BlueprintBuff>("840bbe624d7dad4439199aa2dc410b1a").FxOnStart;
+
+						var fxHandle2 = FxHelper.SpawnFxOnGameObject(fxPrefab2.Load(), __instance.gameObject, partySource: true);
+						__instance.m_AdditionalFXs.Add(fxHandle2);
+
+						fxHandle2.RunAfterSpawn(gameObject =>
+						{
+							/*
+							//electric halo
+							if (buff.AssetGuid.ToString() == "00ca55e6c8dc07142807e40da6e3b13f")
+							{
+								Main.dollRoomxtraFxBrightness = true;
+
+								gameObject.transform.Find("Root_PalmLeft").gameObject.SetActive(false);
+
+								var haloObject = gameObject.transform.Find("Head_Back1").gameObject;
+
+								var lockAxis = haloObject.transform.Find("LockAxis").gameObject;
+
+								// Billboard is a component, so we deactivate it with the 'enabled' property
+								lockAxis.GetComponent<Billboard>().enabled = false;
+								haloObject.GetComponent<SnapToLocator>().Locator.CameraOffset = 0;
+
+								lockAxis.transform.localRotation = Quaternion.Euler(347, 180, 0);
+								lockAxis.transform.localPosition = new Vector3(0, 0.04f, -0.15f);
+								lockAxis.transform.localScale = new Vector3(1, 0.8f, -0.8f);
+
+								//lockAxis.ForAllChildren(c =>
+								//	{
+								//	if (c == lockAxis) return;
+
+								//		c.transform.localRotation = Quaternion.Euler(0, 270, 0);
+								//	c.transform.localPosition = new Vector3(-0.15f, 0.05f, 0);
+
+								//	});
+							}
+							*/
+
+							//light halo
+							//if (buff.AssetGuid.ToString() == "0b1c9d2964b042e4aadf1616f653eb95")
+							//{
+								//Main.dollRoomxtraFxBrightness = true;
+							
+							/*
+								var lightObject = gameObject.GetComponentInChildren<Light>().gameObject;
+								var lightObjectCopy = UnityEngine.Object.Instantiate(lightObject);
+
+								lightObjectCopy.transform.parent = lightObject.transform.parent.parent;
+
+								lightObjectCopy.SetActive(true);
+							
+							*/
+							//}
+
+
+							//
+
+							DollRoom.UnscaleFxTimes(gameObject);
+
+						});
+					}
+					else
+					{
+						//UIUtility.SendWarning("no");
+						IFxHandle value;
+						if (Main.fxHandles.TryGetValue(LightHaloBuff.AssetGuid.ToString(), out value))
+						{
+						//	Main.DebugLog("destroyed");
+
+							FxHelper.Destroy(value, true);
+							Main.fxHandles.Remove(LightHaloBuff.AssetGuid.ToString());
+						}
+					}
+			//}
+
+
+
+
+		}
+	}
+
+	/*
+	[HarmonyPatch(typeof(Character), nameof(Character.ApplyAdditionalVisualSettings))]
+	static class Character_ApplyAdditionalVisualSettings
+	{
+		static void Postfix(Character __instance)
+		{
+			if (!__instance.IsInDollRoom) return;
+
+			//var fxPrefab = Blueprints.AasimarHaloBuff.GetBlueprint().FxOnStart;
+			//halo
+			//var fxPrefab_ = ResourcesLibrary.TryGetBlueprint<BlueprintBuff>("0b1c9d2964b042e4aadf1616f653eb95").FxOnStart;
+
+			//horns
+			//var fxPrefab = ResourcesLibrary.TryGetBlueprint<BlueprintBuff>("d0649010d93907745a44034ad6eeeb5e").FxOnStart;
+
+
+			//demon eyes
+			//var fxPrefab = ResourcesLibrary.TryGetBlueprint<BlueprintBuff>("5f2faadfbe412fd41b2823f70f5820df").FxOnStart;
+
+			// electric halo
+			var fxPrefab = ResourcesLibrary.TryGetBlueprint<BlueprintBuff>("00ca55e6c8dc07142807e40da6e3b13f").FxOnStart;
+
+			//weird light face mask
+			//var fxPrefab = ResourcesLibrary.TryGetBlueprint<BlueprintBuff>("db2522aaf66d67c4a93986fcb411e6c7").FxOnStart;
+			
+
+			var fxHandle = FxHelper.SpawnFxOnGameObject(fxPrefab.Load(), __instance.gameObject, partySource: true);
+
+			__instance.m_AdditionalFXs.Add(fxHandle);
+
+			fxHandle.RunAfterSpawn(gameObject =>
+			{
+
+
+
+
+
+
+
+
+				gameObject.GetComponentInChildren<Billboard>().gameObject.SetActive(false);
+
+				DollRoom.UnscaleFxTimes(gameObject); 
+				
+				gameObject.GetComponent<SnapToLocator>().Locator.CameraOffset = 0;
+
+
+
+			});
+
+//			var inGamePCView = Game.Instance.RootUiContext.m_UIView.GetComponent<InGamePCView>();
+
+	//		__instance.GetComponentInChildren<Kingmaker.Visual.Particles.SnapToLocator>().Locator.CameraOffset = 0;
+
+
+	//		var head =
+//	inGamePCView?.GetComponentsInChildren<PooledFx>()?.Select(c => c.name == "Head_1");
+
+		}
+	}
+	*/
 #if DEBUG
 	[EnableReloading]
 #endif
 	public static class Main
 	{
+		public static List<BlueprintBuff> buffs = new List<BlueprintBuff>();
+
+		//public static IFxHandle fxHandle;
+		public static bool dollRoomxtraFxBrightness = false;
+		public static Dictionary<string, IFxHandle> fxHandles = new Dictionary<string, IFxHandle>();
+
 		[HarmonyPatch(typeof(LoadingScreenPCView), "SetupLoadingArea")]
 		public static class LoadingScreenPCView_Patch
 		{
@@ -121,10 +926,10 @@ namespace CustomNpcPortraits
 				LoadingScreenPCView __instance, 
 				BlueprintArea area, 
 				GameObject ___m_MapContainer, 
-				Image ___m_Picture, 
+				UnityEngine.UI.Image ___m_Picture, 
 				TextMeshProUGUI ___m_CharacterNameText, 
-				TextMeshProUGUI ___m_CharacterDescriptionText, 
-				Image ___m_CharacterPortrait,
+				TextMeshProUGUI ___m_CharacterDescriptionText,
+                UnityEngine.UI.Image ___m_CharacterPortrait,
 				Sprite ___m_PrologueCaves1Sprite)
 			{
 				LocalizedString description;
@@ -141,10 +946,12 @@ namespace CustomNpcPortraits
 				}
 				else
 				{
-					List<UnitEntityData> tempList = (
-						from rc in Game.Instance.Player.AllCharacters
-						where !rc.IsPet
+					/*
+					List<UnitEntityData> tempList = 
+						(from rc in Game.Instance.Player.AllCharacters
+						where !rc.IsPet && !rc.IsCustomCompanion() 
 						select rc).ToTempList<UnitEntityData>();
+
 					tempList.AddRange(Game.Instance.Player.Party.Where<UnitEntityData>((UnitEntityData pc) => {
 						if (pc.IsMainCharacter || pc.IsPet)
 						{
@@ -152,7 +959,13 @@ namespace CustomNpcPortraits
 						}
 
 						return !pc.IsCustomCompanion();
-					}));
+					}));*/
+
+					List<UnitEntityData> tempList =
+						(from rc in Game.Instance.Player.Party
+						 where !rc.IsPet && !rc.IsCustomCompanion() && !rc.IsMainCharacter
+						 select rc).ToTempList<UnitEntityData>();
+
 					if (!tempList.Empty<UnitEntityData>())
 					{
 						/*UnitEntityData unitEntityData2 = null;
@@ -168,7 +981,7 @@ namespace CustomNpcPortraits
 
 						TextMeshProUGUI mCharacterNameText = ___m_CharacterNameText;
 						string characterName = unitReference.Value.CharacterName;
-						Color color = new Color();
+						UnityEngine.Color color = new UnityEngine.Color();
 						mCharacterNameText.text = UIUtility.GetSaberBookFormat(characterName, color, 140, null, 0f);
 
 						TextMeshProUGUI mCharacterDescriptionText = ___m_CharacterDescriptionText;
@@ -242,7 +1055,64 @@ namespace CustomNpcPortraits
 					.Where(c => !(c is PrerequisiteFeature))
 					.ToArray();*/
 
+				//var portrait = ResourcesLibrary.TryGetBlueprint<BlueprintPortrait>("a6e4ff25a8da46a44a24ecc5da296073");
+				var buff = ResourcesLibrary.TryGetBlueprint<BlueprintBuff>("a13e2e71485901045b1722824019d6f5");
 
+				var poly = buff.ComponentsArray.OfType<Polymorph>().FirstOrDefault();
+
+				//var portrait = buff.ComponentsArray.OfType<Polymorph>().FirstOrDefault()?.Portrait.Data;
+
+
+				//		foreach(var component in buff.ComponentsArray)
+				//      {
+				//			Main.DebugLog(component.name);
+				//			Main.DebugLog(component.GetType().ToString());
+				//		}
+
+				if (poly is null) return;
+
+
+				//var bp = buff.ComponentsArray.OfType<Polymorph>().FirstOrDefault()?.Portrait;
+
+				//Main.DebugLog(bp.AssetGuid.ToString());
+
+
+				string prefix = Main.GetCompanionPortraitDirPrefix();
+				string portraitsDirectoryPath = Main.GetCompanionPortraitsDirectory();
+				string portraitDirectoryName = prefix + "Nenio";
+
+				//Main.DebugLog("1 - " + Path.Combine(portraitsDirectoryPath, portraitDirectoryName));
+				string portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, portraitDirectoryName);
+
+				if (Directory.Exists(portraitDirectoryPath))
+				{
+					if (Directory.GetFiles(portraitDirectoryPath, "*.current").Length != 0)
+					{
+						string[] dirs = Directory.GetFiles(portraitDirectoryPath, "*.current");
+
+						string dir = Path.GetFileNameWithoutExtension(dirs[0]);
+						//Main.DebugLog(dir);
+						if (!dir.Equals("root"))
+							portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, portraitDirectoryName, dir);
+						//Main.DebugLog(portraitDirectoryPath);
+					}
+
+
+					if (File.Exists(Path.Combine(portraitDirectoryPath, "Medium.png")))
+					{
+						//Main.DebugLog("Poly: " + portraitDirectoryPath);
+						PortraitData Data = new PortraitData(Path.Combine(portraitDirectoryPath));
+						BlueprintPortrait bp2 = poly.m_Portrait;
+
+						bp2.Data = Data;
+						poly.m_Portrait = bp2.ToReference<BlueprintPortraitReference>();
+
+						//buff.ComponentsArray.Remove
+
+						//poly.m_Portrait = bp2.ToReference<BlueprintPortraitReference>();
+
+					}
+				}
 			}
 			public static bool loaded = false;
 
@@ -335,11 +1205,61 @@ namespace CustomNpcPortraits
 				selectedUnit.Position = worldPosition;
 			}*/
 		}
+
+
+
+		public static BlueprintList blueprintList = new BlueprintList()
+		{
+			Entries = new List<BlueprintList.Entry>()
+		};
+
+		//public static List<BlueprintBuff> bpbuffs = new List<BlueprintBuff>();
+
 		public static bool areaLoaded = false;
 			public static bool Load(UnityModManager.ModEntry modEntry)
 		{
+			/*
+			//whole body holy lights
+			buffs.Add(ResourcesLibrary.TryGetBlueprint<BlueprintBuff>("2370ee24b03d4cd3b2eb346b7a1a18c0"));
+			//triangle halo
+			buffs.Add(ResourcesLibrary.TryGetBlueprint<BlueprintBuff>("840bbe624d7dad4439199aa2dc410b1a"));
+			//lighthalo
+			buffs.Add(ResourcesLibrary.TryGetBlueprint<BlueprintBuff>("0b1c9d2964b042e4aadf1616f653eb95"));
+			//devil horns
+			buffs.Add(ResourcesLibrary.TryGetBlueprint<BlueprintBuff>("d0649010d93907745a44034ad6eeeb5e"));
+			//demon eyes
+			buffs.Add(ResourcesLibrary.TryGetBlueprint<BlueprintBuff>("5f2faadfbe412fd41b2823f70f5820df"));
+			// electric halo
+			buffs.Add(ResourcesLibrary.TryGetBlueprint<BlueprintBuff>("00ca55e6c8dc07142807e40da6e3b13f"));
 
+			bpbuffs = new List<BlueprintBuff>();
+
+			string str = BundlesLoadService.BundlesPath("cheatdata.json");
+			
+			if(!str.IsNullOrEmpty())
+			if (File.Exists(str))
+				blueprintList = JsonUtility.FromJson<BlueprintList>(File.ReadAllText(str));
 			//isInitRunning = true;
+
+			if(blueprintList !=null)
+			foreach (BlueprintList.Entry be in blueprintList.Entries)
+			{
+				if(be != null)
+					if(!be.TypeFullName.IsNullOrEmpty())
+				if (be.TypeFullName.EndsWith("BlueprintBuff"))
+								if(!be.Guid.IsNullOrEmpty())
+				{
+					BlueprintBuff bc = Utilities.GetBlueprintByGuid<BlueprintBuff>(be.Guid);
+
+					if(bc != null)
+										if(!bpbuffs.Contains(bc))
+											if(bc.FxOnStart.Exists())
+					bpbuffs.Add(bc);
+				}
+			}
+
+			UIUtility.SendWarning(bpbuffs.Count().ToString());
+			*/
 
 			if (!BlueprintsCache_Patch.loaded) BlueprintsCache_Patch.popUnitNames();
 
@@ -417,6 +1337,34 @@ namespace CustomNpcPortraits
 				throw Main.Error("Failed to patch LoadingScreenPCView");
 			}
 			
+			if (!Main.ApplyPatch(typeof(DollCamera_OnEnable), "DollCamera_OnEnable"))
+			{
+				throw Main.Error("Failed to patch DollCamera_OnEnable");
+			}
+
+			if (!Main.ApplyPatch(typeof(Character_ApplyAdditionalVisualSettings), "Character_ApplyAdditionalVisualSettings"))
+			{
+				throw Main.Error("Failed to patch Character_ApplyAdditionalVisualSettings");
+			}
+
+			/*
+			if (!Main.ApplyPatch(typeof(DollRoomHalo), "DollRoomHalo"))
+			{
+				throw Main.Error("Failed to patch DollRoomHalo");
+			}
+			*/
+			if (!Main.ApplyPatch(typeof(GetGroup_Patch), "GetGroup_Patch"))
+			{
+				throw Main.Error("Failed to patch GetGroup");
+			}
+			if (!Main.ApplyPatch(typeof(Polymorph_OnActivate_Patch), "Polymorph_OnActivate_Patch"))
+			{
+				throw Main.Error("Failed to patch Polymorph_OnActivate_Patch");
+			}
+			if (!Main.ApplyPatch(typeof(Polymorph_OnDeactivate_Patch), "Polymorph_OnDeactivate_Patch"))
+			{
+				throw Main.Error("Failed to patch Polymorph_OnDeactivate_Patch");
+			}
 
 			return true;
 		}
@@ -603,6 +1551,17 @@ namespace CustomNpcPortraits
 			{
 				try
 				{
+#if DEBUG
+					if (be.TypeFullName.EndsWith("BlueprintFeature"))
+					{
+						BlueprintFeature bc = Utilities.GetBlueprintByGuid<BlueprintFeature>(be.Guid);
+						if (bc.name.ToLower().Contains("devil"))
+						{
+							Main.DebugLog(bc.name);
+							Main.DebugLog(bc.AssetGuid.ToString());
+
+						}
+					}
 
 					/*if (be.TypeFullName.EndsWith("BlueprintUnit"))
 					{
@@ -622,54 +1581,54 @@ namespace CustomNpcPortraits
 							//break;
 						}
 					}*/
-					/*
-					if (be.TypeFullName.Contains("BlueprintPortrait"))
-					{
-						BlueprintPortrait bc = Utilities.GetBlueprintByGuid<BlueprintPortrait>(be.Guid);
-						if (bc.name.ToLower().Contains("kestoglyr"))
-						{
-							Main.DebugLog(bc.name);
-							Main.DebugLog(bc.AssetGuid.ToString());
+/*
+if (be.TypeFullName.Contains("BlueprintPortrait"))
+{
+	BlueprintPortrait bc = Utilities.GetBlueprintByGuid<BlueprintPortrait>(be.Guid);
+	if (bc.name.ToLower().Contains("kestoglyr"))
+	{
+		Main.DebugLog(bc.name);
+		Main.DebugLog(bc.AssetGuid.ToString());
 
-							string portraitsDirectoryPath2 = Main.GetCompanionPortraitsDirectory();
-							string portraitDirectoryName = bc.name;
-							string portraitDirectoryPath = Path.Combine(portraitsDirectoryPath2, "--", portraitDirectoryName +" - "+ be.Guid);
-			SaveOriginals2(bc.Data, portraitDirectoryPath);
-						}
-					}
-       */
+		string portraitsDirectoryPath2 = Main.GetCompanionPortraitsDirectory();
+		string portraitDirectoryName = bc.name;
+		string portraitDirectoryPath = Path.Combine(portraitsDirectoryPath2, "--", portraitDirectoryName +" - "+ be.Guid);
+SaveOriginals2(bc.Data, portraitDirectoryPath);
+	}
+}
+*/
 
-					/*
+/*
 
-					*/
-					/*
-		[CustomNpcPortraits] ArueshalaeEvil_Portrait
-		[CustomNpcPortraits] 484588d56f2c2894ab6d48b91509f5e3
-		[CustomNpcPortraits] Arueshalae_Portrait
-		[CustomNpcPortraits] db413e67276547b40b1a6bb8178c6951
-											blueprintPortrait = (BlueprintPortraitReference)typeof(BlueprintUnit).GetField("m_Portrait", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(unitEntityData.Blueprint);
+*/
+/*
+[CustomNpcPortraits] ArueshalaeEvil_Portrait
+[CustomNpcPortraits] 484588d56f2c2894ab6d48b91509f5e3
+[CustomNpcPortraits] Arueshalae_Portrait
+[CustomNpcPortraits] db413e67276547b40b1a6bb8178c6951
+						blueprintPortrait = (BlueprintPortraitReference)typeof(BlueprintUnit).GetField("m_Portrait", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(unitEntityData.Blueprint);
 
-		*/
+*/
 
-					/*
-					if(be.TypeFullName.Contains("BlueprintUnlockableFlag"))
-
-
-		{
-						BlueprintUnlockableFlag bc = Utilities.GetBlueprintByGuid<BlueprintUnlockableFlag>(be.Guid);
-						if (bc.name.ToLower().Contains("bald"))
-						{
-							Main.DebugLog(bc.name);
-							Main.DebugLog(bc.AssetGuid.ToString());
+/*
+if(be.TypeFullName.Contains("BlueprintUnlockableFlag"))
 
 
+{
+	BlueprintUnlockableFlag bc = Utilities.GetBlueprintByGuid<BlueprintUnlockableFlag>(be.Guid);
+	if (bc.name.ToLower().Contains("bald"))
+	{
+		Main.DebugLog(bc.name);
+		Main.DebugLog(bc.AssetGuid.ToString());
 
-						}
-					}
-					*/
 
-					
-								if (be.TypeFullName.Equals("Kingmaker.DialogSystem.Blueprints.BlueprintCue"))
+
+	}
+}
+*/
+
+#else
+					if (be.TypeFullName.Equals("Kingmaker.DialogSystem.Blueprints.BlueprintCue"))
 										{
 
 											BlueprintCue bc = Utilities.GetBlueprintByGuid<BlueprintCue>(be.Guid);
@@ -755,7 +1714,7 @@ namespace CustomNpcPortraits
 
 										}
 
-											
+#endif
 				}
 				catch (Exception e)
 				{
@@ -798,6 +1757,160 @@ namespace CustomNpcPortraits
 		public static string npcDirlabel = "";
 		public static string npcSubDirlabel = "";
 		public static string compDirlabel = "";
+		public static IEnumerable<T> MoveUp<T>(this IEnumerable<T> enumerable, int itemIndex)
+		{
+			int i = 0;
+
+			IEnumerator<T> enumerator = enumerable.GetEnumerator();
+			while (enumerator.MoveNext())
+			{
+				i++;
+
+				if (itemIndex.Equals(i))
+				{
+					T previous = enumerator.Current;
+
+					if (enumerator.MoveNext())
+					{
+						yield return enumerator.Current;
+					}
+
+					yield return previous;
+
+					break;
+				}
+
+				yield return enumerator.Current;
+			}
+
+			while (enumerator.MoveNext())
+			{
+				yield return enumerator.Current;
+			}
+		}
+
+		public static int k = 400;
+		public static BlueprintBuff lastbb;
+
+		public static IFxHandle ifxh;
+
+
+		private static void refreshPortraits()
+		{
+
+			foreach (UnitEntityData unitEntityDatum in Game.Instance.Player.AllCharacters)
+			{
+				//EventBus.RaiseEvent<IUnitPortraitChangedHandler>((IUnitPortraitChangedHandler h) => h.HandlePortraitChanged(unitEntityDatum.Descriptor), true);
+
+				//unitEntityDatum.Descriptor.UISettings.SetPortrait(SetPortrait(unitEntityDatum));
+				Kingmaker.Game.Instance.SelectionCharacter.SetSelected(unitEntityDatum);
+					Kingmaker.Game.Instance.SelectionCharacter.SelectedUnit.Value.Value.UISettings.SetPortrait(SetPortrait(unitEntityDatum));
+			}
+		}
+
+
+		public static string GetCompanionDirName(UnitEntityData unitEntityData)
+        {
+
+			string charcterNameDirectoryName = unitEntityData.CharacterName.cleanCharname();
+		//	Main.DebugLog("1 " + charcterNameDirectoryName);
+			if (charcterNameDirectoryName.ToLower().Contains("aruesh"))
+			{
+				if (unitEntityData.Blueprint.Race.name.ToLower().Contains("succubusrace"))
+				{
+
+					charcterNameDirectoryName = charcterNameDirectoryName + " - Evil";
+
+
+				}
+				//Main.DebugLog(unitEntityData.View.Blueprint.Race.name);
+			}
+			//Main.DebugLog("2");
+			if (charcterNameDirectoryName.Equals("Ciar"))
+			{
+				if (unitEntityData.Blueprint.Alignment.ToString().ToLower().Contains("evil") || unitEntityData.Descriptor.IsUndead)
+					charcterNameDirectoryName = "Ciar - Undead";
+				
+			}
+			//Main.DebugLog("3");
+			if (charcterNameDirectoryName.Equals("Queen Galfrey"))
+			{
+				if (unitEntityData.Blueprint.Alignment.ToString().ToLower().Contains("evil") || unitEntityData.Descriptor.IsUndead)
+					charcterNameDirectoryName = "Queen Galfrey - Undead";
+
+			}
+			//Game.Instance.DialogController.CurrentSpeaker.View.Blueprint.Alignment == Kingmaker.Enums.Alignment.LawfulEvil
+			//Main.DebugLog("4");
+			if (charcterNameDirectoryName.Equals("Staunton Vhane"))
+			{
+				if (unitEntityData.Blueprint.Alignment.ToString().ToLower().Contains("evil") || unitEntityData.Descriptor.IsUndead)
+					charcterNameDirectoryName = "Staunton Vhane - Undead";
+
+			}
+
+
+			//AscendingSuccubus
+			//Main.DebugLog("5");
+
+			//string characterName = unitEntityData.CharacterName.cleanCharname();
+			if (charcterNameDirectoryName.Equals("Nenio"))
+			{
+
+	
+					//UIUtility.SendWarning("huh");
+					object campaign;
+					SaveInfo loadingSave = Game.Instance.LoadingSave;
+					if (loadingSave != null)
+					{
+						campaign = loadingSave.Campaign;
+					}
+					else
+					{
+						campaign = null;
+					}
+					if (campaign == null)
+					{
+						campaign = Game.Instance.Player.Campaign;
+					}
+					BlueprintCampaign blueprintCampaign = (BlueprintCampaign)campaign;
+					if ((blueprintCampaign != null && !blueprintCampaign.name.IsNullOrEmpty() && !blueprintCampaign.name.Equals("MainCampaign")) || Game.Instance.Player.UnlockableFlags.UnlockedFlags.Keys.FirstOrDefault(x => x.name.Contains("Fox")))
+					{
+						
+						//foreach (UnitEntityData ud in Game.Instance.State.PlayerState.AllCharacters)
+						//{
+
+
+							//if (ud.CharacterName.Equals("Nenio"))
+							//{
+								if (!unitEntityData.Body.IsPolymorphed)
+								{
+
+						// if (Game.Instance.DialogController.CurrentSpeaker.GetActivePolymorph().Component == null)
+
+
+
+						//Main.DebugLog("fox");
+									charcterNameDirectoryName = "NenioFox_Portrait";
+
+								}
+
+							//}
+						//}
+					}
+					/*
+						if (Game.Instance.DialogController != null &&
+		Game.Instance.DialogController.CurrentCue != null &&
+		Game.Instance.DialogController.CurrentCue.AssetGuid != null &&
+		Game.Instance.DialogController.CurrentCue.AssetGuid.ToString().Equals("45450b2f327797e41bce701b91118cb4"))
+						characterName = "NenioFox_Portrait";
+					}
+					*/
+	
+			}
+
+			return charcterNameDirectoryName;
+
+		}
 
 		private static void OnGUI(UnityModManager.ModEntry modEntry)
 		{
@@ -847,14 +1960,14 @@ namespace CustomNpcPortraits
 			}
 
 			GUIStyle boldStyle = new GUIStyle();
-			boldStyle.fontStyle = FontStyle.Bold;
+			boldStyle.fontStyle = UnityEngine.FontStyle.Bold;
 			//Color c = new Color((float)131.0, (float)192.0, (float)239.0);
-			boldStyle.normal.textColor = Color.cyan;
+			boldStyle.normal.textColor = UnityEngine.Color.cyan;
 
 			GUIStyle boldStyle2 = new GUIStyle();
-			boldStyle2.fontStyle = FontStyle.Bold;
+			boldStyle2.fontStyle = UnityEngine.FontStyle.Bold;
 			//Color c = new Color((float)131.0, (float)192.0, (float)239.0);
-			boldStyle2.normal.textColor = Color.red;
+			boldStyle2.normal.textColor = UnityEngine.Color.red;
 
 			GUILayoutOption[] defSize = new GUILayoutOption[]
 			{
@@ -866,35 +1979,175 @@ namespace CustomNpcPortraits
 			GUILayout.BeginHorizontal(Array.Empty<GUILayoutOption>());
 			if (GUILayout.Button("Open Party Portraits Directory", GUILayout.Width(200f), GUILayout.Height(20f)))
 			{
-
-				/*	foreach (BlueprintItem scriptableObject in Utilities.GetScriptableObjects<BlueprintItem>())
-					{
-						string blueprintPath = Utilities.GetBlueprintPath(scriptableObject);
-						"HosillaKey"
-						//if(scriptableObject != null && scriptableObject.Name != null && scriptableObject.Name.Length > 0 && scriptableObject.Name.ToLower().Contains("maze"))
-						if (blueprintPath.ToLower().Contains("key"))
-						Main.DebugLog(blueprintPath);
-					}*/
 				/*
-				CheatsTransfer
-
-				BlueprintItem scriptableObject = Utilities.GetBlueprintByName<BlueprintItem>("Labyrinth_Key_2");
-
 				ItemsCollection inventory = Game.Instance.Player.Inventory;
 
-				ItemEntitySimple key = new ItemEntitySimple(scriptableObject);
+				foreach (BlueprintItemEquipmentShirt scriptableObject in Utilities.GetScriptableObjects<BlueprintItemEquipmentShirt>())
+				{
+					//string blueprintPath = Utilities.GetBlueprintPath(scriptableObject);
+					//"HosillaKey"
+					if (scriptableObject != null && scriptableObject.Name != null && scriptableObject.Name.Length > 0 )//&& scriptableObject.Name.ToLower().Contains("angelbloom"))
+					//if (blueprintPath.ToLower().Contains("angelbloom"))
+					{
 
-				inventory.Add(key);
+						//ItemEntitySimple key = new ItemEntitySimple(scriptableObject);
+
+						inventory.Add(scriptableObject);
+					}
+					//Main.DebugLog("náme:" + scriptableObject.Name);
+					//Main.DebugLog("path:"+ Utilities.GetBlueprintPath(scriptableObject));
+				}
+				*/
+				//CheatsTransfer
+				/*
+				BlueprintItem scriptableObject = Utilities.GetBlueprintByName<BlueprintItem>("AngelFlowerCrownItem");
+
 
 				*/
+
 #if DEBUG
+
+				
+				//	Game.Instance.ReloadUI();
+
+				//refreshPortraits();
+				//object campaign = Game.Instance.Player.Campaign;
+
+				//BlueprintCampaign blueprintCampaign = (BlueprintCampaign)Game.Instance.Player.Campaign;
+
+				//string str = blueprintCampaign.name;
+
+
+				//UIUtility.SendWarning(Game.Instance.Player.Campaign.name);
+
+
+				//					UIUtility.SendWarning($"{string.Join("", BlueprintRoot.Instance.DlcSettings.Dlcs.Select(c => c?.name=="Inevitable Excess" + ": " + c?.Description + Environment.NewLine))}");
+
+				//Game.Instance.Player.PartyCharacters
+
+				//MoveUp<UnitEntityData>(Game.Instance.Player.RemoteCompanions, 5);
+
+
+				//typeof(Player).GetField("RemoteCompanions", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(Game.Instance.Player, Game.Instance.Player.RemoteCompanions.OrderBy(e => e.CharacterName));
+				/*
+				var parties = new Dictionary<string, IEnumerable<UnitEntityData>>
+			{
+				{ "group capital", UIUtility.GetGroup(Game.Instance.LoadedAreaState.Settings.CapitalPartyMode.Value) },
+				{ "group capital and pets", UIUtility.GetGroup(Game.Instance.LoadedAreaState.Settings.CapitalPartyMode.Value, true) },
+				{ "party", Game.Instance.Player.Party },
+				{ "party and pets", Game.Instance.Player.PartyAndPets },
+				{ "party and pets detached", Game.Instance.Player.PartyAndPetsDetached },
+				{ "party characters", Game.Instance.Player.PartyCharacters.Select(u => u.Value).ToList() },
+				{ "remote companions", Game.Instance.Player.RemoteCompanions },
+				{ "active companions", Game.Instance.Player.ActiveCompanions },
+				{ "all characters", Game.Instance.Player.AllCharacters },
+				{ "CrossSceneState.AllEntityData", Game.Instance.Player.CrossSceneState.AllEntityData as IEnumerable<UnitEntityData>}
+
+			};
+
+				foreach (var p in parties)
+					UIUtility.SendWarning($"{p.Key}: {string.Join(",", p.Value?.Select(c => c?.CharacterName))}");
+				*/
+				//UIUtility.SendWarning(Game.Instance.Player.MainCharacter.Value.Progression.GetCurrentMythicClass().CharacterClass.Name);
+
+				/*
+				if (k > 1122)
+					k = 0;
+				else
+					k++;
+
+				UIUtility.SendWarning(k.ToString());
+
+
+
+				foreach (UnitEntityData unitEntityDatum in Game.Instance.Player.Party)
+				{
+
+					if (unitEntityDatum.CharacterName == "Arueshalae")
+					{
+
+						//var LightHaloBuff = ResourcesLibrary.TryGetBlueprint<BlueprintBuff>("0b1c9d2964b042e4aadf1616f653eb95");
+						//MechanicsContext mechanicsContext = new MechanicsContext(unitEntityDatum, unitEntityDatum, LightHaloBuff, null, null);
+						//unitEntityDatum.Facts.Add<Buff>(new Buff(LightHaloBuff, mechanicsContext, null));
+
+						FxHelper.Destroy(ifxh, true);
+
+
+						bool? nullable = new bool?(true);
+						Vector3 vector3 = new Vector3();
+						ifxh = FxHelper.SpawnFxOnUnit(bpbuffs[k].FxOnStart.Load(false, false), unitEntityDatum.View, nullable, null, vector3, FxPriority.EventuallyImportant);
+
+
+
+
+						UIUtility.SendWarning(bpbuffs[k].Name +" - "+  bpbuffs[k].AssetGuid);
+
+						Main.DebugLog(bpbuffs[k].Name + " - " + bpbuffs[k].AssetGuid);
+						
+						//var NulkiVisBuff = ResourcesLibrary.TryGetBlueprint<BlueprintBuff>("fc246eb29c8f95c449fd156759f421e9");
+					//		if (bpbuffs[k] != null)
+					//		{
+
+					//			lastbb = bpbuffs[k];
+					//			MechanicsContext mechanicsContext = new MechanicsContext(unitEntityDatum, unitEntityDatum, bpbuffs[k], null, null);
+					//			unitEntityDatum.Facts.Add<Buff>(new Buff(bpbuffs[k], mechanicsContext, null));
+					//		}
+					//		
+
+
+						//var LightHaloFeature = ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("d3f14f00f675a6341a41d2194186835c");
+
+						//give
+						//unitEntityDatum.Progression.Features.AddFeature(LightHaloFeature, null);
+
+						//take
+						//
+
+
+						//UnitHelper.AddBuff(unitEntityDatum, LightHaloBuff, unitEntityDatum);
+						//unitEntityDatum.GetFeature(LightHaloFeature).Activate();
+						//UIUtility.SendWarning(LightHaloBuff.Name);
+
+						
+						break;
+					}
+
+				}
+					*/
+
+				/*
+				foreach (EntityDataBase allEntityDatum in Game.Instance.Player.CrossSceneState.AllEntityData)
+				{
+					UnitEntityData unitEntityDatum = allEntityDatum as UnitEntityData;
+					if (unitEntityDatum == null)
+					{
+						continue;
+					}
+
+					if (unitEntityDatum.CharacterName == "Arueshalae")
+					{
+
+						var LightHaloFeature = ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("d3f14f00f675a6341a41d2194186835c");
+
+						UIUtility.SendWarning(LightHaloFeature.Name);
+
+
+						unitEntityDatum.GetFeature(LightHaloFeature).Activate();
+
+
+						break;
+					}
+
+					//UIUtility.SendWarning($"CrossSceneState.AllEntityData: {string.Join(", ", unitEntityDatum.CharacterName)}");
+
+				}*/
 
 				//Main.DebugLog(Game.Instance.CurrentMode.Name);
 
 				//Main.DebugLog(RootUIContext.Instance.CurrentServiceWindow.ToString());
 
-				
-				areaLoaded = true;
+
+				//areaLoaded = true;
 				//	loctel();
 				//BlueprintsCache_Patch.popUnitNames();
 				//CueShowData cueShowDatum = new CueShowData(Game.Instance.DialogController.CurrentCue, new List<SkillCheckResult>(), new List<AlignmentShift>());
@@ -923,30 +2176,61 @@ namespace CustomNpcPortraits
 						eye = bp.Data.SmallPortrait;
 						*/
 				//UnitEntityData unitEntityData = null;
-				/*	foreach (UnitEntityData ud in Game.Instance.State.PlayerState.AllCharacters)
+				/*foreach (UnitEntityData ud in Game.Instance.State.PlayerState.AllCharacters)
+				{
+
+
+					if (ud.CharacterName.Equals("Nenio"))
 					{
 
-
-						if (ud.CharacterName.Equals("Bismuth"))
+						foreach (UnitEntityData ud2 in Game.Instance.State.PlayerState.AllCharacters)
 						{
 
+							if (ud.CharacterName.Equals("Ember"))
+							{
+								Game.Instance.SelectionCharacter.SwitchCharacter(ud, ud2);
+								break;
+							}
+						}
 
-					//PortraitLoader.LoadInternal("Portraits", "BlackPetEye.png", new Vector2Int(176, 24), TextureFormat.RGBA32);
+						break;
+					}
+				}
+				*/
+				//Main.DebugLog(ud.GetActivePolymorph().Runtime.SourceBlueprintComponentName);
 
-					//pcvm.HandleAddPet(pcvm.UnitEntityData, unitEntityData);
-					//EyePortraitInjecotr.Replacements[ud.UISettings.Portrait] = Utilities.GetBlueprintByGuid<BlueprintPortrait>("1f5bfefa49a8aa2449ad94b1f4f61788").Data.PetEyePortrait;
+				/*	foreach (EntityFact list in ud.Facts.List)
+					{
+						UnitFact unitFact = list as UnitFact;
+						if (unitFact == null)
+						{
+							continue;
+						}
+						Main.DebugLog(list.Name);
+						//Main.DebugLog(list.IsEnabled.ToString());
 
+						foreach (EntityFactComponent component in unitFact.Components)
+						{
+							Main.DebugLog("   " + component.SourceBlueprintComponentName);
 
-
-					bp.Data.m_PetEyeImage = Utilities.GetBlueprintByGuid<BlueprintPortrait>("1f5bfefa49a8aa2449ad94b1f4f61788").Data.m_PetEyeImage;
-
-
-					//EyePortraitInjecotr.Replacements[ud.UISettings.Portrait] = Utilities.GetBlueprintByGuid<BlueprintPortrait>("1f5bfefa49a8aa2449ad94b1f4f61788").Data.PetEyePortrait;
-
-					//pcvm.UpdateStates();
-					break;
 						}
 					}*/
+				//PortraitLoader.LoadInternal("Portraits", "BlackPetEye.png", new Vector2Int(176, 24), TextureFormat.RGBA32);
+
+				//pcvm.HandleAddPet(pcvm.UnitEntityData, unitEntityData);
+				//EyePortraitInjecotr.Replacements[ud.UISettings.Portrait] = Utilities.GetBlueprintByGuid<BlueprintPortrait>("1f5bfefa49a8aa2449ad94b1f4f61788").Data.PetEyePortrait;
+
+
+
+				//bp.Data.m_PetEyeImage = Utilities.GetBlueprintByGuid<BlueprintPortrait>("1f5bfefa49a8aa2449ad94b1f4f61788").Data.m_PetEyeImage;
+
+
+				//EyePortraitInjecotr.Replacements[ud.UISettings.Portrait] = Utilities.GetBlueprintByGuid<BlueprintPortrait>("1f5bfefa49a8aa2449ad94b1f4f61788").Data.PetEyePortrait;
+
+				//pcvm.UpdateStates();
+				//break;
+
+
 
 				//	}
 				//	}
@@ -982,12 +2266,81 @@ namespace CustomNpcPortraits
 			if (GUILayout.Button("Open NPC portraits dir", GUILayout.Width(200f), GUILayout.Height(20f)))
 			{
 #if DEBUG
+
+				if (k < 0)
+					k = 1122;
+				else
+					k--;
+
+				
+
+
+				UIUtility.SendWarning(k.ToString());
+
+
+				/*
+				foreach (UnitEntityData unitEntityDatum in Game.Instance.Player.Party)
+				{
+
+					if (unitEntityDatum.CharacterName == "Arueshalae")
+					{
+
+						//var LightHaloBuff = ResourcesLibrary.TryGetBlueprint<BlueprintBuff>("0b1c9d2964b042e4aadf1616f653eb95");
+						//MechanicsContext mechanicsContext = new MechanicsContext(unitEntityDatum, unitEntityDatum, LightHaloBuff, null, null);
+						//unitEntityDatum.Facts.Add<Buff>(new Buff(LightHaloBuff, mechanicsContext, null));
+
+						FxHelper.Destroy(ifxh, true);
+
+
+						bool? nullable = new bool?(true);
+						Vector3 vector3 = new Vector3();
+						ifxh = FxHelper.SpawnFxOnUnit(bpbuffs[k].FxOnStart.Load(false, false), unitEntityDatum.View, nullable, null, vector3, FxPriority.EventuallyImportant);
+
+
+
+
+						UIUtility.SendWarning(bpbuffs[k].Name);
+				*/
+						//var NulkiVisBuff = ResourcesLibrary.TryGetBlueprint<BlueprintBuff>("fc246eb29c8f95c449fd156759f421e9");
+						/*	if (bpbuffs[k] != null)
+							{
+
+								lastbb = bpbuffs[k];
+								MechanicsContext mechanicsContext = new MechanicsContext(unitEntityDatum, unitEntityDatum, bpbuffs[k], null, null);
+								unitEntityDatum.Facts.Add<Buff>(new Buff(bpbuffs[k], mechanicsContext, null));
+							}
+							*/
+				/*
+
+						//var LightHaloFeature = ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("d3f14f00f675a6341a41d2194186835c");
+
+						//give
+						//unitEntityDatum.Progression.Features.AddFeature(LightHaloFeature, null);
+
+						//take
+						//
+
+
+						//UnitHelper.AddBuff(unitEntityDatum, LightHaloBuff, unitEntityDatum);
+						//unitEntityDatum.GetFeature(LightHaloFeature).Activate();
+						//UIUtility.SendWarning(LightHaloBuff.Name);
+
+
+						break;
+					}
+
+				}
+		*/
+
+
+				/*
 				//GrayGarrisonBasement1From1stFloor
 				string target = "DefendersHeart_DefendersHeart_Enter";
 
 				BlueprintAreaEnterPoint bap = Utilities.GetBlueprint<BlueprintAreaEnterPoint>(target);
 
 				Game.Instance.LoadArea(bap, AutoSaveMode.None);
+				*/
 #else
 				Process.Start(GetNpcPortraitsDirectory());
 #endif
@@ -1001,13 +2354,155 @@ namespace CustomNpcPortraits
 			if (GUILayout.Button("Open Army portraits dir", GUILayout.Width(200f), GUILayout.Height(20f)))
 			{
 
-				Process.Start(GetArmyPortraitsDirectory());
 
+#if DEBUG
+				if (k > 1122) 
+					k = 0;
+				else
+					k = k + 50;
+
+				UIUtility.SendWarning(k.ToString());
+#else
+				Process.Start(GetArmyPortraitsDirectory());
+#endif
 			}
 			GUILayout.Label(GetArmyPortraitsDirectory());
 				GUILayout.EndHorizontal();
-			
 
+#if DEBUG
+
+			GUILayout.BeginHorizontal(Array.Empty<GUILayoutOption>());
+			if (GUILayout.Button("add custom item", GUILayout.Width(200f), GUILayout.Height(20f)))
+			{
+
+				//string absoluteFolder = Path.Combine(UnityModManager.modsPath, modEntry.Info.Id, "Items");
+				//Sprite sprite = AssetLoader.LoadInternal(absoluteFolder, "HaloItem.png");
+
+				//GUILayout.Label(sprite.texture);
+
+				BlueprintItemEquipmentHead sourceBp = Utilities.GetBlueprintByGuid<BlueprintItemEquipmentHead>("51500154900d46ac9bd4d7ef758b3808");
+
+				BlueprintItemEquipmentHead bp = new BlueprintItemEquipmentHead()
+				{
+					AssetGuid = new BlueprintGuid(new Guid("23d1cef87afd45b795b1a86398eeb10a"))
+				};
+				bp.m_DisplayNameText = Helpers.CreateString("ITEMNAME", "Angel's Love");
+				//bp.m_DescriptionText = Helpers.CreateString("ITEM_DESC", "Grants its wielder a +2 enhancement {g|Encyclopedia:Bonus}bonus{/g} to {g|Encyclopedia:Dexterity}Dexterity{/g}. Bonuses of the same type usually don't stack.");
+				bp.m_DescriptionText = Helpers.CreateString("ITEM_DESC", "If an angel falls in love, they can bestow the essence of their halo to someone they are in love with. ");
+				bp.m_Icon = sourceBp.m_Icon;
+				bp.m_EquipmentEntity = sourceBp.m_EquipmentEntity;
+				bp.m_IsNotable = true;
+				bp.m_Cost = 100000;
+				bp.m_Weight = 1.0f;			
+				bp.m_InventoryPutSound = "CommonPut";
+				bp.m_InventoryTakeSound = "CommonTake";
+				bp.m_InventoryEquipSound = "CommonPut";
+				bp.CR = 13;
+				bp.m_ForcedRampColorPresetIndex = 9;
+
+				//If destructible
+				//bp.m_Destructible = true;
+				//bp.m_ShardItem = "!bp_e6820e62423d4c81a2ba20d236251b67";
+
+				//non enchanted ones:
+				//bp.m_Enchantments = new BlueprintEquipmentEnchantmentReference[0];
+
+
+				BlueprintFeature blueprintFeature = new BlueprintFeature()
+				{
+					AssetGuid = new BlueprintGuid(new Guid("8fb2ee1d545f46f2be5b33bdcdd5f138"))
+					//AssetGuid = new BlueprintGuid(Guid.NewGuid())
+				};									
+				Helpers.AddComponent<AddFacts>(blueprintFeature, (AddFacts c) => c.m_Facts = 
+					new BlueprintUnitFactReference[] 
+					// 0b1c9d2964b042e4aadf1616f653eb95 
+						{ ResourcesLibrary.TryGetBlueprint<BlueprintBuff>("00ca55e6c8dc07142807e40da6e3b13f").ToReference<BlueprintUnitFactReference>() });
+				ResourcesLibrary.BlueprintsCache.AddCachedBlueprint(blueprintFeature.AssetGuid, blueprintFeature as SimpleBlueprint);
+
+				
+				BlueprintEquipmentEnchantment blueprintEquipmentEnchantment = new BlueprintEquipmentEnchantment()
+				{
+					AssetGuid = new BlueprintGuid(new Guid("9ea1373741f04a72a96fc1603d364195"))
+				};
+				Action<AddUnitFeatureEquipment> mFeature = 
+					(AddUnitFeatureEquipment c) => c.m_Feature = blueprintFeature.ToReference<BlueprintFeatureReference>();
+				Helpers.AddComponent<AddUnitFeatureEquipment>(blueprintEquipmentEnchantment, mFeature);
+				ResourcesLibrary.BlueprintsCache.AddCachedBlueprint(blueprintEquipmentEnchantment.AssetGuid, blueprintEquipmentEnchantment as SimpleBlueprint);
+
+
+				bp.m_Enchantments = new BlueprintEquipmentEnchantmentReference[] 
+					{blueprintEquipmentEnchantment.ToReference<BlueprintEquipmentEnchantmentReference>() };
+
+				ResourcesLibrary.BlueprintsCache.AddCachedBlueprint(bp.AssetGuid, bp as SimpleBlueprint);
+
+				
+
+
+				ItemsCollection inventory = Game.Instance.Player.Inventory;
+				inventory.Add(bp);
+
+
+			}
+			GUILayout.Label("test button");
+			GUILayout.EndHorizontal();
+
+			GUILayout.BeginHorizontal(Array.Empty<GUILayoutOption>());
+			if (GUILayout.Button("test obj/comp", GUILayout.Width(200f), GUILayout.Height(20f)))
+			{
+				//Game.Instance.RootUiContext.m_UIView.GetComponent<InGamePCView>();
+
+				var fxRoot = BlueprintRoot.Instance.FxRoot;
+
+				var nrgHalo = FxHelper.FxRoot.transform.Find("Precast_Divine00(Clone)").gameObject;
+
+				nrgHalo.transform.Find("Root_PalmLeft").gameObject.SetActive(false);
+
+
+	
+
+				var haloObject = nrgHalo.transform.Find("Head_Back1").gameObject;
+				haloObject.GetComponent<SnapToLocator>().Locator.CameraOffset = 0;
+
+				var lockAxis = haloObject.transform.Find("LockAxis").gameObject;
+				// Billboard is a component, so we deactivate it with the 'enabled' property
+				lockAxis.GetComponent<Billboard>().enabled = false;
+				lockAxis.transform.localRotation = Quaternion.Euler(347, 180, 0);
+				lockAxis.transform.localPosition = new Vector3(0, 0.04f, -0.15f);
+				lockAxis.transform.localScale = new Vector3(1, 0.8f, -0.8f);
+
+				var radiance = nrgHalo.transform.Find("Head_Front").gameObject;
+
+				var raysLoop = radiance.transform.Find("Rays_Loop").gameObject;
+
+				raysLoop.transform.localPosition = new Vector3(0, 0.08f, -0.55f);
+
+
+				if (nrgHalo.transform.Find("Ground") != null)
+					if (nrgHalo.transform.Find("Ground").gameObject != null)
+						nrgHalo.transform.Find("Ground").gameObject.SetActive(false);
+
+				//UIUtility.SendWarning(nrgHalo.name);
+
+			}
+			GUILayout.Label("test button 2");
+			GUILayout.EndHorizontal();
+
+			GUILayout.BeginHorizontal(Array.Empty<GUILayoutOption>());
+			if (GUILayout.Button("refresh dialog speaker portrait", GUILayout.Width(200f), GUILayout.Height(20f)))
+			{
+				CueShowData cueShowDatum = new CueShowData(Game.Instance.DialogController.CurrentCue, new List<SkillCheckResult>(), new List<AlignmentShift>());
+				EventBus.RaiseEvent<IDialogCueHandler>((IDialogCueHandler h) => h.HandleOnCueShow(cueShowDatum), true);
+
+				Main.DebugLog("CurrentSpeakerName: " + Game.Instance.DialogController.CurrentSpeakerName);
+				Main.DebugLog("CurrentSpeaker.CharacterName: "+Game.Instance.DialogController.CurrentSpeaker?.CharacterName);
+				Main.DebugLog("CurrentSpeakerBlueprint.CharacterName: "+Game.Instance.DialogController.CurrentSpeakerBlueprint?.CharacterName);
+				Main.DebugLog("FirstSpeaker.CharacterName: "+Game.Instance.DialogController.FirstSpeaker?.CharacterName);
+				Main.DebugLog("m_CustomSpeakerName: "+Game.Instance.DialogController.m_CustomSpeakerName);
+				Main.DebugLog("ActingUnit.CharacterName: "+Game.Instance.DialogController.ActingUnit?.CharacterName);
+			}
+			GUILayout.EndHorizontal();
+
+#endif
 			GUILayout.BeginHorizontal(Array.Empty<GUILayoutOption>());
 			GUILayout.Label("In game", boldStyle);
 			GUILayout.EndHorizontal();
@@ -1030,71 +2525,22 @@ namespace CustomNpcPortraits
 					if (Main.settings.ManageCompanions)
 						SetPortraits();
 				}
+				
+
 				if (Main.settings.ManageCompanions)
 				{
-					if (RootUIContext.Instance.CurrentServiceWindow.ToString().Equals("CharacterInfo"))
+					if (RootUIContext.Instance.CurrentServiceWindow.ToString().Equals("CharacterInfo") ||
+						RootUIContext.Instance.CurrentServiceWindow.ToString().Equals("Inventory"))
 					{
 
-						string charcterNameDirectoryName = Game.Instance.SelectionCharacter.CurrentSelectedCharacter.CharacterName;
+						
+							//Game.Instance.SelectionCharacter.CurrentSelectedCharacter.CharacterName;
 						UnitEntityData unitEntityData = Game.Instance.SelectionCharacter.CurrentSelectedCharacter;
 
-						if (charcterNameDirectoryName.ToLower().Contains("aruesh"))
-						{
-							if (unitEntityData.View.Blueprint.Race.name.ToLower().Contains("succubusrace"))
-							{
-
-								charcterNameDirectoryName = charcterNameDirectoryName + " - Evil";
+						string charcterNameDirectoryName = Main.GetCompanionDirName(unitEntityData);
 
 
-							}
-							//Main.DebugLog(unitEntityData.View.Blueprint.Race.name);
-						}
 
-						if (charcterNameDirectoryName.Equals("Ciar"))
-						{
-							if (unitEntityData.View.Blueprint.Alignment.ToString().ToLower().Contains("evil"))
-								charcterNameDirectoryName = "Ciar - Undead";
-
-						}
-
-						if (charcterNameDirectoryName.Equals("Queen Galfrey"))
-						{
-							if (unitEntityData.View.Blueprint.Alignment.ToString().ToLower().Contains("evil"))
-								charcterNameDirectoryName = "Queen Galfrey - Undead";
-
-						}
-
-
-						if (charcterNameDirectoryName.Equals("Staunton Vhane"))
-						{
-							if (unitEntityData.Descriptor.IsUndead)
-								charcterNameDirectoryName = "Staunton Vhane - Undead";
-
-						}
-
-
-						//AscendingSuccubus
-						/*}
-						bool b = false;
-						if(b)
-						{*/
-						//UnitEntityData unitEntityData = null;
-
-						//string characterName = unitEntityData.CharacterName.cleanCharname();
-						if (charcterNameDirectoryName.Equals("Nenio"))
-						{
-							if (unitEntityData.GetActivePolymorph().Component == null)
-							{
-
-								//	Main.DebugLog("setp fox");
-								charcterNameDirectoryName = "NenioFox_Portrait";
-
-							}
-							else
-							{
-								//	Main.DebugLog("setp human"); 
-							}
-						}
 						string compdirpath = Path.Combine(GetCompanionPortraitsDirectory(), GetCompanionPortraitDirPrefix() + charcterNameDirectoryName);
 
 						if (GUILayout.Button("Cycle portraits for " + Game.Instance.SelectionCharacter.CurrentSelectedCharacter.CharacterName/*"Cycle through dirs " */, GUILayout.Width(250f), GUILayout.Height(20f)))
@@ -1141,7 +2587,26 @@ namespace CustomNpcPortraits
 								File.WriteAllText(Path.Combine(compdirpath, compCycle + ".current"), "current");
 							}
 
-							EventBus.RaiseEvent<IUnitPortraitChangedHandler>((IUnitPortraitChangedHandler h) => h.HandlePortraitChanged(unitEntityData.Descriptor), true);
+							SetPortraits();
+							//EventBus.RaiseEvent<IUnitPortraitChangedHandler>((IUnitPortraitChangedHandler h) => h.HandlePortraitChanged(unitEntityData.Descriptor), true);
+
+
+
+							//EventBus.RaiseEvent(delegate (IUnitPortraitChangedHandler h) {
+							//	h.HandlePortraitChanged(unitEntityData);
+							//});
+
+					
+							/*
+							ReactiveProperty<CharInfoComponentVM> ccc;
+							Game.Instance.RootUiContext.InGameVM.StaticPartVM.ServiceWindowsVM.CharacterInfoVM.Value.ComponentVMs.TryGetValue(CharInfoComponentType.NameAndPortrait, out ccc);
+							//
+
+							ccc.Value.RefreshData();
+							*/
+
+							//Game.Instance.RootUiContext.InGameVM.StaticPartVM.PartyVM.UpdateStartValue(0);
+
 
 							//Game.Instance.SelectionCharacter.d
 							if (!unitEntityData.IsMainCharacter)
@@ -1152,8 +2617,8 @@ namespace CustomNpcPortraits
 							else
 							{
 								//int k = 0;
-								foreach(UnitEntityData ud in Game.Instance.Player.PartyCharacters)
-                                {
+								foreach (UnitEntityData ud in Game.Instance.Player.PartyCharacters)
+								{
 									//k++;
 									//Main.DebugLog("foreach: " +ud.CharacterName);
 									if (!ud.IsMainCharacter && !ud.IsPet)
@@ -1176,78 +2641,23 @@ namespace CustomNpcPortraits
 						if (GUILayout.Button("Next", GUILayout.Width(100f), GUILayout.Height(20f)))
 						{
 							j++;
-							if (RootUIContext.Instance.InGameVM.StaticPartVM.PartyVM.CharactersVM.Count() > 0)
-								Game.Instance.SelectionCharacter.SetSelected(RootUIContext.Instance.InGameVM.StaticPartVM.PartyVM.CharactersVM[j].UnitEntityData);
-							else
-								GUILayout.Label("No partyVM?");
 
-							if (j == RootUIContext.Instance.InGameVM.StaticPartVM.PartyVM.CharactersVM.Count()-1) j = -1;
-
-
-							if (RootUIContext.Instance.CurrentServiceWindow.ToString().Equals("CharacterInfo"))
+							if (RootUIContext.Instance.CurrentServiceWindow.ToString().Equals("CharacterInfo") ||
+								RootUIContext.Instance.CurrentServiceWindow.ToString().Equals("Inventory"))
 							{
+								
+
+								Game.Instance.SelectionCharacter.SetSelected(Game.Instance.SelectionCharacter.ActualGroup.ToArray()[j]);
+
+								if (j == Game.Instance.SelectionCharacter.ActualGroup.ToArray().Count() - 1) j = -1;
 								try
 								{
-									charcterNameDirectoryName = Game.Instance.SelectionCharacter.CurrentSelectedCharacter.CharacterName.cleanCharname();
+
+									//Game.Instance.SelectionCharacter.CurrentSelectedCharacter.CharacterName.cleanCharname();
 									unitEntityData = Game.Instance.SelectionCharacter.CurrentSelectedCharacter;
+									//			Main.DebugLog("4");
+									charcterNameDirectoryName = Main.GetCompanionDirName(unitEntityData);
 
-									if (charcterNameDirectoryName.ToLower().Contains("aruesh"))
-									{
-										if (unitEntityData.View.Blueprint.Race.name.ToLower().Contains("succubusrace"))
-										{
-
-											charcterNameDirectoryName = charcterNameDirectoryName + " - Evil";
-
-
-										}
-										//Main.DebugLog(unitEntityData.View.Blueprint.Race.name);
-									}
-
-									if (charcterNameDirectoryName.Equals("Ciar"))
-									{
-										if (unitEntityData.View.Blueprint.Alignment.ToString().ToLower().Contains("evil"))
-											charcterNameDirectoryName = "Ciar - Undead";
-
-									}
-
-									if (charcterNameDirectoryName.Equals("Queen Galfrey"))
-									{
-										if (unitEntityData.View.Blueprint.Alignment.ToString().ToLower().Contains("evil"))
-											charcterNameDirectoryName = "Queen Galfrey - Undead";
-
-									}
-
-
-									if (charcterNameDirectoryName.Equals("Staunton Vhane"))
-									{
-										if (unitEntityData.Descriptor.IsUndead)
-											charcterNameDirectoryName = "Staunton Vhane - Undead";
-
-									}
-
-
-									//AscendingSuccubus
-									/*}
-									bool b = false;
-									if(b)
-									{*/
-									//UnitEntityData unitEntityData = null;
-
-									//string characterName = unitEntityData.CharacterName.cleanCharname();
-									if (charcterNameDirectoryName.Equals("Nenio"))
-									{
-										if (unitEntityData.GetActivePolymorph().Component == null)
-										{
-
-											//	Main.DebugLog("setp fox");
-											charcterNameDirectoryName = "NenioFox_Portrait";
-
-										}
-										else
-										{
-											//	Main.DebugLog("setp human"); 
-										}
-									}
 									string compPortraitPath = Path.Combine(GetCompanionPortraitsDirectory(), GetCompanionPortraitDirPrefix() + charcterNameDirectoryName);
 
 									//Main.DebugLog(compPortraitPath);
@@ -1258,7 +2668,7 @@ namespace CustomNpcPortraits
 										{
 											string[] dirs = Directory.GetFiles(Path.Combine(compPortraitPath), "*.current");
 
-											if(!Path.GetFileNameWithoutExtension(dirs[0]).Equals("root"))
+											if (!Path.GetFileNameWithoutExtension(dirs[0]).Equals("root"))
 												compDirlabel = Path.GetFileNameWithoutExtension(dirs[0]);
 											else
 												compDirlabel = " - (Character root folder)";
@@ -1273,9 +2683,43 @@ namespace CustomNpcPortraits
 
 									Main.DebugError(e);
 								}
-
 							}
+							/*
 
+							//Main.DebugLog("j: "+j);
+							if (
+								RootUIContext.Instance != null &&
+								RootUIContext.Instance.InGameVM != null &&
+								RootUIContext.Instance.InGameVM.StaticPartVM != null &&
+								RootUIContext.Instance.InGameVM.StaticPartVM.PartyVM != null &&
+								RootUIContext.Instance.InGameVM.StaticPartVM.PartyVM.CharactersVM != null &&
+								RootUIContext.Instance.InGameVM.StaticPartVM.PartyVM.CharactersVM.Count() > 0)
+							{
+							//	Main.DebugLog("1");
+
+								Game.Instance.SelectionCharacter.SetSelected(RootUIContext.Instance.InGameVM.StaticPartVM.PartyVM.CharactersVM[j].UnitEntityData);
+
+								//	Main.DebugLog("2");
+
+								//	Main.DebugLog("2.5");
+
+								if (j == RootUIContext.Instance.InGameVM.StaticPartVM.PartyVM.CharactersVM.Count() - 1) j = -1;
+							//	Main.DebugLog("3");
+
+								if (RootUIContext.Instance.CurrentServiceWindow.ToString().Equals("CharacterInfo"))
+							//		Main.DebugLog("4");
+								{
+							
+
+								}
+								
+							}
+							else
+							{
+								Main.DebugLog("No partyVM?");
+								GUILayout.Label("No partyVM?");
+							}
+							*/
 						}
 						GUILayout.Label(Path.Combine(compdirpath, compDirlabel));
 					}
@@ -1317,14 +2761,14 @@ namespace CustomNpcPortraits
 					GUILayout.EndHorizontal();
 
 
-		
+
 
 					GUILayout.BeginHorizontal(Array.Empty<GUILayoutOption>());
 					if (GUILayout.Button("Save Npc Portraits", GUILayout.Width(200f), GUILayout.Height(20f)))
 					{
 						saveNpcPortraits();
 					}
-					GUILayout.Label("Save all NPC-s' turn based portraits in their respective dirs: " + portraitCounter + " have been saved OK! ( "+ failCounter + " invalid )");
+					GUILayout.Label("Save all NPC-s' turn based portraits in their respective dirs: " + portraitCounter + " have been saved OK! ( " + failCounter + " invalid )");
 					GUILayout.EndHorizontal();
 				}
 				//GUILayout.Label(" ");
@@ -1343,15 +2787,28 @@ namespace CustomNpcPortraits
 					{
 
 						string CurrentSpeakerName = Game.Instance.DialogController.CurrentSpeakerName;
+		
+
+
+
+
+
 						//bool companion = Main.companions.Contains(CurrentSpeakerName);
-						bool companion = Game.Instance.Player.ActiveCompanions.Contains(Game.Instance.DialogController.CurrentSpeaker) || Game.Instance.Player.RemoteCompanions.Contains(Game.Instance.DialogController.CurrentSpeaker);
+						
+						bool companion = Game.Instance.Player.AllCharacters.Contains(RealCurrentSpeakerEntity(CurrentSpeakerName)) || 
+										 Main.companions.Contains(CurrentSpeakerName);
 
 
 
 
-							if (CurrentSpeakerName.Equals("Asty"))
+
+						string CurrentSpeakerBlueprintName = Game.Instance.DialogController.CurrentSpeakerBlueprint.name;
+
+						string NpcPortraitPath = Path.Combine(GetNpcPortraitsDirectory(), CurrentSpeakerName);
+
+						if (CurrentSpeakerName.Equals("Asty"))
 						{
-							
+
 							if (Game.Instance.DialogController.CurrentSpeaker.View.name.ToLower().Contains("drow"))
 								CurrentSpeakerName = "Asty - Drow";
 							else
@@ -1372,14 +2829,11 @@ namespace CustomNpcPortraits
 								savedNpc = true;
 						}
 
-						string CurrentSpeakerBlueprintName = Game.Instance.DialogController.CurrentSpeakerBlueprint.name;
-
-						string NpcPortraitPath = Path.Combine(GetNpcPortraitsDirectory(), CurrentSpeakerName);
-
-						
 
 						if (!companion)
 						{
+
+
 							if (Directory.Exists(NpcPortraitPath) && !Directory.Exists(Path.Combine(NpcPortraitPath, CurrentSpeakerBlueprintName)) && !CurrentSpeakerName.Contains(" - Drow"))
 							{
 
@@ -1412,24 +2866,24 @@ namespace CustomNpcPortraits
 									if (i == strings.Count() - 1)
 									{
 										i = -1;
-									//	Main.DebugLog("Reset! i: " + i.ToString() + " - strings.count: " + strings.Count().ToString());
+										//	Main.DebugLog("Reset! i: " + i.ToString() + " - strings.count: " + strings.Count().ToString());
 									}
 									i++;
 
-		
+
 									foreach (string s in strings)
 									{
-										Main.DebugLog(s);
+										//Main.DebugLog(s);
 									}
 									foreach (string sFile in System.IO.Directory.GetFiles(NpcPortraitPath, "*.current"))
 									{
 										System.IO.File.Delete(sFile);
 									}
-								//	Main.DebugLog("1");
+									//	Main.DebugLog("1");
 
 									if (strings[i].Equals("npc name root Medium png placeholder"))
 									{
-									//	Main.DebugLog("2");
+										//	Main.DebugLog("2");
 
 										npcCycle = "";
 										npcDirlabel = " - (Npc root folder)";
@@ -1438,26 +2892,26 @@ namespace CustomNpcPortraits
 									}
 									else
 									{
-									//	Main.DebugLog(Path.GetFileName(strings[i]));
+										//	Main.DebugLog(Path.GetFileName(strings[i]));
 
 										npcCycle = Path.GetFileName(strings[i]);
 										npcDirlabel = npcCycle;
-									//	Main.DebugLog("3");
+										//	Main.DebugLog("3");
 
 										File.WriteAllText(Path.Combine(NpcPortraitPath, npcCycle + ".current"), "current");
-									//	Main.DebugLog(Path.Combine(NpcPortraitPath, npcCycle + ".current"));
+										//	Main.DebugLog(Path.Combine(NpcPortraitPath, npcCycle + ".current"));
 
 									}
-								//	Main.DebugLog("5");
+									//	Main.DebugLog("5");
 
 									CueShowData cueShowDatum = new CueShowData(Game.Instance.DialogController.CurrentCue, new List<SkillCheckResult>(), new List<AlignmentShift>());
 									EventBus.RaiseEvent<IDialogCueHandler>((IDialogCueHandler h) => h.HandleOnCueShow(cueShowDatum), true);
 									npcCycle = "";
-									
+
 
 								}
-								
-									GUILayout.Label(Path.Combine(NpcPortraitPath, npcDirlabel));
+
+								GUILayout.Label(Path.Combine(NpcPortraitPath, npcDirlabel));
 								GUILayout.EndHorizontal();
 							}
 							else
@@ -1468,7 +2922,7 @@ namespace CustomNpcPortraits
 									Directory.CreateDirectory(NpcPortraitPath);
 
 
-								//	Main.DebugLog("Create dir at: " + NpcPortraitPath);
+									//	Main.DebugLog("Create dir at: " + NpcPortraitPath);
 								}
 								GUILayout.Label(NpcPortraitPath);
 								GUILayout.EndHorizontal();
@@ -1478,42 +2932,48 @@ namespace CustomNpcPortraits
 						{
 							//BlueprintPortrait blueprintPortrait = null;
 
+							CurrentSpeakerName = Main.GetCompanionDirName(RealCurrentSpeakerEntity(Game.Instance.DialogController.CurrentSpeakerName));
+							/*
 							if (CurrentSpeakerName.ToLower().Contains("aruesh"))
 								if (Game.Instance.DialogController.CurrentSpeaker.View.Blueprint.Race.name.ToLower().Contains("succubusrace"))
-									CurrentSpeakerName = "Arueshalae - Evil";
-
-							if (CurrentSpeakerName.Equals("Arueshalae - Evil") && Main.settings.AutoBackup && !savedComp)
-							{
-									savedComp = true;
-									BlueprintPortrait blueprintPortrait = Utilities.GetBlueprintByGuid<BlueprintPortrait>("484588d56f2c2894ab6d48b91509f5e3");
-									Main.SaveOriginals2(blueprintPortrait.Data, Path.Combine(GetCompanionPortraitsDirectory(), GetCompanionPortraitDirPrefix() + CurrentSpeakerName));
-							}
-
+									 = "Arueshalae - Evil";
 							if (CurrentSpeakerName.Equals("Nenio"))
-								if (Game.Instance.DialogController.CurrentSpeaker.GetActivePolymorph().Component == null)
+								if (Game.Instance.DialogController.CurrentSpeaker.GetActivePolymorph().Runtime == null)
 									CurrentSpeakerName = "NenioFox_Portrait";
-
-							if (CurrentSpeakerName.Equals("NenioFox_Portrait") &&Main.settings.AutoBackup && !savedComp)
-							{								
-									savedComp = true;
-									BlueprintPortrait blueprintPortrait = Utilities.GetBlueprintByGuid<BlueprintPortrait>("2b4b8a23024093e42a5db714c2f52dbc");
-									Main.SaveOriginals2(blueprintPortrait.Data, Path.Combine(GetCompanionPortraitsDirectory(), GetCompanionPortraitDirPrefix() + CurrentSpeakerName));							
-							}
-
 							if (CurrentSpeakerName.Equals("Ciar"))
 								if (Game.Instance.DialogController.CurrentSpeaker.View.Blueprint.Alignment == Kingmaker.Enums.Alignment.LawfulEvil)
 									CurrentSpeakerName = "Ciar - Undead";
-
-							if (CurrentSpeakerName.Equals("Ciar - Undead") && Main.settings.AutoBackup && !savedComp)
-							{								
-									savedComp = true;
-									BlueprintPortrait blueprintPortrait = Utilities.GetBlueprintByGuid<BlueprintPortrait>("dc2f02dd42cfe2b40923eb014591a009");
-									Main.SaveOriginals2(blueprintPortrait.Data, Path.Combine(GetCompanionPortraitsDirectory(), GetCompanionPortraitDirPrefix() + CurrentSpeakerName));								  
-							}
-
 							if (CurrentSpeakerName.Equals("Queen Galfrey"))
 								if (Game.Instance.DialogController.CurrentSpeaker.View.Blueprint.Alignment == Kingmaker.Enums.Alignment.LawfulEvil)
 									CurrentSpeakerName = "Queen Galfrey - Undead";
+							if (CurrentSpeakerName.Equals("Staunton Vane"))
+								if (Game.Instance.DialogController.CurrentSpeaker.Descriptor.IsUndead)
+									CurrentSpeakerName = "Staunton Vane - Undead";
+							*/
+
+
+							if (CurrentSpeakerName.Equals("Arueshalae - Evil") && Main.settings.AutoBackup && !savedComp)
+							{
+								savedComp = true;
+								BlueprintPortrait blueprintPortrait = Utilities.GetBlueprintByGuid<BlueprintPortrait>("484588d56f2c2894ab6d48b91509f5e3");
+								Main.SaveOriginals2(blueprintPortrait.Data, Path.Combine(GetCompanionPortraitsDirectory(), GetCompanionPortraitDirPrefix() + CurrentSpeakerName));
+							}
+
+							if (CurrentSpeakerName.Equals("NenioFox_Portrait") && Main.settings.AutoBackup && !savedComp)
+							{
+								savedComp = true;
+								BlueprintPortrait blueprintPortrait = Utilities.GetBlueprintByGuid<BlueprintPortrait>("2b4b8a23024093e42a5db714c2f52dbc");
+								Main.SaveOriginals2(blueprintPortrait.Data, Path.Combine(GetCompanionPortraitsDirectory(), GetCompanionPortraitDirPrefix() + CurrentSpeakerName));
+							}
+
+							if (CurrentSpeakerName.Equals("Ciar - Undead") && Main.settings.AutoBackup && !savedComp)
+							{
+								savedComp = true;
+								BlueprintPortrait blueprintPortrait = Utilities.GetBlueprintByGuid<BlueprintPortrait>("dc2f02dd42cfe2b40923eb014591a009");
+								Main.SaveOriginals2(blueprintPortrait.Data, Path.Combine(GetCompanionPortraitsDirectory(), GetCompanionPortraitDirPrefix() + CurrentSpeakerName));
+							}
+
+
 							/*                          [CustomNpcPortraits] GalfreyUndead_Portrait
 													[CustomNpcPortraits] 767456b1656ca064dadac544d39d7e40
 													[CustomNpcPortraits] GalfreyOld_Portrait
@@ -1528,10 +2988,6 @@ namespace CustomNpcPortraits
 								Main.SaveOriginals2(blueprintPortrait.Data, Path.Combine(GetCompanionPortraitsDirectory(), GetCompanionPortraitDirPrefix() + CurrentSpeakerName));
 							}
 
-							if (CurrentSpeakerName.Equals("Staunton Vane"))
-								if (Game.Instance.DialogController.CurrentSpeaker.Descriptor.IsUndead)
-									CurrentSpeakerName = "Staunton Vane - Undead";
-
 							if (CurrentSpeakerName.Equals("Staunton Vane - Undead") && Main.settings.AutoBackup && !savedComp)
 							{
 								savedComp = true;
@@ -1540,7 +2996,7 @@ namespace CustomNpcPortraits
 							}
 
 
-							
+
 
 
 							string CompanionPortraitPath = Path.Combine(GetCompanionPortraitsDirectory(), GetCompanionPortraitDirPrefix() + CurrentSpeakerName);
@@ -1551,7 +3007,7 @@ namespace CustomNpcPortraits
 								{
 									//Main.DebugLog("3");
 
-									SaveOriginals(Game.Instance.DialogController.CurrentSpeaker.View.Blueprint, CompanionPortraitPath);
+									SaveOriginals(Game.Instance.DialogController.CurrentSpeakerBlueprint, CompanionPortraitPath);
 									savedComp = true;
 								}
 
@@ -1616,7 +3072,7 @@ namespace CustomNpcPortraits
 								{
 									Directory.CreateDirectory(CompanionPortraitPath);
 
-									Main.DebugLog("Create dir at: " + CompanionPortraitPath);
+									//Main.DebugLog("Create dir at: " + CompanionPortraitPath);
 								}
 								GUILayout.Label(CompanionPortraitPath);
 								GUILayout.EndHorizontal();
@@ -1644,7 +3100,7 @@ namespace CustomNpcPortraits
 								{
 
 									List<string> strings = Directory.GetDirectories(portraitDirectorySubPath, "*", SearchOption.TopDirectoryOnly).ToList();
-									
+
 									if (File.Exists(Path.Combine(portraitDirectorySubPath, "Medium.png")))
 									{
 										if (!strings.Exists(x => x.Equals("npc name subroot Medium png placeholder"))) strings.Add("npc name subroot Medium png placeholder");
@@ -1653,16 +3109,16 @@ namespace CustomNpcPortraits
 									if (strings.Count() == 1)
 										i = -1;
 									else
-									if (i == strings.Count()-1) i = -1;
+									if (i == strings.Count() - 1) i = -1;
 
 									i++;
 
 									//unitNames.ForEach(item => strings.Remove(x => x.Contains(item)));
 
-					
+
 									foreach (string s in strings)
 									{
-										Main.DebugLog(s);
+										//Main.DebugLog(s);
 									}
 
 									foreach (string sFile in System.IO.Directory.GetFiles(portraitDirectorySubPath, "*.current"))
@@ -1679,7 +3135,7 @@ namespace CustomNpcPortraits
 									}
 									else
 									{
-										npcSubCycle =  Path.GetFileName(strings[i]);
+										npcSubCycle = Path.GetFileName(strings[i]);
 										npcSubDirlabel = npcSubCycle;
 										File.WriteAllText(Path.Combine(portraitDirectorySubPath, npcSubCycle + ".current"), "current");
 									}
@@ -1688,13 +3144,15 @@ namespace CustomNpcPortraits
 									EventBus.RaiseEvent<IDialogCueHandler>((IDialogCueHandler h) => h.HandleOnCueShow(cueShowDatum), true);
 									npcSubCycle = "";
 
-									
+
 								}
 								GUILayout.Label(Path.Combine(portraitDirectorySubPath, npcSubDirlabel));
 								GUILayout.EndHorizontal();
-
+								GUILayout.BeginHorizontal(Array.Empty<GUILayoutOption>());
+								GUILayout.Label(Game.Instance.DialogController.CurrentSpeakerBlueprint.m_Portrait.NameSafe());
+								GUILayout.EndHorizontal();
 							}
-							else if(!CurrentSpeakerName.Equals(CurrentSpeakerBlueprintName) && !CurrentSpeakerName.Contains(" - Drow"))
+							else if (!CurrentSpeakerName.Equals(CurrentSpeakerBlueprintName) && !CurrentSpeakerName.Contains(" - Drow"))
 							{
 								GUILayout.BeginHorizontal(Array.Empty<GUILayoutOption>());
 								if (GUILayout.Button("Make speaker subcat dir", GUILayout.Width(200f), GUILayout.Height(20f)))
@@ -1703,7 +3161,7 @@ namespace CustomNpcPortraits
 									Directory.CreateDirectory(portraitDirectorySubPath);
 
 
-									Main.DebugLog("Create dir at: " + portraitDirectorySubPath);
+									//Main.DebugLog("Create dir at: " + portraitDirectorySubPath);
 								}
 								string CNameBpName = Path.Combine(CurrentSpeakerName, CurrentSpeakerBlueprintName);
 								GUILayout.Label("..\\" + Path.Combine(NpcPortraitsDirName(), CNameBpName));
@@ -1748,7 +3206,7 @@ namespace CustomNpcPortraits
 								GUILayout.Label(Game.Instance.DialogController.CurrentCue.Speaker.Blueprint.CharacterName);
 						}
 						*/
-					
+
 					//GUILayout.Label("Dialog options! YAAAYYY!!!");
 
 				}
@@ -1759,12 +3217,139 @@ namespace CustomNpcPortraits
 			GUILayout.BeginHorizontal(Array.Empty<GUILayoutOption>());
 			GUILayout.Label("Advanced", boldStyle);
 			GUILayout.EndHorizontal();
+
+
 			Main.settings.ManageCompanions = GUILayout.Toggle(Main.settings.ManageCompanions, "Let the mod manage the portraits of companions and mercenaries.", new GUILayoutOption[0]);
 
 			Main.settings.AutoBackup = GUILayout.Toggle(Main.settings.AutoBackup, "Keep game defaults auto backed up in 'Game Default Portraits' of each subdir.", new GUILayoutOption[0]);
 			Main.settings.AutoSecret = GUILayout.Toggle(Main.settings.AutoSecret, "Extract and use the turn based portraits of NPC-s in dialogs where available.", new GUILayoutOption[0]);
 
+			Main.settings.RightverseGroupPortraits = GUILayout.Toggle(Main.settings.RightverseGroupPortraits, "Show active party portraits first in palces like cities on group portrait bar", new GUILayoutOption[0]);
 
+
+
+
+
+
+			if (!showExtra)
+			{
+				GUILayout.BeginHorizontal(Array.Empty<GUILayoutOption>());
+				if (GUILayout.Button("Show extra options", GUILayout.Width(200f), GUILayout.Height(20f)))
+				{
+					showExtra = true;
+				}
+				GUILayout.EndHorizontal();
+			}
+			else
+			{
+
+				GUILayout.BeginHorizontal(Array.Empty<GUILayoutOption>());
+				if (GUILayout.Button("Close", GUILayout.Width(200f), GUILayout.Height(20f)))
+				{
+					showExtra = false;
+				}
+				GUILayout.EndHorizontal();
+
+				Main.settings.DollroomHalo = GUILayout.Toggle(Main.settings.DollroomHalo, "Show aasimar halo in Inventory window", new GUILayoutOption[0]);
+
+				if (isLoadedGame &&
+					Game.Instance.Player.MainCharacter.Value != null &&
+					Game.Instance.Player.MainCharacter.Value.Progression != null &&
+					Game.Instance.Player.MainCharacter.Value.Progression.GetCurrentMythicClass() != null &&
+					Game.Instance.Player.MainCharacter.Value.Progression.GetCurrentMythicClass().CharacterClass != null &&
+					Game.Instance.Player.MainCharacter.Value.Progression.GetCurrentMythicClass().CharacterClass.Name.Equals("Angel")
+
+					)
+				{
+					Main.settings.ArueHalo = GUILayout.Toggle(Main.settings.ArueHalo, "Arueshalae's angelic gifts should come with the halo ability, if the main char is an Angel", new GUILayoutOption[0]);
+					if (Main.settings.ArueHalo && !Main.settings.ArueHaloAdded)
+					{
+						ArueAddHalo();
+						Main.settings.ArueHaloAdded = true;
+
+						foreach (UnitEntityData unitEntityDatum in Game.Instance.Player.Party)
+						{
+							if (unitEntityDatum.CharacterName == "Arueshalae")
+							{
+								var LightHaloToggle = ResourcesLibrary.TryGetBlueprint<BlueprintActivatableAbility>("248bbb747c273684d9fdf2ed38935def");
+
+								//give
+
+								if (unitEntityDatum.HasFact(LightHaloToggle))
+								{
+									//UIUtility.SendWarning(unitEntityDatum.GetFact(LightHaloToggle).Name);
+
+									unitEntityDatum.GetFact<ActivatableAbility>(LightHaloToggle).IsOn = true;
+								}
+								break;
+							}
+
+						}
+
+
+
+					}
+
+					if (!Main.settings.ArueHalo && Main.settings.ArueHaloAdded)
+					{
+						ArueAddHalo();
+						Main.settings.ArueHaloAdded = false;
+
+					}
+				}
+				else
+				{
+					GUILayout.BeginHorizontal(Array.Empty<GUILayoutOption>());
+					GUILayout.Label("Play on Angel mythic path to have Arueshalae halo option here");
+					GUILayout.EndHorizontal();
+				}
+
+				if (isLoadedGame)
+				{
+					Main.settings.EmberHalo = GUILayout.Toggle(Main.settings.EmberHalo, "Ember is a living saint, she should have a halo too", new GUILayoutOption[0]);
+					if (Main.settings.EmberHalo && !Main.settings.EmberHaloAdded)
+					{
+						//Main.DebugLog("add halo");
+						EmberAddHalo();
+						Main.settings.EmberHaloAdded = true;
+
+						foreach (UnitEntityData unitEntityDatum in Game.Instance.Player.Party)
+						{
+							if (unitEntityDatum.CharacterName == "Ember")
+							{
+
+								//Main.DebugLog("add halo 2");
+								var LightHaloToggle = ResourcesLibrary.TryGetBlueprint<BlueprintActivatableAbility>("248bbb747c273684d9fdf2ed38935def");
+
+								//give
+
+								if (unitEntityDatum.HasFact(LightHaloToggle))
+								{
+									//UIUtility.SendWarning(unitEntityDatum.GetFact(LightHaloToggle).Name);
+
+									unitEntityDatum.GetFact<ActivatableAbility>(LightHaloToggle).IsOn = true;
+								}
+								break;
+							}
+
+						}
+
+
+
+					}
+
+					if (!Main.settings.EmberHalo && Main.settings.EmberHaloAdded)
+					{
+						EmberAddHalo();
+						Main.settings.EmberHaloAdded = false;
+
+					}
+				}
+
+			}
+
+			
+			
 
 
 #if DEBUG
@@ -1851,6 +3436,24 @@ namespace CustomNpcPortraits
 		}
 
 
+
+		public static UnitEntityData RealCurrentSpeakerEntity(string characterName)
+        {
+
+			foreach(UnitEntityData unit in Game.Instance.DialogController.InvolvedUnits)
+            {
+				if(unit.CharacterName.Equals(characterName))
+                {
+					return unit;
+                }
+
+            }
+
+
+
+			return null;
+        }
+
 		public static string npcCycle = "";
 		public static string npcSubCycle = "";
 		public static string compCycle = "";
@@ -1867,6 +3470,7 @@ namespace CustomNpcPortraits
 #if DEBUG
 		private static bool showPatched = false;
 #endif
+		private static bool showExtra = false;
 
 
 		private static void OnShowGUI(UnityModManager.ModEntry modEntry)
@@ -1878,7 +3482,7 @@ namespace CustomNpcPortraits
 				try
 				{
 					//	if (!companions.Contains(charcterNameDirectoryName))
-					if (!Game.Instance.Player.ActiveCompanions.Contains(Game.Instance.DialogController.CurrentSpeaker) && !Game.Instance.Player.RemoteCompanions.Contains(Game.Instance.DialogController.CurrentSpeaker))
+					if (!Game.Instance.Player.AllCharacters.Contains(RealCurrentSpeakerEntity(charcterNameDirectoryName)) && !Main.companions.Contains(RealCurrentSpeakerEntity(charcterNameDirectoryName).CharacterName))
 					{
 						
 							if (charcterNameDirectoryName.Equals("Asty") || charcterNameDirectoryName.Equals("Velhm") || charcterNameDirectoryName.Equals("Tran"))
@@ -1940,73 +3544,22 @@ namespace CustomNpcPortraits
 			}
 
 
-			if (RootUIContext.Instance.CurrentServiceWindow.ToString().Equals("CharacterInfo"))
+			if (RootUIContext.Instance.CurrentServiceWindow.ToString().Equals("CharacterInfo") ||
+				RootUIContext.Instance.CurrentServiceWindow.ToString().Equals("Inventory") )
             {
 				try
 				{
-					string charcterNameDirectoryName = Game.Instance.SelectionCharacter.CurrentSelectedCharacter.CharacterName.cleanCharname();
 					UnitEntityData unitEntityData = Game.Instance.SelectionCharacter.CurrentSelectedCharacter;
 
-						if (charcterNameDirectoryName.ToLower().Contains("aruesh"))
-						{
-							if (unitEntityData.View.Blueprint.Race.name.ToLower().Contains("succubusrace"))
-							{
+					string charcterNameDirectoryName = Main.GetCompanionDirName(unitEntityData);
 
-								charcterNameDirectoryName = charcterNameDirectoryName + " - Evil";
+						//Game.Instance.SelectionCharacter.CurrentSelectedCharacter.CharacterName.cleanCharname();
 
 
-							}
-							//Main.DebugLog(unitEntityData.View.Blueprint.Race.name);
-						}
 
-						if (charcterNameDirectoryName.Equals("Ciar"))
-						{
-							if (unitEntityData.View.Blueprint.Alignment.ToString().ToLower().Contains("evil"))
-								charcterNameDirectoryName = "Ciar - Undead";
+					string compPortraitPath = Path.Combine(GetCompanionPortraitsDirectory(), GetCompanionPortraitDirPrefix() + charcterNameDirectoryName);
 
-						}
-
-						if (charcterNameDirectoryName.Equals("Queen Galfrey"))
-						{
-							if (unitEntityData.View.Blueprint.Alignment.ToString().ToLower().Contains("evil"))
-								charcterNameDirectoryName = "Queen Galfrey - Undead";
-
-						}
-
-
-						if (charcterNameDirectoryName.Equals("Staunton Vhane"))
-						{
-							if (unitEntityData.Descriptor.IsUndead)
-								charcterNameDirectoryName = "Staunton Vhane - Undead";
-
-						}
-
-
-						//AscendingSuccubus
-						/*}
-						bool b = false;
-						if(b)
-						{*/
-						//UnitEntityData unitEntityData = null;
-
-						//string characterName = unitEntityData.CharacterName.cleanCharname();
-						if (charcterNameDirectoryName.Equals("Nenio"))
-						{
-							if (unitEntityData.GetActivePolymorph().Component == null)
-							{
-
-								//	Main.DebugLog("setp fox");
-								charcterNameDirectoryName = "NenioFox_Portrait";
-
-							}
-							else
-							{
-								//	Main.DebugLog("setp human"); 
-							}
-						}
-						string compPortraitPath = Path.Combine(GetCompanionPortraitsDirectory(), GetCompanionPortraitDirPrefix() + charcterNameDirectoryName);
-
-					Main.DebugLog(compPortraitPath); 
+				//	Main.DebugLog(compPortraitPath); 
 
 					if (Directory.Exists(compPortraitPath))
 					{
@@ -2350,86 +3903,28 @@ namespace CustomNpcPortraits
 "Seelah",
 "Sosiel",
 "Staunton Vhane",
+"Ulbrig",
 "Wenduag",
 "Woljif" };
 
 		public static bool isSetPortrait = false;
 		public static PortraitData SetPortrait(UnitEntityData unitEntityData)
 		{
-			Main.DebugLog("SetPortrait(!!!!!!!) "+ unitEntityData.CharacterName);
+			//Main.DebugLog("SetPortrait(!!!!!!!) "+ unitEntityData.CharacterName);
 
 			try
 			{
 				string prefix = Main.GetCompanionPortraitDirPrefix();
 				string portraitsDirectoryPath = Main.GetCompanionPortraitsDirectory();
-				string characterName = unitEntityData.CharacterName.cleanCharname();
-
-				if (characterName.ToLower().Contains("aruesh"))
-				{
-					if (unitEntityData.View.Blueprint.Race.name.ToLower().Contains("succubusrace"))
-					{
-
-						characterName = characterName + " - Evil";
+				
+				
+				
+				
+				string characterName = Main.GetCompanionDirName(unitEntityData);
 
 
-					}
-					//Main.DebugLog(unitEntityData.View.Blueprint.Race.name);
-				}
 
-		//		Main.DebugLog("SetPortrait() 1");
 
-				if (characterName.Equals("Ciar"))
-				{
-					if (unitEntityData.View.Blueprint.Alignment.ToString().ToLower().Contains("evil"))
-						characterName = "Ciar - Undead";
-
-				}
-
-			//	Main.DebugLog("SetPortrait() 2");
-				if (characterName.Equals("Queen Galfrey"))
-				{
-					if (unitEntityData.View.Blueprint.Alignment.ToString().ToLower().Contains("evil"))
-						characterName = "Queen Galfrey - Undead";
-
-				}
-
-		//		Main.DebugLog("SetPortrait() 3");
-				if (characterName.Equals("Staunton Vhane"))
-				{
-					if (unitEntityData.Descriptor.IsUndead)
-						characterName = "Staunton Vhane - Undead";
-
-				}
-			//	Main.DebugLog("SetPortrait() 4");
-
-				//AscendingSuccubus
-				/*}
-				bool b = false;
-				if(b)
-				{*/
-				//UnitEntityData unitEntityData = null;
-
-				//string characterName = unitEntityData.CharacterName.cleanCharname();
-				if (characterName.Equals("Nenio"))
-				{
-					if (unitEntityData.GetActivePolymorph().Component == null)
-					{
-
-						//	Main.DebugLog("setp fox");
-						characterName = "NenioFox_Portrait";
-
-					}
-					else
-					{
-						//	Main.DebugLog("setp human"); 
-					}
-
-					if (Game.Instance.DialogController != null &&
-	Game.Instance.DialogController.CurrentCue != null &&
-	Game.Instance.DialogController.CurrentCue.AssetGuid != null &&
-	Game.Instance.DialogController.CurrentCue.AssetGuid.ToString().Equals("45450b2f327797e41bce701b91118cb4"))
-					characterName = "NenioFox_Portrait";
-				}
 
 			//	Main.DebugLog("SetPortrait() 5");
 				string portraitDirectoryName = prefix + characterName;
@@ -2509,7 +4004,8 @@ namespace CustomNpcPortraits
 
 				//	Main.DebugLog("SetPortrait() 7 " + portraitDirectoryPath);
 
-					PortraitData data = new PortraitData(portraitDirectoryPath);
+					PortraitData data = /*PortraitLoader.LoadPortraitData(portraitDirectoryPath);*/ new PortraitData(portraitDirectoryPath);
+
 
 					if (blueprintPortrait == null)
 					{
@@ -2525,7 +4021,8 @@ namespace CustomNpcPortraits
 					//		Main.DebugLog("SetPortrait() 8");
 
 					typeof(UnitUISettings).GetField("m_CustomPortrait", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(unitEntityData.UISettings, data);
-					//typeof(string).GetField("m_CustomPortraitId", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(unitEntityData.UISettings, blueprintPortrait.Data);
+
+					//typeof(string).GetField("m_CustomPortraitId", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(unitEntityData.UISettings, portraitDirectoryPath);
 
 					typeof(UnitUISettings).GetField("m_Portrait", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(unitEntityData.UISettings, null);
 
@@ -2607,11 +4104,19 @@ namespace CustomNpcPortraits
 					Main.pauseGetPortraitsafe = false;
 					//	Main.DebugLog("SetPortrait() no custom portrait");
 
-					typeof(UnitUISettings).GetField("m_CustomPortrait", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(unitEntityData.UISettings, null);
-					//typeof(string).GetField("m_CustomPortraitId", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(unitEntityData.UISettings, blueprintPortrait.Data);
+					unitEntityData.UISettings.m_CustomPortrait = null;
+					//typeof(UnitUISettings).GetField("m_CustomPortrait", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(unitEntityData.UISettings, null);
+					//typeof(string).GetField("m_CustomPortraitId", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(unitEntityData.UISettings, "");
 
-					typeof(UnitUISettings).GetField("m_Portrait", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(unitEntityData.UISettings, blueprintPortrait);
+					unitEntityData.UISettings.m_Portrait = blueprintPortrait;
+
+					unitEntityData.UISettings.m_Portrait.Data.m_CustomPortraitId = "";
+
+
 					return data;
+					
+					
+					
 					//isSetPortrait = true;
 					//unitEntityData.Descriptor.UISettings.SetPortrait(blueprintPortrait);
 					//isSetPortrait = false;
@@ -2626,19 +4131,147 @@ namespace CustomNpcPortraits
             }
 		}
 
+		public static void ArueAddHalo()
+		{
 
+			if (Game.Instance.Player.MainCharacter.Value != null &&
+				Game.Instance.Player.MainCharacter.Value.Progression != null &&
+				Game.Instance.Player.MainCharacter.Value.Progression.GetCurrentMythicClass() != null &&
+				Game.Instance.Player.MainCharacter.Value.Progression.GetCurrentMythicClass().CharacterClass != null &&
+				Game.Instance.Player.MainCharacter.Value.Progression.GetCurrentMythicClass().CharacterClass.Name.Equals("Angel")
+
+
+
+
+				)
+			{
+				if (Main.settings.ArueHalo && !Main.settings.ArueHaloAdded)
+				{
+					Main.settings.ArueHaloAdded = true;
+					foreach (UnitEntityData unitEntityDatum in Game.Instance.Player.Party)
+					{
+						if (unitEntityDatum.CharacterName == "Arueshalae")
+						{
+							//halo
+							//0b1c9d2964b042e4aadf1616f653eb95
+							var LightHaloFeature = ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("d3f14f00f675a6341a41d2194186835c");
+
+							//horns
+							//var LightHaloFeature = ResourcesLibrary.TryGetBlueprint<BlueprintBuff>("d0649010d93907745a44034ad6eeeb5e");
+							//unitEntityDatum.AddFact(LightHaloFeature);
+
+							//electric halo
+							//var LightHaloFeature = ResourcesLibrary.TryGetBlueprint<BlueprintBuff>("00ca55e6c8dc07142807e40da6e3b13f");
+							//unitEntityDatum.AddFact(LightHaloFeature);
+
+							//give
+							Feature fact = unitEntityDatum.Progression.Features.GetFact(LightHaloFeature);
+
+								if (!unitEntityDatum.HasFact(fact))
+								unitEntityDatum.Progression.Features.AddFeature(LightHaloFeature, null);
+
+							break;
+						}
+
+					}
+				}
+
+				if (!Main.settings.ArueHalo && Main.settings.ArueHaloAdded)
+				{
+					Main.settings.ArueHaloAdded = false;
+					foreach (UnitEntityData unitEntityDatum in Game.Instance.Player.Party)
+					{
+						if (unitEntityDatum.CharacterName == "Arueshalae")
+						{
+							var LightHaloFeature = ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("d3f14f00f675a6341a41d2194186835c");
+
+							//take
+							Feature fact = unitEntityDatum.Progression.Features.GetFact(LightHaloFeature);
+
+							if (unitEntityDatum.HasFact(fact))
+								unitEntityDatum.Progression.Features.RemoveFact(fact);
+
+							break;
+						}
+
+					}
+				}
+			}
+		}
+
+
+		public static void EmberAddHalo()
+		{
+
+				if (Main.settings.EmberHalo && !Main.settings.EmberHaloAdded)
+				{
+					Main.settings.EmberHaloAdded = true;
+					foreach (UnitEntityData unitEntityDatum in Game.Instance.Player.Party)
+					{
+						if (unitEntityDatum.CharacterName == "Ember")
+						{
+						//Main.DebugLog("add ability");
+						//halo
+						//0b1c9d2964b042e4aadf1616f653eb95
+						var LightHaloFeature = ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("d3f14f00f675a6341a41d2194186835c");
+
+							//horns
+							//var LightHaloFeature = ResourcesLibrary.TryGetBlueprint<BlueprintBuff>("d0649010d93907745a44034ad6eeeb5e");
+							//unitEntityDatum.AddFact(LightHaloFeature);
+
+							//electric halo
+							//var LightHaloFeature = ResourcesLibrary.TryGetBlueprint<BlueprintBuff>("00ca55e6c8dc07142807e40da6e3b13f");
+							//unitEntityDatum.AddFact(LightHaloFeature);
+
+							//give
+							Feature fact = unitEntityDatum.Progression.Features.GetFact(LightHaloFeature);
+
+						if (!unitEntityDatum.HasFact(fact))
+						{
+							//Main.DebugLog("add ability 2");
+							unitEntityDatum.Progression.Features.AddFeature(LightHaloFeature, null);
+						}
+							break;
+						}
+
+					}
+				}
+
+				if (!Main.settings.EmberHalo && Main.settings.EmberHaloAdded)
+				{
+					Main.settings.EmberHaloAdded = false;
+					foreach (UnitEntityData unitEntityDatum in Game.Instance.Player.Party)
+					{
+						if (unitEntityDatum.CharacterName == "Arueshalae")
+						{
+							var LightHaloFeature = ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("d3f14f00f675a6341a41d2194186835c");
+
+							//take
+							Feature fact = unitEntityDatum.Progression.Features.GetFact(LightHaloFeature);
+
+							if (unitEntityDatum.HasFact(fact))
+								unitEntityDatum.Progression.Features.RemoveFact(fact);
+
+							break;
+						}
+
+					}
+				}
+			
+		}
 		public static void SetPortraits()
 		{
+
+
 			//Main.DebugLog("SetPortraits()");
 
 			//List<PartyCharacterVM> cvm = RootUIContext.Instance.InGameVM.StaticPartVM.PartyVM.CharactersVM;
-			
 
-		/*	foreach (string tempList in CustomPortraitsManager.Instance.Storage.GetAll.ToTempList<string>())
-			{
-				CustomPortraitsManager.Instance.Storage.Unload(tempList);
-			}*/
 
+			/*	foreach (string tempList in CustomPortraitsManager.Instance.Storage.GetAll.ToTempList<string>())
+				{
+					CustomPortraitsManager.Instance.Storage.Unload(tempList);
+				}*/
 
 			string prefix = Main.GetCompanionPortraitDirPrefix();
 			string portraitsDirectoryPath = Main.GetCompanionPortraitsDirectory();
@@ -2679,111 +4312,72 @@ namespace CustomNpcPortraits
 			foreach (UnitEntityData unitEntityData in allAvailableCommpanions)
 			{
 
-				EventBus.RaiseEvent<IUnitPortraitChangedHandler>((IUnitPortraitChangedHandler h) => h.HandlePortraitChanged(unitEntityData.Descriptor), true);
-				continue;
+				//EventBus.RaiseEvent<IUnitPortraitChangedHandler>((IUnitPortraitChangedHandler h) => h.HandlePortraitChanged(unitEntityData.Descriptor), true);
+		//	continue;
 
 				try
 				{
 					CustomPortraitsManager.Instance.Cleanup();
 
 
-					string characterName = unitEntityData.CharacterName.cleanCharname();
-
-									Main.DebugLog("SetPortraits()"+ characterName);
-					if (characterName.ToLower().Contains("aruesh"))
-					{
-						if (unitEntityData.View.Blueprint.Race.name.ToLower().Contains("succubusrace"))
-						{
-
-							characterName = characterName + " - Evil";
+					string characterName = Main.GetCompanionDirName(unitEntityData);
 
 
-						}
-						Main.DebugLog(unitEntityData.View.Blueprint.Race.name);
-					}
-
-					if (characterName.Equals("Ciar"))
-					{
-						if (unitEntityData.View.Blueprint.Alignment.ToString().ToLower().Contains("evil"))
-							characterName = "Ciar - Undead";
-
-					}
-
-					if (characterName.Equals("Queen Galfrey"))
-					{
-						if (unitEntityData.View.Blueprint.Alignment.ToString().ToLower().Contains("evil"))
-							characterName = "Queen Galfrey - Undead";
-
-					}
-
-
-					if (characterName.Equals("Staunton Vhane"))
-					{
-						if (unitEntityData.Descriptor.IsUndead)
-							characterName = "Staunton Vhane - Undead";
-
-					}
-
-					//AscendingSuccubus
-					/*}
-					bool b = false;
-					if(b)
-					{*/
-					//UnitEntityData unitEntityData = null;
-
-					//string characterName = unitEntityData.CharacterName.cleanCharname();
-					if (characterName.Equals("Nenio"))
-					{
-						if (unitEntityData.GetActivePolymorph().Component == null)
-						{
-
-							//	Main.DebugLog("setp fox");
-							characterName = "NenioFox_Portrait";
-
-						}
-						else
-						{
-							//	Main.DebugLog("setp human"); 
-						}
-					}
 
 					string portraitDirectoryName = prefix + characterName;
 
-					Main.DebugLog("1 - "+Path.Combine(portraitsDirectoryPath, portraitDirectoryName));
+				//	Main.DebugLog("1 - "+Path.Combine(portraitsDirectoryPath, portraitDirectoryName));
 					string portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, portraitDirectoryName);
 
-Main.DebugLog("SetPortrait() 2");
+//Main.DebugLog("SetPortrait() 2");
 
 					Directory.CreateDirectory(portraitDirectoryPath);
 
-					Main.DebugLog("SetPortrait() 3");
+					//	Main.DebugLog("SetPortrait() 3");
+					Main.pauseGetPortraitsafe = true;
 
 					BlueprintPortrait blueprintPortrait = unitEntityData.Blueprint.PortraitSafe;
+					Main.pauseGetPortraitsafe = false;
+
 					//blueprintPortrait = (BlueprintPortrait)typeof(UnitUISettings).GetField("m_Portrait", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(unitEntityData.Descriptor.UISettings);
 
 
-					
-					Main.DebugLog("SetPortrait() 4");
+
+					//	Main.DebugLog("SetPortrait() 4");
 
 					//if (blueprintPortrait != null && blueprintPortrait.Data != null)
-						//if (Main.settings.AutoBackup) SaveOriginals2(blueprintPortrait.Data, portraitDirectoryPath);
-				//	if (blueprintPortrait != null)
-			//			if (Main.settings.AutoBackup) SaveOriginals(unitEntityData.Blueprint, portraitDirectoryPath);
+					//if (Main.settings.AutoBackup) SaveOriginals2(blueprintPortrait.Data, portraitDirectoryPath);
+					//	if (blueprintPortrait != null)
+					//			if (Main.settings.AutoBackup) SaveOriginals(unitEntityData.Blueprint, portraitDirectoryPath);
 
-Main.DebugLog("SetPortrait() 5");
+					//Main.DebugLog("SetPortrait() 5");
 
-					
+
 					if (blueprintPortrait != null && blueprintPortrait.Data != null && blueprintPortrait.Data.IsCustom && !blueprintPortrait.Data.CustomId.IsNullOrEmpty())
 					{
+						if (!blueprintPortrait.Data.CustomId.Contains("Game Default"))
+						{
+							portraitDirectoryPath = blueprintPortrait.Data.CustomId;
 
-						portraitDirectoryPath = blueprintPortrait.Data.CustomId;
-
-						Main.DebugLog("SetPortrait() found custom at: "+ blueprintPortrait.Data.CustomId);
-
+			//				Main.DebugLog("SetPortrait() found custom at: " + blueprintPortrait.Data.CustomId);
+						}
 					}
+
+
+					if (Directory.GetFiles(portraitDirectoryPath, "*.current").Length != 0)
+					{
+						string[] dirs = Directory.GetFiles(portraitDirectoryPath, "*.current");
+
+						string dir = Path.GetFileNameWithoutExtension(dirs[0]);
+						//Main.DebugLog(dir);
+						if (!dir.Equals("root"))
+							portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, portraitDirectoryName, dir);
+						//Main.DebugLog(portraitDirectoryPath);
+					}
+
 					bool missing = false;
 				
-					Main.DebugLog("SetPortrait() 6");
+			//		Main.DebugLog("SetPortrait() 6");
 
 					foreach (string fileName in Main.PortraitFileNames)
 					{
@@ -2793,61 +4387,113 @@ Main.DebugLog("SetPortrait() 5");
 						}
 					}
 
-					Main.DebugLog("SetPortrait() 7");
+			//		Main.DebugLog("SetPortrait() 7" + portraitDirectoryPath);
 
 
 					if (!missing)
 					{
-						Main.DebugLog("SetPortrait() 8");
+				//		Main.DebugLog("SetPortrait() 8");
 
 						blueprintPortrait = BlueprintRoot.Instance.CharGen.CustomPortrait;
 
 						CustomPortraitsManager.Instance.Storage.Unload(Path.Combine(portraitDirectoryPath, "Small.png"));
 						CustomPortraitsManager.Instance.Storage.Unload(Path.Combine(portraitDirectoryPath, "Medium.png"));
 						CustomPortraitsManager.Instance.Storage.Unload(Path.Combine(portraitDirectoryPath, "Fulllength.png"));
-						Main.DebugLog("SetPortrait() 9");
+			//			Main.DebugLog("SetPortrait() 9");
 
 						blueprintPortrait.Data = new PortraitData(portraitDirectoryPath);
 
-						Main.DebugLog("SetPortrait() 99");
+				//		Main.DebugLog("SetPortrait() 99");
 
 						if (unitEntityData.IsPet)
 						{
-							Main.DebugLog("SetPortrait() 999");
+					//		Main.DebugLog("SetPortrait() 999");
 
 							//typeof(PortraitData).GetField("m_PetEyeImage", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(unitEntityData.Descriptor.UISettings, true);
 
 							//BlueprintPortrait bp = (BlueprintPortraitReference)typeof(BlueprintUnit).GetField("m_Portrait", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(unitEntityData.Blueprint);
 
-							Main.DebugLog("getpeteye");
+					//		Main.DebugLog("getpeteye");
 
-							//Main.pauseGetPortraitsafe = true;
-							 blueprintPortrait.Data.m_PetEyeImage = unitEntityData.Blueprint.PortraitSafe.Data.m_PetEyeImage;
-							//Main.pauseGetPortraitsafe = false;
+							Main.pauseGetPortraitsafe = true;
+							blueprintPortrait.Data.m_PetEyeImage = unitEntityData.Blueprint.PortraitSafe.Data.m_PetEyeImage;
+							Main.pauseGetPortraitsafe = false;
 
 
 						}
 
-							Main.DebugLog("SetPortrait() 10");
+				//		Main.DebugLog("SetPortrait() 10");
 
 
 						//isSetPortrait = true;
 						//unitEntityData.UISettings.SetPortrait(blueprintPortrait);
 
-						//typeof(UnitUISettings).GetField("m_CustomPortrait", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(unitEntityData.UISettings, blueprintPortrait.Data);
-						//typeof(UnitUISettings).GetField("m_Portrait", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(unitEntityData.UISettings, null);
+						//	typeof(UnitUISettings).GetField("m_CustomPortrait", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(unitEntityData.UISettings, blueprintPortrait.Data);
+						//	typeof(UnitUISettings).GetField("m_Portrait", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(unitEntityData.UISettings, blueprintPortrait.Data);
 
 						//Main.DebugLog("SetPortrait() 11");
 
 
 						//Main.DebugLog("SetPortrait() 12");
 
-						EventBus.RaiseEvent<IUnitPortraitChangedHandler>((IUnitPortraitChangedHandler h) => h.HandlePortraitChanged(unitEntityData.Descriptor), true);
+						//	EventBus.RaiseEvent<IUnitPortraitChangedHandler>((IUnitPortraitChangedHandler h) => h.HandlePortraitChanged(unitEntityData), true);
 						//Game.Instance.DialogController.CurrentSpeaker.UISettings.SetPortrait(blueprintPortrait);
 
 						//isSetPortrait = false;
-						unitEntityData.UISettings.SetPortrait(blueprintPortrait.Data);
 
+						//KitsunePolymorphBuff_Nenio
+						//BlueprintBuff polyBuffNenio = ResourcesLibrary.TryGetBlueprint<BlueprintBuff>("a13e2e71485901045b1722824019d6f5");
+
+
+
+						if (characterName.Equals("Nenio"))
+						{
+							/*
+							var buff = ResourcesLibrary.TryGetBlueprint<BlueprintBuff>("a13e2e71485901045b1722824019d6f5");
+							var portrait = buff.ComponentsArray.OfType<Polymorph>().FirstOrDefault()?.Portrait.Data;
+							if (portrait is null) return;
+							portrait = blueprintPortrait.Data;
+							*/
+
+							/*
+							unitEntityData.GetActivePolymorph().Component.m_Portrait = blueprintPortrait.ToReference<BlueprintPortraitReference>();
+
+							unitEntityData.UISettings.SetOverridePortrait(blueprintPortrait);
+
+							EventBus.RaiseEvent<IPolymorphActivatedHandler>(delegate (IPolymorphActivatedHandler h)
+							{
+								h.OnPolymorphActivated(unitEntityData, unitEntityData.GetActivePolymorph().Component);
+							}, true);
+							*/
+							//	unitEntityData.GetActivePolymorph().Runtime.OnActivate();
+							//	unitEntityData.GetActivePolymorph().Component.OnActivate();
+
+
+						}
+						else
+						{
+							Main.pauseGetPortraitsafe = true;
+							unitEntityData.UISettings.SetPortrait(blueprintPortrait.Data);
+							Main.pauseGetPortraitsafe = false;
+						}
+						
+						//RootUIContext.Instance.InGameVM.StaticPartVM.PartyVM.CharactersVM[j].PortraitPartVM.HandlePortraitChanged(unitEntityData);
+
+						//GroupController.Instance.m_Characters.ForEach(c => c.Portrait.Initialize(c.Unit));
+
+
+
+
+						//						unitEntityData.Portrait = blueprintPortrait.Data;
+
+						//		unitEntityData.UISettings.m_po
+
+
+						//	typeof(UnitUISettings).GetField("m_CustomPortrait", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(unitEntityData.UISettings, blueprintPortrait.Data);
+						//	typeof(UnitUISettings).GetField("m_Portrait", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(unitEntityData.UISettings, blueprintPortrait.Data);
+
+						//		EventBus.RaiseEvent<IUnitPortraitChangedHandler>((IUnitPortraitChangedHandler h) => h.HandlePortraitChanged(unitEntityData), true);
+						//
 
 						/*			DialogController d = new DialogController();
 
@@ -2922,7 +4568,7 @@ Main.DebugLog("SetPortrait() 5");
 
 						//Main.DebugLog("HERE----------------"+characterName);
 
-						Main.DebugLog("8b");
+					//	Main.DebugLog("8b");
 						blueprintPortrait = (BlueprintPortraitReference)typeof(BlueprintUnit).GetField("m_Portrait", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(unitEntityData.Descriptor.Blueprint);
 
 						//Main.pauseGetPortraitsafe = true;
@@ -2930,7 +4576,7 @@ Main.DebugLog("SetPortrait() 5");
 						//Main.pauseGetPortraitsafe = false;
 						if (blueprintPortrait == null)
 						{
-							Main.DebugLog("9b");
+						//	Main.DebugLog("9b");
 
 							//Main.DebugLog("unitBlueprintPortrait: " + blueprintPortrait.name);
 							//		Main.DebugLog("BlueprintUnit: " + unitEntityData.Blueprint.name);
@@ -3038,7 +4684,7 @@ Main.DebugLog("SetPortrait() 5");
 							blueprintPortrait = (BlueprintPortraitReference)typeof(BlueprintUnit).GetField("m_Portrait", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(unitEntityData.Blueprint);
 
 	*/
-						Main.DebugLog("setportraits: 10b " + characterName);
+			//			Main.DebugLog("setportraits: 10b " + characterName);
 
 						if (unitEntityData.IsPet)
 						{
@@ -3053,14 +4699,17 @@ Main.DebugLog("SetPortrait() 5");
 								//CustomPortraitsManager.Instance.Storage.Unload("1f5bfefa49a8aa2449ad94b1f4f61788");
 								//BlueprintPortrait bp = //BlueprintRoot.Instance.CharGen.CustomPortrait;
 
-								Main.DebugLog("getting bism portrait");
+								///				Main.DebugLog("getting bism portrait");
 
 
 								//BlueprintPortrait bp = unitEntityData.Blueprint.PortraitSafe;// Utilities.GetBlueprintByGuid<BlueprintPortrait>("1f5bfefa49a8aa2449ad94b1f4f61788");
 
 								//blueprintPortrait.Data.m_PetEyeImage = bp.Data.m_PetEyeImage;
+								
+								Main.pauseGetPortraitsafe = true;
 
 								blueprintPortrait = unitEntityData.Blueprint.PortraitSafe;
+								Main.pauseGetPortraitsafe = false;
 
 								unitEntityData.UISettings.SetPortrait(blueprintPortrait.Data);
 								//typeof(UnitUISettings).GetField("m_CustomPortrait", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(unitEntityData.UISettings, null);
@@ -3086,14 +4735,14 @@ Main.DebugLog("SetPortrait() 5");
 						//unitEntityData.UISettings.SetPortrait(blueprintPortrait);
 						//typeof(PortraitData).GetField("m_PetEyeImage", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(unitEntityData.Descriptor.UISettings, true);
 
-						Main.DebugLog("11b");
+					//	Main.DebugLog("11b");
 
 						typeof(UnitUISettings).GetField("m_CustomPortrait", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(unitEntityData.UISettings, blueprintPortrait.Data);
 
-						Main.DebugLog("12b");
+						//Main.DebugLog("12b");
 
 						typeof(UnitUISettings).GetField("m_Portrait", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(unitEntityData.UISettings, null);
-						Main.DebugLog("13b");
+						//Main.DebugLog("13b");
 
 						EventBus.RaiseEvent<IUnitPortraitChangedHandler>((IUnitPortraitChangedHandler h) => h.HandlePortraitChanged(unitEntityData.Descriptor), true);
 
@@ -3211,14 +4860,17 @@ Main.DebugLog("SetPortrait() 5");
 				//Main.DebugLog(mFullLengthImage.AssetId);
 			//	Main.DebugLog("SaveOriginals: Trying to write files for " + bup.CharacterName + " - " + mPortraitImage.Load(true, false));
 				string defdirpath = Path.Combine(path, GetDefaultPortraitsDirName());
-			//	Main.DebugLog("SaveOriginals: " + defdirpath);
+				//	Main.DebugLog("SaveOriginals: " + defdirpath);
 
 
-				if (Main.settings.AutoBackup)			
+				if (Main.settings.AutoBackup)
+				{
 					Directory.CreateDirectory(defdirpath);
 
 
-		
+				}
+
+
 
 
 				bool isNpc = false;
@@ -3228,15 +4880,18 @@ Main.DebugLog("SetPortrait() 5");
 
 
 
-					if (bup.IsCompanion || bup.CharacterName == Game.Instance.Player.MainCharacter.Value.CharacterName)
+					if (bup.IsCompanion || bup.CharacterName == Game.Instance.Player.MainCharacter.Value.CharacterName || Main.companions.Contains(bup.CharacterName) || bup.IsMercenary())
 					{
-						if (isPortraitMissing(defdirpath, bup))
+						if (!File.Exists(Path.Combine(defdirpath, Main.mediumName)))
+							if (isPortraitMissing(defdirpath, bup) )
 						{
 							CreateBaseImages(Path.Combine(defdirpath, Main.smallName), mPortraitImage.Load(true, false), isNpc, false);
 							CreateBaseImages(Path.Combine(defdirpath, Main.mediumName), mHalfLengthImage.Load(true, false), isNpc, false);
 							CreateBaseImages(Path.Combine(defdirpath, Main.fullName), mFullLengthImage.Load(true, false), isNpc, false);
 
-					//		Main.DebugLog("SaveOriginals: all Originals saved OK for " + bup.CharacterName + " in " + defdirpath);
+							File.WriteAllText(Path.Combine(path, GetDefaultPortraitsDirName() + ".current"), "current");
+
+							//		Main.DebugLog("SaveOriginals: all Originals saved OK for " + bup.CharacterName + " in " + defdirpath);
 
 						}
 						else
@@ -3248,8 +4903,16 @@ Main.DebugLog("SetPortrait() 5");
 					{
 						isNpc = true;
 						bool secret = false;
-						if (isPortraitMissing(defdirpath, bup))
+						if (!File.Exists(Path.Combine(defdirpath, Main.mediumName)))
+
+							if (isPortraitMissing(defdirpath, bup))
 						{
+							foreach (string sFile in System.IO.Directory.GetFiles(path, "*.current"))
+							{
+								System.IO.File.Delete(sFile);
+							}
+							File.WriteAllText(Path.Combine(path, GetDefaultPortraitsDirName() + ".current"), "current");
+
 							Sprite medium = mHalfLengthImage.Load(true, false);
 
 							Sprite small = mPortraitImage.Load(true, false);
@@ -3318,10 +4981,15 @@ Main.DebugLog("SetPortrait() 5");
 
 								CreateBaseImages(Path.Combine(path, Main.smallName), mPortraitImage.Load(true, false), false, secret);
 
+								foreach (string sFile in System.IO.Directory.GetFiles(path, "*.current"))
+								{
+									System.IO.File.Delete(sFile);
+								}
+								File.WriteAllText(Path.Combine(path, "root.current"), "current");
 
 
 								//	}
-					//			Main.DebugLog("SaveOriginals: Original saved as Custom portrait OK as " + Path.Combine(path, Main.mediumName));
+								//			Main.DebugLog("SaveOriginals: Original saved as Custom portrait OK as " + Path.Combine(path, Main.mediumName));
 							}
 							else
 							{
@@ -3401,9 +5069,10 @@ Main.DebugLog("SetPortrait() 5");
 
 
 				if (Main.settings.AutoBackup)
+				{
 					Directory.CreateDirectory(defdirpath);
 
-
+				}
 
 
 
@@ -3439,11 +5108,20 @@ Main.DebugLog("SetPortrait() 5");
 					//		Main.DebugLog("SECRET!!!");
 							secret = true;
 							if (Main.settings.AutoBackup)
-							{
-				//				Main.DebugLog("medium");
-								CreateBaseImages(Path.Combine(defdirpath, Main.mediumName), mHalfLengthImage.Load(true, false), true, true);
+								if (!File.Exists(Path.Combine(defdirpath, Main.mediumName)))
+
+								{
+									//				Main.DebugLog("medium");
+									CreateBaseImages(Path.Combine(defdirpath, Main.mediumName), mHalfLengthImage.Load(true, false), true, true);
 					//			Main.DebugLog("small");
 								CreateBaseImages(Path.Combine(defdirpath, Main.smallName), small, isNpc, false);
+
+								foreach (string sFile in System.IO.Directory.GetFiles(path, "*.current"))
+								{
+									System.IO.File.Delete(sFile);
+								}
+								File.WriteAllText(Path.Combine(path, GetDefaultPortraitsDirName() + ".current"), "current");
+
 							}
 						}
 						else
@@ -3453,10 +5131,18 @@ Main.DebugLog("SetPortrait() 5");
 
 							secret = false;
 							if (Main.settings.AutoBackup)
-							{
-								CreateBaseImages(Path.Combine(defdirpath, Main.mediumName), medium, isNpc, secret);
+								if (!File.Exists(Path.Combine(defdirpath, Main.mediumName)))
+
+								{
+									CreateBaseImages(Path.Combine(defdirpath, Main.mediumName), medium, isNpc, secret);
 								CreateBaseImages(Path.Combine(defdirpath, Main.smallName), small, isNpc, secret);
 								CreateBaseImages(Path.Combine(defdirpath, Main.fullName), mFullLengthImage.Load(true, false), false, secret);
+								foreach (string sFile in System.IO.Directory.GetFiles(path, "*.current"))
+								{
+									System.IO.File.Delete(sFile);
+								}
+								File.WriteAllText(Path.Combine(path, GetDefaultPortraitsDirName() + ".current"), "current");
+
 							}
 
 						}
@@ -3567,8 +5253,8 @@ Main.DebugLog("SetPortrait() 5");
 
 					Texture2D newTex = new Texture2D(texWid, texHei);
 
-					Color[] defaultPixels = Enumerable.Repeat<Color>(new Color(0, 0, 0, 0), texWid * texHei).ToArray();
-					Color[] pixels = readabelAtlas.GetPixels(
+					UnityEngine.Color[] defaultPixels = Enumerable.Repeat<UnityEngine.Color>(new UnityEngine.Color(0, 0, 0, 0), texWid * texHei).ToArray();
+					UnityEngine.Color[] pixels = readabelAtlas.GetPixels(
 					  (int)sprite.textureRect.x
 					, (int)sprite.textureRect.y
 					, (int)sprite.textureRect.width
@@ -3638,7 +5324,7 @@ Main.DebugLog("SetPortrait() 5");
 
 				}
 
-				Graphics.Blit(source, renderTex);
+				UnityEngine.Graphics.Blit(source, renderTex);
 				RenderTexture previous = RenderTexture.active;
 				RenderTexture.active = renderTex;
 

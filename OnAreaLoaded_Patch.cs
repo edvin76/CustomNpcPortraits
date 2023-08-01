@@ -28,6 +28,9 @@ namespace CustomNpcPortraits
                // Main.DebugLog("Refresh companion potraits called after arealoded.");
 
                 Main.SafeLoad(new Action(Main.SetPortraits), "Apply custom portraits after saved game loaded");
+                Main.SafeLoad(new Action(Main.ArueAddHalo), "Apply halo to Arueshale");
+                Main.SafeLoad(new Action(Main.EmberAddHalo), "Apply halo to Ember");
+
 
             }
             catch (Exception e)
