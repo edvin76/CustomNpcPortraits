@@ -1912,6 +1912,45 @@ if(be.TypeFullName.Contains("BlueprintUnlockableFlag"))
 
 		}
 
+		/*
+		public static void NenioToggle()
+        {
+
+			foreach (UnitEntityData unitEntityDatum in Game.Instance.Player.Party)
+			{
+				if (unitEntityDatum.CharacterName == "Nenio")
+				{
+					
+					//foreach (var abi in unitEntityDatum.Facts.m_Facts)
+					//{
+					//Main.DebugLog(abi.Name +" - "+abi.GetType() +" - "+abi.Blueprint.name +" - "+abi.Blueprint.AssetGuid);
+					//}
+					//Change Shape - Kingmaker.UnitLogic.ActivatableAbilities.ActivatableAbility - ChangeShapeKitsuneToggleAbility_Nenio - 52bed4c5617625e4faf029b5c750667f
+
+					Main.DebugLog("toggle 1");
+					var shapeToggle = ResourcesLibrary.TryGetBlueprint<BlueprintActivatableAbility>("52bed4c5617625e4faf029b5c750667f");
+
+					Main.DebugLog("toggle "+ shapeToggle.name);
+					//give
+
+					if (unitEntityDatum.HasFact(shapeToggle))
+					{
+						Main.DebugLog("toggle 3");
+						//UIUtility.SendWarning(unitEntityDatum.GetFact(LightHaloToggle).Name);
+						if (unitEntityDatum.Body.IsPolymorphed)
+						{
+							Main.DebugLog("toggle 4");
+						//	unitEntityDatum.GetFact<ActivatableAbility>(shapeToggle).IsOn = false;
+							unitEntityDatum.GetFact<ActivatableAbility>(shapeToggle).IsOn = true;
+						}
+						
+					}
+					break;
+				}
+
+			}
+		}*/
+
 		private static void OnGUI(UnityModManager.ModEntry modEntry)
 		{
 			//bool globalMap = false;
@@ -2501,6 +2540,58 @@ if(be.TypeFullName.Contains("BlueprintUnlockableFlag"))
 				Main.DebugLog("ActingUnit.CharacterName: "+Game.Instance.DialogController.ActingUnit?.CharacterName);
 			}
 			GUILayout.EndHorizontal();
+
+
+			GUILayout.BeginHorizontal(Array.Empty<GUILayoutOption>());
+			if (GUILayout.Button("nenio shapetoggle", GUILayout.Width(200f), GUILayout.Height(20f)))
+			{
+
+
+
+
+
+				foreach (UnitEntityData unitEntityDatum in Game.Instance.Player.Party)
+				{
+					if (unitEntityDatum.CharacterName == "Nenio")
+					{
+						/*
+						foreach (var abi in unitEntityDatum.Facts.m_Facts)
+                        {
+						Main.DebugLog(abi.Name +" - "+abi.GetType() +" - "+abi.Blueprint.name +" - "+abi.Blueprint.AssetGuid);
+						}*/
+						//Change Shape - Kingmaker.UnitLogic.ActivatableAbilities.ActivatableAbility - ChangeShapeKitsuneToggleAbility_Nenio - 52bed4c5617625e4faf029b5c750667f
+
+						//Main.DebugLog("add halo 2");
+						var shapeToggle = ResourcesLibrary.TryGetBlueprint<BlueprintActivatableAbility>("52bed4c5617625e4faf029b5c750667f");
+
+						//give
+						
+						if (unitEntityDatum.HasFact(shapeToggle))
+						{
+							//UIUtility.SendWarning(unitEntityDatum.GetFact(LightHaloToggle).Name);
+							if (unitEntityDatum.GetFact<ActivatableAbility>(shapeToggle).IsOn)
+							{
+								unitEntityDatum.GetFact<ActivatableAbility>(shapeToggle).IsOn = false;
+								unitEntityDatum.GetFact<ActivatableAbility>(shapeToggle).IsOn = true;
+							}
+							else
+							{
+								unitEntityDatum.GetFact<ActivatableAbility>(shapeToggle).IsOn = true;
+								unitEntityDatum.GetFact<ActivatableAbility>(shapeToggle).IsOn = false;
+
+							}
+						}
+						break;
+					}
+
+				}
+			}
+			GUILayout.EndHorizontal();
+
+
+
+
+
 
 #endif
 			GUILayout.BeginHorizontal(Array.Empty<GUILayoutOption>());
@@ -4448,6 +4539,14 @@ if(be.TypeFullName.Contains("BlueprintUnlockableFlag"))
 
 						if (characterName.Equals("Nenio"))
 						{
+
+							//unitEntityData.GetActivePolymorph().Component.OnDeactivate();
+
+							if(unitEntityData.Body.IsPolymorphed)
+							unitEntityData.GetActivePolymorph().Runtime.OnActivate();
+
+
+							//NenioToggle();
 							/*
 							var buff = ResourcesLibrary.TryGetBlueprint<BlueprintBuff>("a13e2e71485901045b1722824019d6f5");
 							var portrait = buff.ComponentsArray.OfType<Polymorph>().FirstOrDefault()?.Portrait.Data;
@@ -4460,10 +4559,11 @@ if(be.TypeFullName.Contains("BlueprintUnlockableFlag"))
 
 							unitEntityData.UISettings.SetOverridePortrait(blueprintPortrait);
 
-							EventBus.RaiseEvent<IPolymorphActivatedHandler>(delegate (IPolymorphActivatedHandler h)
+						EventBus.RaiseEvent<IPolymorphActivatedHandler>(delegate (IPolymorphActivatedHandler h)
 							{
 								h.OnPolymorphActivated(unitEntityData, unitEntityData.GetActivePolymorph().Component);
 							}, true);
+
 							*/
 							//	unitEntityData.GetActivePolymorph().Runtime.OnActivate();
 							//	unitEntityData.GetActivePolymorph().Component.OnActivate();
