@@ -29,10 +29,10 @@ namespace CustomNpcPortraits
 
         public static bool Prefix(BlueprintUnit __instance, ref BlueprintPortrait __result, BlueprintPortrait ___m_Portrait)
         {
-           // return true;
+            //return true;
             // if (!Main.areaLoaded) return true;
 
-         //   Main.DebugLog("GetPortraitSafe() : " + __instance.CharacterName);
+           // Main.DebugLog("GetPortraitSafe() : " + __instance.CharacterName);
 
             
             //  Main.DebugLog("GetPortraitSafe() SceneManager.GetActiveScene().name : " + SceneManager.GetActiveScene().name);
@@ -45,85 +45,49 @@ namespace CustomNpcPortraits
             }
 
 
-         //   Main.DebugLog("GetPortraitSafe() 1");
+           // Main.DebugLog("GetPortraitSafe() 1");
             try
             {
-                /*
+                
                 if ((Game.Instance.CurrentMode == GameModeType.GlobalMap || Game.Instance.CurrentMode == GameModeType.CutsceneGlobalMap )
 &&                        Main.companions.Contains(__instance.CharacterName))
                 {
-          //          Main.DebugLog("getportraitsafe: in");
-                    string characterName = __instance.CharacterName.cleanCharname();
+                   // Main.DebugLog("getportraitsafe: in");
+                    string characterName = Main.GetCompanionDirName(__instance.CharacterName);
                     string prefix = Main.GetCompanionPortraitDirPrefix();
                     string portraitsDirectoryPath = Main.GetCompanionPortraitsDirectory();
-                    //				Main.DebugLog("SetPortraits()"+ characterName);
-                    if (characterName.ToLower().Contains("aruesh"))
-                    {
-                        if (__instance.Race.name.ToLower().Contains("succubusrace"))
-                        {
-
-                            characterName = characterName + " - Evil";
-
-
-                        }
-                       
-                    }
-
-
-
-                    if (characterName.Equals("Ciar"))
-                    {
-                        if (__instance.Alignment.ToString().ToLower().Contains("evil"))
-                            characterName = "Ciar - Undead";
-
-                    }
-
-                    if (characterName.Equals("Queen Galfrey"))
-                    {
-                        if (__instance.Alignment.ToString().ToLower().Contains("evil"))
-                            characterName = "Queen Galfrey - Undead";
-
-                    }
-
-
-                    if (characterName.Equals("Staunton Vhane"))
-                    {
-                        if (__instance.Alignment.ToString().ToLower().Contains("evil"))
-                            characterName = "Staunton Vhane - Undead";
-
-                    }
-
-
+                   // Main.DebugLog("2");
+ 
                     string portraitDirectoryName = prefix + characterName;
 
-                    //	Main.DebugLog("1 - "+Path.Combine(portraitsDirectoryPath, portraitDirectoryName));
+                  // 	Main.DebugLog("2b - "+Path.Combine(portraitsDirectoryPath, portraitDirectoryName));
                     string portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, portraitDirectoryName);
 
-                    //Main.DebugLog("SetPortrait() 2");
+                   // Main.DebugLog("2c");
 
                     Directory.CreateDirectory(portraitDirectoryPath);
 
-                    //Main.DebugLog("SetPortrait() 3");
+                  //  Main.DebugLog("3");
 
                     BlueprintPortrait blueprintPortrait = ___m_Portrait;
 
          
 
 
-                    //Main.DebugLog("SetPortrait() 4");
+                   // Main.DebugLog("4");
 
 
                     if (blueprintPortrait != null && blueprintPortrait.Data != null && blueprintPortrait.Data.IsCustom && !blueprintPortrait.Data.CustomId.IsNullOrEmpty())
                     {
-
+                        if(File.Exists(Path.Combine(blueprintPortrait.Data.CustomId,"Medium.png")))
                         portraitDirectoryPath = blueprintPortrait.Data.CustomId;
 
-                    //    Main.DebugLog("SetPortrait() found custom at: " + blueprintPortrait.Data.CustomId);
+                      //  Main.DebugLog("found custom at: " + blueprintPortrait.Data.CustomId);
 
                     }
                     bool missing = false;
 
-                    //Main.DebugLog("SetPortrait() 6");
+                    //Main.DebugLog("6");
 
                     foreach (string fileName in Main.PortraitFileNames)
                     {
@@ -133,12 +97,12 @@ namespace CustomNpcPortraits
                         }
                     }
 
-                    //Main.DebugLog("SetPortrait() 7");
+                    //Main.DebugLog("7");
 
 
                     if (!missing)
                     {
-                        //	Main.DebugLog("SetPortrait() 8");
+                       // Main.DebugLog("8");
 
                         blueprintPortrait = BlueprintRoot.Instance.CharGen.CustomPortrait;
 
@@ -160,7 +124,7 @@ namespace CustomNpcPortraits
                     else
                         return true;
                 }
-                */
+                
 
                 // Main.DebugLog("GetPortraitSafe() 2");
                 if (Game.Instance.CurrentMode == GameModeType.Cutscene || Game.Instance.CurrentMode == GameModeType.Dialog)

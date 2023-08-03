@@ -34,11 +34,12 @@ namespace CustomNpcPortraits
         // Token: 0x06000053 RID: 83 RVA: 0x00005694 File Offset: 0x00003894
         public static bool Prefix(UnitUISettings __instance, ref PortraitData __result, BlueprintPortrait ___m_Portrait, BlueprintPortrait ___m_CustomPortrait)
         {
-
-            //Main.DebugLog("Getportrait(): " + __instance.Owner.CharacterName);
-
-
             // return true;
+
+            // Main.DebugLog("Getportrait(): " + __instance.Owner.CharacterName);
+
+            // Main.DebugLog(__instance.Owner.Unit.Blueprint.PortraitSafe.name);
+
             if (!Main.enabled || Main.pauseGetPortraitsafe)
             {
                 return true;
@@ -699,6 +700,22 @@ namespace CustomNpcPortraits
                 else
                     portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName, unitNameDirectoryName);
             }
+
+
+            else if (Directory.Exists(Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName)) && Directory.GetFiles(Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName), "*.current").Length != 0)
+            {
+                string[] dirs = Directory.GetFiles(Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName), "*.current");
+
+                string dir = Path.GetFileNameWithoutExtension(dirs[0]);
+                // Main.DebugLog(dir);
+                unitCharNameDirNames = Path.Combine(charcterNameDirectoryName);
+                if (!dir.Equals("root"))
+                    portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName, dir);
+                else
+                    portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName);
+
+
+            }
             // Dovan From Nisroch/Dovan
             else if (File.Exists(Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName, unitNameDirectoryName, "Medium.png")))
                 {
@@ -722,27 +739,28 @@ namespace CustomNpcPortraits
                     portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName, charcterNameDirectoryName);
 
                 }
-            else if (Directory.Exists(Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName)) && Directory.GetFiles(Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName), "*.current").Length != 0)
-            {
-                string[] dirs = Directory.GetFiles(Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName), "*.current");
-
-                string dir = Path.GetFileNameWithoutExtension(dirs[0]);
-               // Main.DebugLog(dir);
-                unitCharNameDirNames = Path.Combine(charcterNameDirectoryName);
-                if (!dir.Equals("root"))
-                    portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName, dir);
-                else
-                    portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName);
-
-
-            }                // all portraits/Oleg Leveton/medium.png
+          // all portraits/Oleg Leveton/medium.png
             else if (File.Exists(Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName, "Medium.png")))
                 {
                     unitCharNameDirNames = Path.Combine(charcterNameDirectoryName);
                     portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName);
 
                 }
-                else
+            else if (File.Exists(Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName,Main.GetDefaultPortraitsDirName(), "Medium.png")))
+            {
+                unitCharNameDirNames = Path.Combine(charcterNameDirectoryName);
+                portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName);
+
+            }
+            else if (File.Exists(Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName, unitNameDirectoryName, Main.GetDefaultPortraitsDirName(), "Medium.png")))
+            {
+
+                unitCharNameDirNames = Path.Combine(charcterNameDirectoryName, unitNameDirectoryName);
+
+                portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName, unitNameDirectoryName);
+
+            }
+            else 
                 {
 
                     portraitDirectoryPath = "";
