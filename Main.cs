@@ -1316,6 +1316,25 @@ namespace CustomNpcPortraits
 		public static bool areaLoaded = false;
 			public static bool Load(UnityModManager.ModEntry modEntry)
 		{
+
+
+
+			if (!settings.isCleaned)
+			{
+				foreach (string sFile in System.IO.Directory.GetFiles(Main.GetCompanionPortraitsDirectory(), GetDefaultPortraitsDirName() + ".current", SearchOption.AllDirectories))
+				{
+					System.IO.File.Delete(sFile);
+				}
+				foreach (string sFile in System.IO.Directory.GetFiles(Main.GetNpcPortraitsDirectory(), GetDefaultPortraitsDirName() + ".current", SearchOption.AllDirectories))
+				{
+					System.IO.File.Delete(sFile);
+				}
+				settings.isCleaned = true;
+				Main.settings.Save(modEntry);
+
+			}
+
+
 			/*
 			//whole body holy lights
 			buffs.Add(ResourcesLibrary.TryGetBlueprint<BlueprintBuff>("2370ee24b03d4cd3b2eb346b7a1a18c0"));
@@ -1379,6 +1398,9 @@ namespace CustomNpcPortraits
 			modEntry.OnToggle = new Func<UnityModManager.ModEntry, bool, bool>(Main.OnToggle);
 
 			modEntry.OnSaveGUI = new Action<UnityModManager.ModEntry>(Main.OnSaveGUI);
+
+			modEntry.OnHideGUI = new Action<UnityModManager.ModEntry>(Main.OnHideGUI);
+
 
 #if DEBUG
 			modEntry.OnUnload = new Func<UnityModManager.ModEntry, bool>(Main.Unload);
@@ -3077,7 +3099,7 @@ if(be.TypeFullName.Contains("BlueprintUnlockableFlag"))
 						{
 
 
-							if (Directory.Exists(NpcPortraitPath) && !Directory.Exists(Path.Combine(NpcPortraitPath, CurrentSpeakerBlueprintName)) && !CurrentSpeakerName.Contains(" - Drow"))
+							if (Directory.Exists(NpcPortraitPath) && /*!Directory.Exists(Path.Combine(NpcPortraitPath, CurrentSpeakerBlueprintName)) && */!CurrentSpeakerName.Contains(" - Drow"))
 							{
 
 								if (Main.settings.AutoBackup && !savedNpc)
@@ -3847,6 +3869,11 @@ if(be.TypeFullName.Contains("BlueprintUnlockableFlag"))
 
 
 		private static void OnSaveGUI(UnityModManager.ModEntry modEntry)
+		{
+			Main.settings.Save(modEntry);
+		}
+
+		private static void OnHideGUI(UnityModManager.ModEntry modEntry)
 		{
 			Main.settings.Save(modEntry);
 		}
@@ -5164,7 +5191,7 @@ if(be.TypeFullName.Contains("BlueprintUnlockableFlag"))
 							CreateBaseImages(Path.Combine(defdirpath, Main.mediumName), mHalfLengthImage.Load(true, false), isNpc, false);
 							CreateBaseImages(Path.Combine(defdirpath, Main.fullName), mFullLengthImage.Load(true, false), isNpc, false);
 
-							File.WriteAllText(Path.Combine(path, GetDefaultPortraitsDirName() + ".current"), "current");
+							//File.WriteAllText(Path.Combine(path, GetDefaultPortraitsDirName() + ".current"), "current");
 
 							//		Main.DebugLog("SaveOriginals: all Originals saved OK for " + bup.CharacterName + " in " + defdirpath);
 
@@ -5182,11 +5209,11 @@ if(be.TypeFullName.Contains("BlueprintUnlockableFlag"))
 
 							if (isPortraitMissing(defdirpath, bup))
 						{
-							foreach (string sFile in System.IO.Directory.GetFiles(path, "*.current"))
-							{
-								System.IO.File.Delete(sFile);
-							}
-							File.WriteAllText(Path.Combine(path, GetDefaultPortraitsDirName() + ".current"), "current");
+						//	foreach (string sFile in System.IO.Directory.GetFiles(path, "*.current"))
+						//	{
+						//		System.IO.File.Delete(sFile);
+						//	}
+						//	File.WriteAllText(Path.Combine(path, GetDefaultPortraitsDirName() + ".current"), "current");
 
 							Sprite medium = mHalfLengthImage.Load(true, false);
 
@@ -5256,11 +5283,11 @@ if(be.TypeFullName.Contains("BlueprintUnlockableFlag"))
 
 								CreateBaseImages(Path.Combine(path, Main.smallName), mPortraitImage.Load(true, false), false, secret);
 
-								foreach (string sFile in System.IO.Directory.GetFiles(path, "*.current"))
-								{
-									System.IO.File.Delete(sFile);
-								}
-								File.WriteAllText(Path.Combine(path, "root.current"), "current");
+							//	foreach (string sFile in System.IO.Directory.GetFiles(path, "*.current"))
+							//	{
+						//			System.IO.File.Delete(sFile);
+							//	}
+							//	File.WriteAllText(Path.Combine(path, "root.current"), "current");
 
 
 								//	}
@@ -5391,13 +5418,13 @@ if(be.TypeFullName.Contains("BlueprintUnlockableFlag"))
 					//			Main.DebugLog("small");
 								CreateBaseImages(Path.Combine(defdirpath, Main.smallName), small, isNpc, false);
 
-								foreach (string sFile in System.IO.Directory.GetFiles(path, "*.current"))
-								{
-									System.IO.File.Delete(sFile);
-								}
-								File.WriteAllText(Path.Combine(path, GetDefaultPortraitsDirName() + ".current"), "current");
+									//	foreach (string sFile in System.IO.Directory.GetFiles(path, "*.current"))
+									//	{
+									//		System.IO.File.Delete(sFile);
+									//	}
+									//	File.WriteAllText(Path.Combine(path, GetDefaultPortraitsDirName() + ".current"), "current");
 
-							}
+								}
 						}
 						else
 
@@ -5412,11 +5439,11 @@ if(be.TypeFullName.Contains("BlueprintUnlockableFlag"))
 									CreateBaseImages(Path.Combine(defdirpath, Main.mediumName), medium, isNpc, secret);
 								CreateBaseImages(Path.Combine(defdirpath, Main.smallName), small, isNpc, secret);
 								CreateBaseImages(Path.Combine(defdirpath, Main.fullName), mFullLengthImage.Load(true, false), false, secret);
-								foreach (string sFile in System.IO.Directory.GetFiles(path, "*.current"))
-								{
-									System.IO.File.Delete(sFile);
-								}
-								File.WriteAllText(Path.Combine(path, GetDefaultPortraitsDirName() + ".current"), "current");
+								//foreach (string sFile in System.IO.Directory.GetFiles(path, "*.current"))
+								//{
+								//	System.IO.File.Delete(sFile);
+								//}
+								//File.WriteAllText(Path.Combine(path, GetDefaultPortraitsDirName() + ".current"), "current");
 
 							}
 

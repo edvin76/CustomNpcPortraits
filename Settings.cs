@@ -25,6 +25,8 @@ namespace CustomNpcPortraits
 
 		public bool ManageCompanions = true;
 
+		public bool isCleaned = false;
+
 		public string enterPoint = "GrayGarrisonBasement1From1stFloor";
 
 		public Settings()

@@ -746,12 +746,6 @@ namespace CustomNpcPortraits
                     portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName);
 
                 }
-            else if (File.Exists(Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName,Main.GetDefaultPortraitsDirName(), "Medium.png")))
-            {
-                unitCharNameDirNames = Path.Combine(charcterNameDirectoryName);
-                portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName);
-
-            }
             else if (File.Exists(Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName, unitNameDirectoryName, Main.GetDefaultPortraitsDirName(), "Medium.png")))
             {
 
@@ -760,6 +754,13 @@ namespace CustomNpcPortraits
                 portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName, unitNameDirectoryName);
 
             }
+            else if (File.Exists(Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName,Main.GetDefaultPortraitsDirName(), "Medium.png")))
+            {
+                unitCharNameDirNames = Path.Combine(charcterNameDirectoryName);
+                portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName);
+
+            }
+
             else 
                 {
 
