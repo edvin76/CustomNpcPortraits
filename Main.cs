@@ -1319,20 +1319,7 @@ namespace CustomNpcPortraits
 
 
 
-			if (!settings.isCleaned)
-			{
-				foreach (string sFile in System.IO.Directory.GetFiles(Main.GetCompanionPortraitsDirectory(), GetDefaultPortraitsDirName() + ".current", SearchOption.AllDirectories))
-				{
-					System.IO.File.Delete(sFile);
-				}
-				foreach (string sFile in System.IO.Directory.GetFiles(Main.GetNpcPortraitsDirectory(), GetDefaultPortraitsDirName() + ".current", SearchOption.AllDirectories))
-				{
-					System.IO.File.Delete(sFile);
-				}
-				settings.isCleaned = true;
-				Main.settings.Save(modEntry);
 
-			}
 
 
 			/*
@@ -1402,6 +1389,24 @@ namespace CustomNpcPortraits
 			modEntry.OnHideGUI = new Action<UnityModManager.ModEntry>(Main.OnHideGUI);
 
 
+			if (!settings.isCleaned)
+			{
+				foreach (string sFile in System.IO.Directory.GetFiles(Main.GetCompanionPortraitsDirectory(), GetDefaultPortraitsDirName() + ".current", SearchOption.AllDirectories))
+				{
+					System.IO.File.Delete(sFile);
+				}
+				foreach (string sFile in System.IO.Directory.GetFiles(Main.GetNpcPortraitsDirectory(), GetDefaultPortraitsDirName() + ".current", SearchOption.AllDirectories))
+				{
+					System.IO.File.Delete(sFile);
+				}
+				foreach (string sFile in System.IO.Directory.GetFiles(Main.GetArmyPortraitsDirectory(), GetDefaultPortraitsDirName() + ".current", SearchOption.AllDirectories))
+				{
+					System.IO.File.Delete(sFile);
+				}
+				settings.isCleaned = true;
+				Main.settings.Save(modEntry);
+
+			}
 #if DEBUG
 			modEntry.OnUnload = new Func<UnityModManager.ModEntry, bool>(Main.Unload);
 
@@ -3517,16 +3522,9 @@ if(be.TypeFullName.Contains("BlueprintUnlockableFlag"))
 
 				Main.settings.DollroomHalo = GUILayout.Toggle(Main.settings.DollroomHalo, "Show aasimar halo in Inventory window", new GUILayoutOption[0]);
 
-				if (isLoadedGame &&
-					Game.Instance.Player.MainCharacter.Value != null &&
-					Game.Instance.Player.MainCharacter.Value.Progression != null &&
-					Game.Instance.Player.MainCharacter.Value.Progression.GetCurrentMythicClass() != null &&
-					Game.Instance.Player.MainCharacter.Value.Progression.GetCurrentMythicClass().CharacterClass != null &&
-					Game.Instance.Player.MainCharacter.Value.Progression.GetCurrentMythicClass().CharacterClass.Name.Equals("Angel")
-
-					)
+				if (isLoadedGame)
 				{
-					Main.settings.ArueHalo = GUILayout.Toggle(Main.settings.ArueHalo, "Arueshalae's angelic gifts should come with the halo ability, if the main char is an Angel", new GUILayoutOption[0]);
+					Main.settings.ArueHalo = GUILayout.Toggle(Main.settings.ArueHalo, "Arueshalae needs a halo!", new GUILayoutOption[0]);
 					if (Main.settings.ArueHalo && !Main.settings.ArueHaloAdded)
 					{
 						ArueAddHalo();
@@ -3565,7 +3563,7 @@ if(be.TypeFullName.Contains("BlueprintUnlockableFlag"))
 				else
 				{
 					GUILayout.BeginHorizontal(Array.Empty<GUILayoutOption>());
-					GUILayout.Label("Play on Angel mythic path to have Arueshalae halo option here");
+					GUILayout.Label("Load a game to see Arueshalae halo option here");
 					GUILayout.EndHorizontal();
 				}
 
@@ -3609,6 +3607,12 @@ if(be.TypeFullName.Contains("BlueprintUnlockableFlag"))
 						Main.settings.EmberHaloAdded = false;
 
 					}
+				}
+								else
+				{
+					GUILayout.BeginHorizontal(Array.Empty<GUILayoutOption>());
+					GUILayout.Label("Load a game to see Ember halo option here");
+					GUILayout.EndHorizontal();
 				}
 
 			}
