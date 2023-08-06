@@ -71,10 +71,19 @@ namespace CustomNpcPortraits
 
                     BlueprintPortrait blueprintPortrait = ___m_Portrait;
 
-         
 
+                    if (Directory.GetFiles(portraitDirectoryPath, "*.current").Length != 0)
+                    {
+                        string[] dirs = Directory.GetFiles(portraitDirectoryPath, "*.current");
 
-                   // Main.DebugLog("4");
+                        string dir = Path.GetFileNameWithoutExtension(dirs[0]);
+                        // Main.DebugLog(dir);
+                        if (!dir.Equals("root"))
+                            portraitDirectoryPath = Path.Combine(portraitDirectoryPath, dir);
+
+                    }
+
+                    // Main.DebugLog("4");
 
 
                     if (blueprintPortrait != null && blueprintPortrait.Data != null && blueprintPortrait.Data.IsCustom && !blueprintPortrait.Data.CustomId.IsNullOrEmpty())

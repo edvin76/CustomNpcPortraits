@@ -1137,6 +1137,31 @@ namespace CustomNpcPortraits
 				//Main.DebugLog("Trying to run popUnitNames");
 				Main.SafeLoad(new Action(popUnitNames), "popUnitNames");
 
+
+
+				Main.settings = UnityModManager.ModSettings.Load<Settings>(ModEntry);
+
+				if (!Main.settings.isCleaned)
+				{
+					foreach (string sFile in System.IO.Directory.GetFiles(Main.GetCompanionPortraitsDirectory(), GetDefaultPortraitsDirName() + ".current", SearchOption.AllDirectories))
+					{
+						System.IO.File.Delete(sFile);
+					}
+					foreach (string sFile in System.IO.Directory.GetFiles(Main.GetNpcPortraitsDirectory(), GetDefaultPortraitsDirName() + ".current", SearchOption.AllDirectories))
+					{
+						System.IO.File.Delete(sFile);
+					}
+					foreach (string sFile in System.IO.Directory.GetFiles(Main.GetArmyPortraitsDirectory(), GetDefaultPortraitsDirName() + ".current", SearchOption.AllDirectories))
+					{
+						System.IO.File.Delete(sFile);
+					}
+					Main.settings.isCleaned = true;
+					Main.settings.Save(ModEntry);
+
+				}
+
+
+
 				/*
 				var groetusFeature = ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("c3e4d5681906d5246ab8b0637b98cbfe");
 				groetusFeature.ComponentsArray = groetusFeature.ComponentsArray
@@ -1313,11 +1338,13 @@ namespace CustomNpcPortraits
 
 		//public static List<BlueprintBuff> bpbuffs = new List<BlueprintBuff>();
 
+		public static ModEntry ModEntry;
+
 		public static bool areaLoaded = false;
 			public static bool Load(UnityModManager.ModEntry modEntry)
 		{
 
-
+			ModEntry = modEntry;
 
 
 
@@ -1389,24 +1416,7 @@ namespace CustomNpcPortraits
 			modEntry.OnHideGUI = new Action<UnityModManager.ModEntry>(Main.OnHideGUI);
 
 
-			if (!settings.isCleaned)
-			{
-				foreach (string sFile in System.IO.Directory.GetFiles(Main.GetCompanionPortraitsDirectory(), GetDefaultPortraitsDirName() + ".current", SearchOption.AllDirectories))
-				{
-					System.IO.File.Delete(sFile);
-				}
-				foreach (string sFile in System.IO.Directory.GetFiles(Main.GetNpcPortraitsDirectory(), GetDefaultPortraitsDirName() + ".current", SearchOption.AllDirectories))
-				{
-					System.IO.File.Delete(sFile);
-				}
-				foreach (string sFile in System.IO.Directory.GetFiles(Main.GetArmyPortraitsDirectory(), GetDefaultPortraitsDirName() + ".current", SearchOption.AllDirectories))
-				{
-					System.IO.File.Delete(sFile);
-				}
-				settings.isCleaned = true;
-				Main.settings.Save(modEntry);
 
-			}
 #if DEBUG
 			modEntry.OnUnload = new Func<UnityModManager.ModEntry, bool>(Main.Unload);
 
