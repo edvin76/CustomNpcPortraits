@@ -1951,55 +1951,56 @@ if(be.TypeFullName.Contains("BlueprintUnlockableFlag"))
 
 			UnitEntityData unitEntityData = Game.Instance.Player.AllCharacters.FirstOrDefault(c => c.CharacterName.Equals(characterName));
 
-
-			string charcterNameDirectoryName = unitEntityData.CharacterName.cleanCharname();
-		//	Main.DebugLog("1 " + charcterNameDirectoryName);
-			if (charcterNameDirectoryName.ToLower().Contains("aruesh"))
+			if (unitEntityData != null)
 			{
-				//if (unitEntityData.Blueprint.Race.name.ToLower().Contains("succubusrace"))
-				if (unitEntityData.Descriptor.Progression.Race.name.ToLower().Contains("succubusrace"))
+				string charcterNameDirectoryName = unitEntityData.CharacterName.cleanCharname();
+				//	Main.DebugLog("1 " + charcterNameDirectoryName);
+				if (charcterNameDirectoryName.ToLower().Contains("aruesh"))
 				{
-					
-					charcterNameDirectoryName = charcterNameDirectoryName + " - Evil";
+					//if (unitEntityData.Blueprint.Race.name.ToLower().Contains("succubusrace"))
+					if (unitEntityData.Descriptor.Progression.Race.name.ToLower().Contains("succubusrace"))
+					{
 
+						charcterNameDirectoryName = charcterNameDirectoryName + " - Evil";
+
+
+					}
+					//Main.DebugLog(unitEntityData.View.Blueprint.Race.name);
+				}
+				//Main.DebugLog("2");
+				if (charcterNameDirectoryName.Equals("Ciar"))
+				{
+					if (unitEntityData.Alignment.ValueRaw.ToString().ToLower().Contains("evil") || unitEntityData.Descriptor.IsUndead)
+
+						//if (unitEntityData.Blueprint.Alignment.ToString().ToLower().Contains("evil") || unitEntityData.Descriptor.IsUndead)
+						charcterNameDirectoryName = "Ciar - Undead";
 
 				}
-				//Main.DebugLog(unitEntityData.View.Blueprint.Race.name);
-			}
-			//Main.DebugLog("2");
-			if (charcterNameDirectoryName.Equals("Ciar"))
-			{
-				if (unitEntityData.Alignment.ValueRaw.ToString().ToLower().Contains("evil") || unitEntityData.Descriptor.IsUndead)
+				//Main.DebugLog("3");
+				if (charcterNameDirectoryName.Equals("Queen Galfrey"))
+				{
+					if (unitEntityData.Blueprint.Alignment.ToString().ToLower().Contains("evil") || unitEntityData.Descriptor.IsUndead)
+						charcterNameDirectoryName = "Queen Galfrey - Undead";
 
-				//if (unitEntityData.Blueprint.Alignment.ToString().ToLower().Contains("evil") || unitEntityData.Descriptor.IsUndead)
-					charcterNameDirectoryName = "Ciar - Undead";
-				
-			}
-			//Main.DebugLog("3");
-			if (charcterNameDirectoryName.Equals("Queen Galfrey"))
-			{
-				if (unitEntityData.Blueprint.Alignment.ToString().ToLower().Contains("evil") || unitEntityData.Descriptor.IsUndead)
-					charcterNameDirectoryName = "Queen Galfrey - Undead";
+				}
+				//Game.Instance.DialogController.CurrentSpeaker.View.Blueprint.Alignment == Kingmaker.Enums.Alignment.LawfulEvil
+				//Main.DebugLog("4");
+				if (charcterNameDirectoryName.Equals("Staunton Vhane"))
+				{
+					if (unitEntityData.Blueprint.Alignment.ToString().ToLower().Contains("evil") || unitEntityData.Descriptor.IsUndead)
+						charcterNameDirectoryName = "Staunton Vhane - Undead";
 
-			}
-			//Game.Instance.DialogController.CurrentSpeaker.View.Blueprint.Alignment == Kingmaker.Enums.Alignment.LawfulEvil
-			//Main.DebugLog("4");
-			if (charcterNameDirectoryName.Equals("Staunton Vhane"))
-			{
-				if (unitEntityData.Blueprint.Alignment.ToString().ToLower().Contains("evil") || unitEntityData.Descriptor.IsUndead)
-					charcterNameDirectoryName = "Staunton Vhane - Undead";
-
-			}
+				}
 
 
-			//AscendingSuccubus
-			//Main.DebugLog("5");
+				//AscendingSuccubus
+				//Main.DebugLog("5");
 
-			//string characterName = unitEntityData.CharacterName.cleanCharname();
-			if (charcterNameDirectoryName.Equals("Nenio"))
-			{
+				//string characterName = unitEntityData.CharacterName.cleanCharname();
+				if (charcterNameDirectoryName.Equals("Nenio"))
+				{
 
-	
+
 					//UIUtility.SendWarning("huh");
 					object campaign;
 					SaveInfo loadingSave = Game.Instance.LoadingSave;
@@ -2018,26 +2019,26 @@ if(be.TypeFullName.Contains("BlueprintUnlockableFlag"))
 					BlueprintCampaign blueprintCampaign = (BlueprintCampaign)campaign;
 					if ((blueprintCampaign != null && !blueprintCampaign.name.IsNullOrEmpty() && !blueprintCampaign.name.Equals("MainCampaign")) || Game.Instance.Player.UnlockableFlags.UnlockedFlags.Keys.FirstOrDefault(x => x.name.Contains("Fox")))
 					{
-						
+
 						//foreach (UnitEntityData ud in Game.Instance.State.PlayerState.AllCharacters)
 						//{
 
 
-							//if (ud.CharacterName.Equals("Nenio"))
-							//{
-								if (!unitEntityData.Body.IsPolymorphed)
-								{
+						//if (ud.CharacterName.Equals("Nenio"))
+						//{
+						if (!unitEntityData.Body.IsPolymorphed)
+						{
 
-						// if (Game.Instance.DialogController.CurrentSpeaker.GetActivePolymorph().Component == null)
+							// if (Game.Instance.DialogController.CurrentSpeaker.GetActivePolymorph().Component == null)
 
 
 
-						//Main.DebugLog("fox");
-									charcterNameDirectoryName = "NenioFox_Portrait";
+							//Main.DebugLog("fox");
+							charcterNameDirectoryName = "NenioFox_Portrait";
 
-								}
+						}
 
-							//}
+						//}
 						//}
 					}
 					/*
@@ -2048,10 +2049,13 @@ if(be.TypeFullName.Contains("BlueprintUnlockableFlag"))
 						characterName = "NenioFox_Portrait";
 					}
 					*/
-	
-			}
 
-			return charcterNameDirectoryName;
+				}
+
+				return charcterNameDirectoryName;
+			}
+			else
+				return characterName;
 
 		}
 
@@ -2672,30 +2676,89 @@ if(be.TypeFullName.Contains("BlueprintUnlockableFlag"))
 			GUILayout.BeginHorizontal(Array.Empty<GUILayoutOption>());
 			if (GUILayout.Button("refresh dialog speaker portrait", GUILayout.Width(200f), GUILayout.Height(20f)))
 			{
+
+				/*
+				foreach (BlueprintPortrait scriptableObject in Utilities.GetScriptableObjects<BlueprintPortrait>())
+				{
+					Main.DebugLog(scriptableObject.name);
+					//string blueprintPath = Utilities.GetBlueprintPath(scriptableObject);
+					//"HosillaKey"
+					if (scriptableObject != null && scriptableObject.name != null && scriptableObject.name.Length > 0 && scriptableObject.name.ToLower().Contains("balor"))																											  //if (blueprintPath.ToLower().Contains("angelbloom"))
+					{
+						SaveOriginals2(scriptableObject.Data, GetNpcPortraitsDirectory());
+						//ItemEntitySimple key = new ItemEntitySimple(scriptableObject);
+
+						
+					}
+					//Main.DebugLog("náme:" + scriptableObject.Name);
+					//Main.DebugLog("path:"+ Utilities.GetBlueprintPath(scriptableObject));
+				}
+				*/
 				CueShowData cueShowDatum = new CueShowData(Game.Instance.DialogController.CurrentCue, new List<SkillCheckResult>(), new List<AlignmentShift>());
 				EventBus.RaiseEvent<IDialogCueHandler>((IDialogCueHandler h) => h.HandleOnCueShow(cueShowDatum), true);
 
 				Main.DebugLog("CurrentSpeakerName: " + Game.Instance.DialogController.CurrentSpeakerName);
 				Main.DebugLog("CurrentSpeaker.CharacterName: " + Game.Instance.DialogController.CurrentSpeaker?.CharacterName);
+				Main.DebugLog("CurrentSpeaker.Portrait.CustomId: " + Game.Instance.DialogController.CurrentSpeaker?.Portrait?.CustomId);
+				Main.DebugLog("Inventory: ");
+				foreach (var item in Game.Instance.DialogController.CurrentSpeaker.Inventory)
+				{
+					Main.DebugLog("   item: " + item.Name + " - " + item.Blueprint.ItemType+ " - " +  item.Blueprint.SubtypeName);
+
+				}
+
+				Main.DebugLog("Body: ");
+				Main.DebugLog("CurrentSpeaker.Blueprint.Body.Armor: " + Game.Instance.DialogController.CurrentSpeaker.Blueprint.Body?.Armor?.NameForAcronym);
+				Main.DebugLog("CurrentSpeaker.Blueprint.Body.Head: " + Game.Instance.DialogController.CurrentSpeaker.Blueprint.Body?.Head?.NameForAcronym);
+				Main.DebugLog("CurrentSpeaker.Blueprint.Body.PrimaryHand: " + Game.Instance.DialogController.CurrentSpeaker.Blueprint?.Body?.PrimaryHand?.NameForAcronym);
+				Main.DebugLog("CurrentSpeaker.Blueprint.Body.SecondaryHand: " + Game.Instance.DialogController.CurrentSpeaker.Blueprint.Body?.SecondaryHand?.NameForAcronym);
+
 				Main.DebugLog("CurrentSpeaker.Blueprint.name: " + Game.Instance.DialogController.CurrentSpeaker?.Blueprint.name);
-				Main.DebugLog("CurrentSpeaker.Blueprint.Name: " + Game.Instance.DialogController.CurrentSpeaker?.Blueprint.Name);
+				Main.DebugLog("CurrentSpeaker.Blueprint.Race: " + Game.Instance.DialogController.CurrentSpeaker.Blueprint.Race);
+				Main.DebugLog("CurrentSpeaker.Blueprint.Gender: " + Game.Instance.DialogController.CurrentSpeaker.Blueprint.Gender);
+				
+				Game.Instance.DialogController.CurrentSpeaker.Progression.Classes.ForEach(n => Main.DebugLog("CurrentSpeaker.Blueprint.Class: " + n.CharacterClass.name));
+				
+				Main.DebugLog("CurrentSpeaker.Blueprint.Alignment: " + Game.Instance.DialogController.CurrentSpeaker.Blueprint.Alignment);
+				Main.DebugLog("CurrentSpeaker.Blueprint.Faction: " + Game.Instance.DialogController.CurrentSpeaker.Blueprint.Faction);
 				Main.DebugLog("CurrentSpeaker.Blueprint.PortraitSafe.name: " + Game.Instance.DialogController.CurrentSpeaker?.Blueprint.PortraitSafe.name);
+				
 
 				Main.DebugLog("CurrentSpeaker->isPolymorphed: " + Game.Instance.DialogController.CurrentSpeaker?.Body.IsPolymorphed);
 
 
 				if ((bool)(Game.Instance.DialogController.CurrentSpeaker?.Body.IsPolymorphed))
 				{
-					Main.DebugLog("in");
+					Main.DebugLog("---------------------Poly start");
 					Main.DebugLog("CurrentSpeaker.GetActivePolymorph().Runtime?.SourceBlueprintComponent.OwnerBlueprint.name: " + Game.Instance.DialogController.CurrentSpeaker.GetActivePolymorph().Runtime?.SourceBlueprintComponent?.OwnerBlueprint?.name);
 					Main.DebugLog("CurrentSpeaker.GetActivePolymorph().Runtime?.SourceBlueprintComponent.OwnerBlueprint.GetComponent<Polymorph>().Portrait.name: " + Game.Instance.DialogController.CurrentSpeaker.GetActivePolymorph().Runtime?.SourceBlueprintComponent?.OwnerBlueprint?.GetComponent<Polymorph>()?.Portrait?.name);
 
-					foreach(var comp in Game.Instance.DialogController.CurrentSpeaker.GetActivePolymorph().Runtime?.SourceBlueprintComponent?.OwnerBlueprint?.ComponentsArray)
+					foreach (var comp in Game.Instance.DialogController.CurrentSpeaker.GetActivePolymorph().Runtime?.SourceBlueprintComponent?.OwnerBlueprint?.ComponentsArray)
                     {
-						Main.DebugLog(comp.name +" - "+comp.GetType());
+						Main.DebugLog("   " + comp.name +" - "+comp.GetType());
 					}
 
-					Main.DebugLog("....name: " + Game.Instance.DialogController.CurrentSpeaker.GetActivePolymorph().Runtime.Owner.View.name);
+					Main.DebugLog("Game.Instance.DialogController.CurrentSpeaker.GetActivePolymorph().Runtime.Owner.View.name: " + Game.Instance.DialogController.CurrentSpeaker.GetActivePolymorph().Runtime.Owner.View.name);
+
+					Main.DebugLog("CurrentSpeaker.ReplaceBlueprintForInspection.Charactername: " + Game.Instance.DialogController.CurrentSpeaker.ReplaceBlueprintForInspection?.CharacterName);
+					Main.DebugLog("CurrentSpeaker.ReplaceBlueprintForInspection.name: " + Game.Instance.DialogController.CurrentSpeaker.ReplaceBlueprintForInspection?.name);
+					Main.DebugLog("CurrentSpeaker.ReplaceBlueprintForInspection.Race: " + Game.Instance.DialogController.CurrentSpeaker.ReplaceBlueprintForInspection?.Race);
+					Main.DebugLog("CurrentSpeaker.ReplaceBlueprintForInspection.Alignment: " + Game.Instance.DialogController.CurrentSpeaker.ReplaceBlueprintForInspection?.Alignment);
+					Main.DebugLog("CurrentSpeaker.ReplaceBlueprintForInspection.Faction: " + Game.Instance.DialogController.CurrentSpeaker.ReplaceBlueprintForInspection?.Faction);
+
+					Main.DebugLog("Inventory: ");
+					if(Game.Instance.DialogController.CurrentSpeaker.ReplaceBlueprintForInspection !=null)
+					foreach (var item in Game.Instance.DialogController.CurrentSpeaker.ReplaceBlueprintForInspection?.m_StartingInventory)
+					{
+						Main.DebugLog("   item: " + item.NameSafe() + " - " + ((BlueprintItem)item.GetBlueprint()).name + " - " + ((BlueprintItem)item.GetBlueprint()).ItemType + " - " + ((BlueprintItem)item.GetBlueprint()).SubtypeName);
+
+					}
+
+					Main.DebugLog("Body: ");
+					Main.DebugLog("CurrentSpeaker.ReplaceBlueprintForInspection.Body.Armor: " + Game.Instance.DialogController.CurrentSpeaker.ReplaceBlueprintForInspection?.Body?.Armor?.NameForAcronym);
+					Main.DebugLog("CurrentSpeaker.ReplaceBlueprintForInspection.Body.Head: " + Game.Instance.DialogController.CurrentSpeaker.ReplaceBlueprintForInspection?.Body?.Head?.NameForAcronym);
+					Main.DebugLog("CurrentSpeaker.ReplaceBlueprintForInspection.Body.PrimaryHand: " + Game.Instance.DialogController.CurrentSpeaker.ReplaceBlueprintForInspection?.Body?.PrimaryHand?.NameForAcronym);
+					Main.DebugLog("CurrentSpeaker.ReplaceBlueprintForInspection.Body.SecondaryHand: " + Game.Instance.DialogController.CurrentSpeaker.ReplaceBlueprintForInspection?.Body?.SecondaryHand?.NameForAcronym);
 
 					//Main.DebugLog(Game.Instance.DialogController.CurrentSpeaker.GetActivePolymorph().Component.Owner?.Blueprint?.name);
 					//Main.DebugLog(Game.Instance.DialogController.CurrentSpeaker.GetActivePolymorph().Component.Owner?.Blueprint?.PortraitSafe?.name);
@@ -2710,9 +2773,9 @@ if(be.TypeFullName.Contains("BlueprintUnlockableFlag"))
 					Main.DebugLog(Game.Instance.DialogController.CurrentSpeaker.GetActivePolymorph().Runtime.GetSubscribingUnit().Blueprint.PortraitSafe.name);
 
 
+					Main.DebugLog("---------------------Polymorph end");
 
 				}
-
 				Main.DebugLog("CurrentSpeakerBlueprint.CharacterName: " + Game.Instance.DialogController.CurrentSpeakerBlueprint?.CharacterName);
 				Main.DebugLog("CurrentSpeakerBlueprint.name: " + Game.Instance.DialogController.CurrentSpeakerBlueprint?.name);
 				Main.DebugLog("CurrentSpeakerBlueprint.Name: " + Game.Instance.DialogController.CurrentSpeakerBlueprint?.Name);
@@ -4237,15 +4300,49 @@ if(be.TypeFullName.Contains("BlueprintUnlockableFlag"))
 							SaveOriginals2(blueprintPortrait.Data, portraitDirectoryPath);
 				//if (blueprintPortrait != null)
 				//if (Main.settings.AutoBackup) SaveOriginals(unitEntityData.Blueprint, portraitDirectoryPath);
+				//Main.DebugLog(Path.Combine(portraitDirectoryPath, Game.Instance.DialogController?.CurrentSpeaker?.Blueprint?.name, "Medium.png"));
+				//bool useSetPortrait = true;
 
-				if (Directory.GetFiles(portraitDirectoryPath, "*.current").Length != 0)
+			if(Game.Instance.DialogController?.CurrentSpeaker?.Blueprint?.name != null && Game.Instance.DialogController?.CurrentSpeaker?.Blueprint?.name.Length > 2 )
+				 if( !Directory.Exists(Path.Combine(portraitDirectoryPath, Game.Instance.DialogController?.CurrentSpeaker?.Blueprint?.name)) &&
+					(bool)Game.Instance.DialogController?.CurrentSpeaker?.Blueprint?.CharacterName.Equals(unitEntityData.CharacterName)
+					
+					)
+					Directory.CreateDirectory(Path.Combine(portraitDirectoryPath, Game.Instance.DialogController?.CurrentSpeaker?.Blueprint?.name));
+
+
+
+				if (unitEntityData.Body.IsPolymorphed && !unitEntityData.CharacterName.Equals("Nenio"))
+					{
+					if (Game.Instance.DialogController?.CurrentSpeaker?.Blueprint?.name != null && Game.Instance.DialogController?.CurrentSpeaker?.Blueprint?.name.Length > 2)
+					{
+						if (!Directory.Exists(Path.Combine(portraitDirectoryPath, Game.Instance.DialogController?.CurrentSpeaker?.GetActivePolymorph().Runtime?.SourceBlueprintComponent?.OwnerBlueprint?.name)) &&
+					   (bool)Game.Instance.DialogController?.CurrentSpeaker?.Blueprint?.CharacterName.Equals(unitEntityData.CharacterName)
+
+					   )
+							Directory.CreateDirectory(Path.Combine(portraitDirectoryPath, Game.Instance.DialogController.CurrentSpeaker.GetActivePolymorph().Runtime?.SourceBlueprintComponent?.OwnerBlueprint?.name));
+
+
+
+						portraitDirectoryPath = Path.Combine(portraitDirectoryPath, Game.Instance.DialogController.CurrentSpeaker.GetActivePolymorph().Runtime?.SourceBlueprintComponent?.OwnerBlueprint?.name);
+					}
+
+
+				}
+				else if ( Game.Instance.DialogController?.CurrentSpeaker?.Blueprint?.name != null && Game.Instance.DialogController?.CurrentSpeaker?.Blueprint?.name.Length > 2 &&
+						File.Exists(Path.Combine(portraitDirectoryPath, Game.Instance.DialogController?.CurrentSpeaker?.Blueprint?.name, "Medium.png")))
+				{
+					portraitDirectoryPath = Path.Combine(portraitDirectoryPath, Game.Instance.DialogController?.CurrentSpeaker?.Blueprint?.name);
+					//useSetPortrait = false;
+				}
+				else if (Directory.GetFiles(portraitDirectoryPath, "*.current").Length != 0)
 				{
 					string[] dirs = Directory.GetFiles(portraitDirectoryPath, "*.current");
 
 					string dir = Path.GetFileNameWithoutExtension(dirs[0]);
 					//Main.DebugLog(dir);
 					if(!dir.Equals("root"))
-					portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, portraitDirectoryName, dir);
+						portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, portraitDirectoryName, dir);
 					//Main.DebugLog(portraitDirectoryPath);
 				}
 				else
@@ -5196,7 +5293,7 @@ if(be.TypeFullName.Contains("BlueprintUnlockableFlag"))
 
 
 
-					if (bup.IsCompanion || bup.CharacterName == Game.Instance.Player.MainCharacter.Value.CharacterName || Main.companions.Contains(bup.CharacterName) || bup.IsMercenary())
+					if (bup.IsCompanion || bup.CharacterName == Game.Instance.Player.MainCharacter.Value.CharacterName || Main.companions.Contains(bup.CharacterName) )
 					{
 						if (!File.Exists(Path.Combine(defdirpath, Main.mediumName)))
 							if (isPortraitMissing(defdirpath, bup) )
