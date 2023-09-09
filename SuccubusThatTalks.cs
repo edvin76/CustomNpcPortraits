@@ -102,6 +102,9 @@ namespace CustomNpcPortraits
             //{mf|Master|Mistress}
             BlueprintDialogReference dialog;
 
+
+
+   
             if (ResourcesLibrary.TryGetBlueprint<BlueprintDialog>("3180a5aeae0c484a8bfe95acf459878c") != null)
             {
                 dialog = ResourcesLibrary.TryGetBlueprint<BlueprintDialog>("3180a5aeae0c484a8bfe95acf459878c").ToReference<BlueprintDialogReference>();
@@ -283,7 +286,7 @@ namespace CustomNpcPortraits
 
 
 
-            CreateActionHolder("1bc6fe52-73a0-4f63-bbc4-4a4ed3953ec4", dialog);
+  
         }
 
 
@@ -306,6 +309,9 @@ namespace CustomNpcPortraits
             var bref = Blueprint.ToReference<BlueprintUnitReference>();
 
             BlueprintDialogReference dialog;
+
+
+
 
 
             if (ResourcesLibrary.TryGetBlueprint<BlueprintDialog>("d18e8e83e305404ebfc0fb0352d9aa80") != null)
@@ -490,7 +496,7 @@ namespace CustomNpcPortraits
                      });
 
 
-            CreateActionHolder("1a50a8e9-eace-4997-b4d0-8a11cc48cb35", dialog);
+   
         }
 
         public void CreateDialog_3()
@@ -512,6 +518,7 @@ namespace CustomNpcPortraits
 
 
             BlueprintDialogReference dialog;
+
 
 
             if (ResourcesLibrary.TryGetBlueprint<BlueprintDialog>("00533f67b1c54292a2f4dc3c6d2cf12d") != null)
@@ -716,10 +723,9 @@ namespace CustomNpcPortraits
             });
 */
 
-            CreateActionHolder("1de57573-1dd8-4235-88fe-bec67ab3e450", dialog);
         }
 
-
+        
         public void CreateDialog_4()
         {
             Name = "MfaneSuccubusGuard";
@@ -762,9 +768,9 @@ namespace CustomNpcPortraits
                 })
             });
 
-            CreateActionHolder("7692e0da-cf2a-4b3a-899d-c80f530cee60", dialog);
+            
         }
-        private void CreateActionHolder(string aguid, BlueprintDialogReference dialog)
+        private void CreateActionHolder(string aguid, string dguid)
         {
            // Log($"Creating ActionHolder for {Name}...");
 
@@ -782,10 +788,7 @@ namespace CustomNpcPortraits
             var startDialog = Helpers.CreateElement<StartDialog>(ActionsHolder);
 
 
-            startDialog.m_Dialogue = dialog;
-
-
-            ActionsHolder.AddToElementsList(startDialog);
+            startDialog.m_Dialogue = ResourcesLibrary.TryGetBlueprint<BlueprintDialog>(dguid).ToReference<BlueprintDialogReference>();
 
             ActionsHolder.Actions = new ActionList()
             {
@@ -867,9 +870,16 @@ namespace CustomNpcPortraits
             if (SceneManager.GetSceneByName("MidnightFane_Caves_Mechanics").isLoaded)
 
             {
+                CreateActionHolder("1bc6fe52-73a0-4f63-bbc4-4a4ed3953ec4", "3180a5ae-ae0c-484a-8bfe-95acf459878c");
                 ReplaceWithCustom("MidnightFane_Caves_Mechanics", "5c2f4bd5-2259-4a05-9080-1aba05bfb13e", "[cr21] NocticulaPriestessPack/Spawner [CR11_SuccubusRanger] (pool) (3)");
+
+                CreateActionHolder("1a50a8e9-eace-4997-b4d0-8a11cc48cb35", "d18e8e83-e305-404e-bfc0-fb0352d9aa80");
                 ReplaceWithCustom("MidnightFane_Caves_Mechanics", "c3edcaa2-ad86-47c1-a07f-6ab47ef7cdaf", "[cr21] NocticulaPriestessPack/Spawner [CR11_SuccubusRanger] (pool) (2)");
+
+                CreateActionHolder("1de57573-1dd8-4235-88fe-bec67ab3e450", "00533f67-b1c5-4292-a2f4-dc3c6d2cf12d");
                 ReplaceWithCustom("MidnightFane_Caves_Mechanics", "62d11150-8247-4df7-9e6a-0fcdd90f6062", "[cr21] NocticulaPriestessPack/Spawner [CR11_SuccubusRanger] (pool) (1)");
+
+                CreateActionHolder("7692e0da-cf2a-4b3a-899d-c80f530cee60", "b9518b8e-32d4-4755-b179-dbbab95ec2cb");
                 ReplaceWithCustom("MidnightFane_Caves_Mechanics", "d4c326fa-919f-494d-8909-a9f72a26f333", "[cr21] NocticulaPriestessPack/[OnlyPC] [CR11_SuccubusRanger] (2)");
 
             }
