@@ -230,6 +230,13 @@ namespace CustomNpcPortraits
 
                     if ((Game.Instance.DialogController.CurrentSpeakerName.Equals("Wirlong Black Mask") && __instance.CharacterName.Equals("Wirlong Black Mask"))
                        || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Nulkineth") && __instance.CharacterName.Equals("Nulkineth"))
+                       || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Suture") && __instance.CharacterName.Equals("Suture"))
+                       || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Kenabres Crusader") && __instance.CharacterName.Equals("Kenabres Crusader"))
+                       || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Commoner") && __instance.CharacterName.Equals("Commoner"))
+                       || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Marilith") && __instance.CharacterName.Equals("Marilith"))
+                       || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Balor") && __instance.CharacterName.Equals("Balor"))
+                       || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Zermangaleth") && __instance.CharacterName.Equals("Zermangaleth"))
+
                        || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Langrat Messini") && __instance.CharacterName.Equals("Langrat Messini"))
                        || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Terta") && __instance.CharacterName.Equals("Terta"))
                        || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Baphomet Cultist") && __instance.CharacterName.Equals("Baphomet Cultist"))
@@ -240,6 +247,22 @@ namespace CustomNpcPortraits
                        || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Cavalry Sculptor") && __instance.CharacterName.Equals("Cavalry Sculptor"))
                        || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Halfling Warrior") && __instance.CharacterName.Equals("Halfling Warrior"))
                        || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Skerenthal the Rock Cleaver") && __instance.CharacterName.Equals("Skerenthal the Rock Cleaver"))
+                       || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Red Mask") && __instance.CharacterName.Equals("Red Mask"))
+                       || (Game.Instance.DialogController.CurrentSpeakerName.Equals("The Sinner") && __instance.CharacterName.Equals("The Sinner"))
+                       || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Mad Glowworm") && __instance.CharacterName.Equals("Mad Glowworm"))
+                       || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Morevet Honeyed Tongue") && __instance.CharacterName.Equals("Morevet Honeyed Tongue"))
+                       || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Ygefeles") && __instance.CharacterName.Equals("Ygefeles"))
+                       || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Lathimas") && __instance.CharacterName.Equals("Lathimas"))
+
+                       || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Fulsome Queen") && __instance.CharacterName.Equals("Fulsome Queen"))
+                       || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Shadow") && __instance.CharacterName.Equals("Shadow"))
+
+
+                       || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Katair") && __instance.CharacterName.Equals("Katair"))
+                       || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Nocticula") && __instance.CharacterName.Equals("Nocticula"))
+                       || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Areelu Vorlesh") && __instance.CharacterName.Equals("Areelu Vorlesh"))
+
+
                        || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Arsinoe") && __instance.CharacterName.Equals("Arsinoe"))
 
                        //    || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Crinukh") && __instance.CharacterName.Equals("Crinukh"))

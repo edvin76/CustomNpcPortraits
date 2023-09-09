@@ -687,8 +687,12 @@ namespace CustomNpcPortraits
                 string portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName);
                 string unitCharNameDirNames = Path.Combine(charcterNameDirectoryName);
 
-            
-            if (Directory.Exists(Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName, unitNameDirectoryName)) && Directory.GetFiles(Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName, unitNameDirectoryName), "*.current").Length != 0)
+            if(Game.Instance.DialogController?.Dialog != null && File.Exists(Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName, Game.Instance.DialogController.Dialog.name, "Medium.png")))
+            {
+                portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName, Game.Instance.DialogController.Dialog.name);
+
+            }
+            else if (Directory.Exists(Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName, unitNameDirectoryName)) && Directory.GetFiles(Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName, unitNameDirectoryName), "*.current").Length != 0)
             {
                 string[] dirs = Directory.GetFiles(Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName, unitNameDirectoryName), "*.current");
 

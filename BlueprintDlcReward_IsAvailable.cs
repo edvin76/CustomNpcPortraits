@@ -9,6 +9,7 @@ namespace CustomNpcPortraits
     [HarmonyPatch(typeof(BlueprintDlcReward), "IsAvailable", MethodType.Getter)]
     internal static class BlueprintDlcReward_IsAvailable_Patch
     {
+
         private static bool Prefix(ref bool __result)
         {
             if (!Main.enabled)

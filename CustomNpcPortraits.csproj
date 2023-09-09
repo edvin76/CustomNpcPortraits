@@ -46,6 +46,9 @@
       <HintPath>D:\Steam\steamapps\common\Pathfinder Second Adventure\Wrath_Data\Managed\Assembly-CSharp.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="Assembly-CSharp-firstpass">
+      <HintPath>D:\Steam\steamapps\common\Pathfinder Second Adventure\Wrath_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
+    </Reference>
     <Reference Include="Owlcat.Runtime.UI">
       <HintPath>c:\Users\walle\Downloads\!!_Projects\CustomNpcPortraits\lib\Owlcat.Runtime.UI_public.dll</HintPath>
       <Private>False</Private>
@@ -91,6 +94,10 @@
       <HintPath>D:\Steam\steamapps\common\Pathfinder Second Adventure\Wrath_Data\Managed\UnityEngine.dll</HintPath>
       <Private>False</Private>
     </Reference>
+    <Reference Include="UnityEngine.AnimationModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>D:\Steam\steamapps\common\Pathfinder Second Adventure\Wrath_Data\Managed\UnityEngine.AnimationModule.dll</HintPath>
+    </Reference>
     <Reference Include="UnityEngine.CoreModule">
       <HintPath>D:\Steam\steamapps\common\Pathfinder Second Adventure\Wrath_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
       <Private>False</Private>
@@ -133,11 +140,16 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Helpers.cs" />
     <Compile Include="KingdomUILeaderCharacterController_SetPortrait_Patch.cs" />
     <Compile Include="GetPortraitSafeGeneral_Patch.cs" />
     <Compile Include="GetPortraitSafe_patch.cs" />
     <Compile Include="GameMode_OnActivate_Patch.cs" />
     <Compile Include="ImageHeader.cs" />
+    <Compile Include="Loggers.cs" />
+    <Compile Include="ObjectDeepCopier.cs" />
+    <Compile Include="SimpleDialog.cs" />
+    <Compile Include="SuccubusThatTalks.cs" />
     <Compile Include="TacticalCombatInitiativeTrackerCurrentUnitPCView_BindViewImplementation_Patch.cs" />
     <Compile Include="InitiativeTrackerUnitVM_Get_Portrait_Patch.cs" />
     <Compile Include="BlueprintDlcReward_IsAvailable.cs" />

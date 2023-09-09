@@ -8,7 +8,7 @@ using Kingmaker.EntitySystem.Entities;
 using Kingmaker.UI._ConsoleUI.TurnBasedMode;
 using Kingmaker.Enums;
 using Owlcat.Runtime.UI;
-using Kingmaker.ResourceManagement;
+//using Kingmaker.ResourceManagement;
 using Kingmaker.UI.MVVM._VM.TacticalCombat.InitiativeTracker;
 using Kingmaker.UI.MVVM._PCView.TacticalCombat.InitiativeTracker;
 using UnityEngine.UI;
