@@ -63,7 +63,10 @@ namespace CustomNpcPortraits
 
             //Log($"Fetching template blueprint {UnitTemplateGuid}...");
 
-
+            CreateDialog_1();
+            CreateDialog_2();
+            CreateDialog_3();
+            CreateDialog_4();
 
 
             EventBus.Subscribe(this);
@@ -82,7 +85,7 @@ namespace CustomNpcPortraits
         public void CreateDialog_1()
         {
             Name = "PoolSuccubus_1";
-            AssetGuid = new BlueprintGuid(Guid.NewGuid()).ToString();
+            AssetGuid = "5c2f4bd5-2259-4a05-9080-1aba05bfb13e";
 
             UnitTemplateGuid = "98ee09f7378a93542ab8ec41223f2cb2";
             SpawnerPath = "[cr21] NocticulaPriestessPack/Spawner [CR11_SuccubusRanger] (pool) (3)";
@@ -97,18 +100,14 @@ namespace CustomNpcPortraits
             var bref = Blueprint.ToReference<BlueprintUnitReference>();
 
             //{mf|Master|Mistress}
+            BlueprintDialogReference dialog;
 
-            var dialog = ResourcesLibrary.TryGetBlueprint<BlueprintDialog>("3180a5aeae0c484a8bfe95acf459878c").ToReference<BlueprintDialogReference>();
-
-
-            if (dialog.Guid.ToString().Equals("3180a5aeae0c484a8bfe95acf459878c"))
+            if (ResourcesLibrary.TryGetBlueprint<BlueprintDialog>("3180a5aeae0c484a8bfe95acf459878c") != null)
             {
-                Dialog = dialog;
-               // Main.DebugLog("1");
-
+                dialog = ResourcesLibrary.TryGetBlueprint<BlueprintDialog>("3180a5aeae0c484a8bfe95acf459878c").ToReference<BlueprintDialogReference>();
             }
             else
-                Dialog = SimpleDialogBuilder.CreateDialog(
+                dialog = SimpleDialogBuilder.CreateDialog(
                      name: "simpledialog.galatea.base",
                      guid: "3180a5ae-ae0c-484a-8bfe-95acf459878c",
                      firstCue: new List<BlueprintCueBaseReference>()
@@ -284,8 +283,7 @@ namespace CustomNpcPortraits
 
 
 
-            CreateActionHolder("1bc6fe52-73a0-4f63-bbc4-4a4ed3953ec4");
-            ReplaceWithCustom("MidnightFane_Caves_Mechanics");
+            CreateActionHolder("1bc6fe52-73a0-4f63-bbc4-4a4ed3953ec4", dialog);
         }
 
 
@@ -293,7 +291,7 @@ namespace CustomNpcPortraits
         public void CreateDialog_2()
         {
             Name = "PoolSuccubus_2";
-            AssetGuid = new BlueprintGuid(Guid.NewGuid()).ToString();
+            AssetGuid = "c3edcaa2-ad86-47c1-a07f-6ab47ef7cdaf";
 
             UnitTemplateGuid = "98ee09f7378a93542ab8ec41223f2cb2";
             SpawnerPath = "[cr21] NocticulaPriestessPack/Spawner [CR11_SuccubusRanger] (pool) (2)";
@@ -307,17 +305,17 @@ namespace CustomNpcPortraits
 
             var bref = Blueprint.ToReference<BlueprintUnitReference>();
 
-            var dialog = ResourcesLibrary.TryGetBlueprint<BlueprintDialog>("d18e8e83e305404ebfc0fb0352d9aa80").ToReference<BlueprintDialogReference>();
+            BlueprintDialogReference dialog;
 
 
-            if (dialog.Guid.ToString().Equals("d18e8e83e305404ebfc0fb0352d9aa80"))
+            if (ResourcesLibrary.TryGetBlueprint<BlueprintDialog>("d18e8e83e305404ebfc0fb0352d9aa80") != null)
             {
-                Dialog = dialog;
+                dialog = ResourcesLibrary.TryGetBlueprint<BlueprintDialog>("d18e8e83e305404ebfc0fb0352d9aa80").ToReference<BlueprintDialogReference>();
                 // Main.DebugLog("1");
 
             }
             else
-                Dialog = SimpleDialogBuilder.CreateDialog(
+                dialog = SimpleDialogBuilder.CreateDialog(
                      name: "simpledialog.clit.base",
                      guid: "d18e8e83-e305-404e-bfc0-fb0352d9aa80",
                             
@@ -492,14 +490,13 @@ namespace CustomNpcPortraits
                      });
 
 
-            CreateActionHolder("1a50a8e9-eace-4997-b4d0-8a11cc48cb35");
-            ReplaceWithCustom("MidnightFane_Caves_Mechanics");
+            CreateActionHolder("1a50a8e9-eace-4997-b4d0-8a11cc48cb35", dialog);
         }
 
         public void CreateDialog_3()
         {
             Name = "PoolSuccubus_3";
-            AssetGuid = new BlueprintGuid(Guid.NewGuid()).ToString();
+            AssetGuid = "62d11150-8247-4df7-9e6a-0fcdd90f6062";
 
             UnitTemplateGuid = "98ee09f7378a93542ab8ec41223f2cb2";
             SpawnerPath = "[cr21] NocticulaPriestessPack/Spawner [CR11_SuccubusRanger] (pool) (1)";
@@ -514,17 +511,17 @@ namespace CustomNpcPortraits
             var bref = Blueprint.ToReference<BlueprintUnitReference>();
 
 
-            var dialog = ResourcesLibrary.TryGetBlueprint<BlueprintDialog>("00533f67b1c54292a2f4dc3c6d2cf12d").ToReference<BlueprintDialogReference>();
+            BlueprintDialogReference dialog;
 
 
-            if (dialog.Guid.ToString().Equals("00533f67b1c54292a2f4dc3c6d2cf12d"))
+            if (ResourcesLibrary.TryGetBlueprint<BlueprintDialog>("00533f67b1c54292a2f4dc3c6d2cf12d") != null)
             {
-                Dialog = dialog;
+                dialog = ResourcesLibrary.TryGetBlueprint<BlueprintDialog>("00533f67b1c54292a2f4dc3c6d2cf12d").ToReference<BlueprintDialogReference>(); 
                 // Main.DebugLog("1");
 
             }
             else
-                Dialog = SimpleDialogBuilder.CreateDialog(
+                dialog = SimpleDialogBuilder.CreateDialog(
                      name: "simpledialog.moni.base",
                      guid: "00533f67-b1c5-4292-a2f4-dc3c6d2cf12d",
 
@@ -598,7 +595,7 @@ namespace CustomNpcPortraits
                                                  name: "simpledialog.moni.loop.3",
                                                  guid: "f87beeec-923a-4ce4-972c-c98f64855de2",
                                                  speaker: bref,
-                                                 text: "\"If you are serious then there is a way. Wait for years and years. If she waits until he gets disappointed with all of his other long term relationships and he sees that she's been the only one he could rely on for steady sex forever, then he will realize she is the one. Remember history is created by those who show up. Just be always present, whenever he wants sex or only a bj. Ideally both of you should et yourself checked out by the priests for carnal diseases every year. Remember every single person who got something trusted their partners. Without exception, every single one of them. Let that sink in for a moment. Also, figure out what his ultimate desire is that he won't get from other girls and reliably provide it. He might need a lot of experience in the first place to know himself enough to know what that is and to realize that it is not easy to get. More often than not for a guy it is 3somes with 2 girls though. Sometimes it is 2 guys and one girl. She should figure it out and make herself unexpendable. If he has no such sexual kink then he needs to get his hormones checked or perhaps he is not even worth the trouble.\"",
+                                                 text: "\"If she is serious then there is a way. Wait for years and years. If she waits until he gets disappointed with all of his other long term relationships and he sees that she's been the only one he could rely on for steady sex forever, then he will realize she is the one. Remember history is created by those who show up. Just be always present, whenever he wants sex or only a bj. Ideally both of you should et yourself checked out by the priests for carnal diseases every year. Remember every single person who got something trusted their partners. Without exception, every single one of them. Let that sink in for a moment. Also, figure out what his ultimate desire is that he won't get from other girls and reliably provide it. He might need a lot of experience in the first place to know himself enough to know what that is and to realize that it is not easy to get. More often than not for a guy it is 3somes with 2 girls though. Sometimes it is 2 guys and one girl. She should figure it out and make herself unexpendable. If he has no such sexual kink then he needs to get his hormones checked or perhaps he is not even worth the trouble.\"",
                                                  cueSelection: new Kingmaker.DialogSystem.CueSelection()
                                                  {
                                                      Cues = new List<BlueprintCueBaseReference>()
@@ -719,15 +716,14 @@ namespace CustomNpcPortraits
             });
 */
 
-            CreateActionHolder("1de57573-1dd8-4235-88fe-bec67ab3e450");
-            ReplaceWithCustom("MidnightFane_Caves_Mechanics");
+            CreateActionHolder("1de57573-1dd8-4235-88fe-bec67ab3e450", dialog);
         }
 
 
         public void CreateDialog_4()
         {
             Name = "MfaneSuccubusGuard";
-            AssetGuid = new BlueprintGuid(Guid.NewGuid()).ToString();
+            AssetGuid = "d4c326fa-919f-494d-8909-a9f72a26f333";
             //cleopatra dark-red hair smallblack wings
             UnitTemplateGuid = "2db556136eac2544fa9744314c2a5713";
 
@@ -748,9 +744,9 @@ namespace CustomNpcPortraits
 
             var bref = Blueprint.ToReference<BlueprintUnitReference>();
 
-            Dialog = SimpleDialogBuilder.CreateDialog("simpledialog.cydaea.base", Guid.NewGuid().ToString().ToUpper(), new List<BlueprintCueBaseReference>()
+            var dialog = SimpleDialogBuilder.CreateDialog("simpledialog.cydaea.base", "b9518b8e-32d4-4755-b179-dbbab95ec2cb", new List<BlueprintCueBaseReference>()
             {
-                SimpleDialogBuilder.CreateCue("simpledialog.cydaea.greet", Guid.NewGuid().ToString().ToUpper(), bref, "{mf|Master|Mistress}, I am Cydaea who had no dialog but I can speak now!", new List<BlueprintAnswerBaseReference>()
+                SimpleDialogBuilder.CreateCue("simpledialog.cydaea.greet", "489d28ba-5dfc-4e9c-9ac7-67f6a58a1404", bref, "{mf|Master|Mistress}, I am Cydaea who had no dialog but I can speak now!", new List<BlueprintAnswerBaseReference>()
                 {
                     /*SimpleDialogBuilder.CreateAnswerList("simpledialog.citizen.greet.answerlist", "785607FF-2B69-44AC-B959-CBAD6BED959C", new List<BlueprintAnswerBaseReference>()
                     {
@@ -766,23 +762,27 @@ namespace CustomNpcPortraits
                 })
             });
 
-            CreateActionHolder("7692e0da-cf2a-4b3a-899d-c80f530cee60");
-            ReplaceWithCustom("MidnightFane_Caves_Mechanics");
+            CreateActionHolder("7692e0da-cf2a-4b3a-899d-c80f530cee60", dialog);
         }
-        private void CreateActionHolder(string guid)
+        private void CreateActionHolder(string aguid, BlueprintDialogReference dialog)
         {
            // Log($"Creating ActionHolder for {Name}...");
 
+            
             ActionName = "ActionSuccubusThatTalks" + Name;
-            ActionGuid = guid;
+            ActionGuid = aguid;
 
-            if (ResourcesLibrary.TryGetScriptable<ActionsHolder>(guid) == null)
+            //Main.DebugLog(ActionName);
+
+            if (ResourcesLibrary.TryGetScriptable<ActionsHolder>(aguid) == null)
                 ActionsHolder = Helpers.CreateAndAddESO<ActionsHolder>(ActionName, ActionGuid);
             else
-                ActionsHolder = ResourcesLibrary.TryGetScriptable<ActionsHolder>(guid);
+                ActionsHolder = ResourcesLibrary.TryGetScriptable<ActionsHolder>(aguid);
 
             var startDialog = Helpers.CreateElement<StartDialog>(ActionsHolder);
-            startDialog.m_Dialogue = Dialog;
+
+
+            startDialog.m_Dialogue = dialog;
 
 
             ActionsHolder.AddToElementsList(startDialog);
@@ -799,14 +799,15 @@ namespace CustomNpcPortraits
 
         }
 
-        public void ReplaceWithCustom(string spawnerScene)
+        public void ReplaceWithCustom(string spawnerScene, string guid, string spawnerPath)
         {
-      
 
+            BlueprintUnit unit = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>(guid.ToGUID());
             //Log($"Target scene {SpawnerScene} detected!");
             //Log($"Fetching spawner: {SpawnerPath}");
 
-            var spawnerholder = SceneManager.GetSceneByName(spawnerScene).GetRootGameObjects().Where(obj => obj.name == "Spawners").FirstOrDefault().transform.Find(SpawnerPath);
+
+            var spawnerholder = SceneManager.GetSceneByName(spawnerScene).GetRootGameObjects().Where(obj => obj.name == "Spawners").FirstOrDefault().transform.Find(spawnerPath);
 
             if (spawnerholder == null)
             {
@@ -824,7 +825,7 @@ namespace CustomNpcPortraits
 
             //Log($"Replacing target unit with {Name}...");
 
-            Spawner.Blueprint = Blueprint;
+            Spawner.Blueprint = unit;
 
 
 
@@ -866,15 +867,15 @@ namespace CustomNpcPortraits
             if (SceneManager.GetSceneByName("MidnightFane_Caves_Mechanics").isLoaded)
 
             {
-                CreateDialog_1();
-                CreateDialog_2();
-                CreateDialog_3();
-                CreateDialog_4();
+                ReplaceWithCustom("MidnightFane_Caves_Mechanics", "5c2f4bd5-2259-4a05-9080-1aba05bfb13e", "[cr21] NocticulaPriestessPack/Spawner [CR11_SuccubusRanger] (pool) (3)");
+                ReplaceWithCustom("MidnightFane_Caves_Mechanics", "c3edcaa2-ad86-47c1-a07f-6ab47ef7cdaf", "[cr21] NocticulaPriestessPack/Spawner [CR11_SuccubusRanger] (pool) (2)");
+                ReplaceWithCustom("MidnightFane_Caves_Mechanics", "62d11150-8247-4df7-9e6a-0fcdd90f6062", "[cr21] NocticulaPriestessPack/Spawner [CR11_SuccubusRanger] (pool) (1)");
+                ReplaceWithCustom("MidnightFane_Caves_Mechanics", "d4c326fa-919f-494d-8909-a9f72a26f333", "[cr21] NocticulaPriestessPack/[OnlyPC] [CR11_SuccubusRanger] (2)");
 
             }
 
 
-           // EventBus.Subscribe(this);
+            // EventBus.Subscribe(this);
 
         }
         public void Dispose()
@@ -1101,8 +1102,9 @@ namespace CustomNpcPortraits
                                 if (t2.GetRawTextureData().Length > 1)
                                     File.WriteAllBytes(Path.Combine(Main.GetCompanionPortraitsDirectory(), texture.name + ".png"), t2.EncodeToPNG());
                                 else
-                                    Main.DebugLog("texture is null");
-
+                                    Main.DebugLog("texture size is 0");
+                            else
+                                Main.DebugLog("texture is null");
 
                         }
                         catch (Exception e)

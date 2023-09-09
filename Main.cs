@@ -1054,6 +1054,7 @@ namespace CustomNpcPortraits
 				if (loaded) return;
 				loaded = true;
 
+				Directory.CreateDirectory(Main.GetCompanionPortraitsDirectory());
 
 				Main.GetNpcPortraitsDirectory();
 				Main.GetArmyPortraitsDirectory();
@@ -1297,6 +1298,7 @@ namespace CustomNpcPortraits
 		public static bool areaLoaded = false;
 			public static bool Load(UnityModManager.ModEntry modEntry)
 		{
+
 
 			ModEntry = modEntry;
 
@@ -2546,11 +2548,13 @@ if(be.TypeFullName.Contains("BlueprintUnlockableFlag"))
 
 					//Main.DebugLog(new BlueprintGuid(Guid.NewGuid()).ToString());
 
-					new SuccubusThatTalks().CreateDialog_1();
-					new SuccubusThatTalks().CreateDialog_2();
-					new SuccubusThatTalks().CreateDialog_3();
-					new SuccubusThatTalks().CreateDialog_4();
 
+					new SuccubusThatTalks().Create();
+
+					new SuccubusThatTalks().ReplaceWithCustom("MidnightFane_Caves_Mechanics", "5c2f4bd5-2259-4a05-9080-1aba05bfb13e", "[cr21] NocticulaPriestessPack/Spawner [CR11_SuccubusRanger] (pool) (3)");
+					new SuccubusThatTalks().ReplaceWithCustom("MidnightFane_Caves_Mechanics", "c3edcaa2-ad86-47c1-a07f-6ab47ef7cdaf", "[cr21] NocticulaPriestessPack/Spawner [CR11_SuccubusRanger] (pool) (2)");
+					new SuccubusThatTalks().ReplaceWithCustom("MidnightFane_Caves_Mechanics", "62d11150-8247-4df7-9e6a-0fcdd90f6062", "[cr21] NocticulaPriestessPack/Spawner [CR11_SuccubusRanger] (pool) (1)");
+					new SuccubusThatTalks().ReplaceWithCustom("MidnightFane_Caves_Mechanics", "d4c326fa-919f-494d-8909-a9f72a26f333", "[cr21] NocticulaPriestessPack/[OnlyPC] [CR11_SuccubusRanger] (2)");
 
 					/*
 					for(int i=0; i < 100; i++)
