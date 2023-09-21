@@ -6,6 +6,7 @@ namespace CustomNpcPortraits
 	public class Settings : UnityModManager.ModSettings
 	{
 
+
 		public bool RightverseGroupPortraits = true;
 
 

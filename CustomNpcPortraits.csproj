@@ -140,16 +140,11 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Helpers.cs" />
     <Compile Include="KingdomUILeaderCharacterController_SetPortrait_Patch.cs" />
     <Compile Include="GetPortraitSafeGeneral_Patch.cs" />
     <Compile Include="GetPortraitSafe_patch.cs" />
     <Compile Include="GameMode_OnActivate_Patch.cs" />
     <Compile Include="ImageHeader.cs" />
-    <Compile Include="Loggers.cs" />
-    <Compile Include="ObjectDeepCopier.cs" />
-    <Compile Include="SimpleDialog.cs" />
-    <Compile Include="SuccubusThatTalks.cs" />
     <Compile Include="TacticalCombatInitiativeTrackerCurrentUnitPCView_BindViewImplementation_Patch.cs" />
     <Compile Include="InitiativeTrackerUnitVM_Get_Portrait_Patch.cs" />
     <Compile Include="BlueprintDlcReward_IsAvailable.cs" />

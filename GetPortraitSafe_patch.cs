@@ -254,6 +254,7 @@ namespace CustomNpcPortraits
                        || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Ygefeles") && __instance.CharacterName.Equals("Ygefeles"))
                        || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Lathimas") && __instance.CharacterName.Equals("Lathimas"))
 
+                       || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Hand of the Inheritor") && __instance.CharacterName.Equals("Hand of the Inheritor"))
                        || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Fulsome Queen") && __instance.CharacterName.Equals("Fulsome Queen"))
                        || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Shadow") && __instance.CharacterName.Equals("Shadow"))
 

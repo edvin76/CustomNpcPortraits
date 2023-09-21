@@ -686,8 +686,35 @@ namespace CustomNpcPortraits
                 // Kressle
                 string portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName);
                 string unitCharNameDirNames = Path.Combine(charcterNameDirectoryName);
+            if (Game.Instance.DialogController?.Dialog != null && 
+                (bool)Game.Instance.DialogController?.CurrentSpeaker?.Body.IsPolymorphed && 
+                !(bool)Game.Instance.DialogController?.CurrentSpeaker?.CharacterName.Equals("Nenio")
+                
+                )
+            {
+                if (Game.Instance.DialogController?.CurrentSpeaker?.Blueprint?.name != null && Game.Instance.DialogController?.CurrentSpeaker?.Blueprint?.name.Length > 2)
+                {
+                    if (!Directory.Exists(Path.Combine(portraitDirectoryPath, Game.Instance.DialogController?.CurrentSpeaker?.GetActivePolymorph().Runtime?.SourceBlueprintComponent?.OwnerBlueprint?.name)) &&
+                   (bool)Game.Instance.DialogController?.CurrentSpeaker?.Blueprint?.CharacterName.Equals(Game.Instance.DialogController?.CurrentSpeaker?.CharacterName)
 
-            if(Game.Instance.DialogController?.Dialog != null && File.Exists(Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName, Game.Instance.DialogController.Dialog.name, "Medium.png")))
+                   )
+                        Directory.CreateDirectory(Path.Combine(portraitDirectoryPath, Game.Instance.DialogController.CurrentSpeaker.GetActivePolymorph().Runtime?.SourceBlueprintComponent?.OwnerBlueprint?.name));
+                }
+
+
+            }
+
+            if (Game.Instance.DialogController?.Dialog != null &&
+    (bool)Game.Instance.DialogController?.CurrentSpeaker?.Body.IsPolymorphed &&
+    !(bool)Game.Instance.DialogController?.CurrentSpeaker?.CharacterName.Equals("Nenio") &&
+    File.Exists(Path.Combine(portraitDirectoryPath, Game.Instance.DialogController?.CurrentSpeaker?.GetActivePolymorph().Runtime?.SourceBlueprintComponent?.OwnerBlueprint?.name, "Medium.png"))
+    )
+            {
+                
+                    portraitDirectoryPath = Path.Combine(portraitDirectoryPath, Game.Instance.DialogController.CurrentSpeaker.GetActivePolymorph().Runtime?.SourceBlueprintComponent?.OwnerBlueprint?.name);
+
+            }
+            else if (Game.Instance.DialogController?.Dialog != null && File.Exists(Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName, Game.Instance.DialogController.Dialog.name, "Medium.png")))
             {
                 portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName, Game.Instance.DialogController.Dialog.name);
 
@@ -722,34 +749,34 @@ namespace CustomNpcPortraits
             }
             // Dovan From Nisroch/Dovan
             else if (File.Exists(Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName, unitNameDirectoryName, "Medium.png")))
-                {
+            {
 
-                    unitCharNameDirNames = Path.Combine(charcterNameDirectoryName, unitNameDirectoryName);
+                unitCharNameDirNames = Path.Combine(charcterNameDirectoryName, unitNameDirectoryName);
 
-                    portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName, unitNameDirectoryName);
+                portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName, unitNameDirectoryName);
 
-                }
-                // Kesten Garess/Shadow of Kesten Garess
-                else if (File.Exists(Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName, characterName, "Medium.png")))
-                {
-                    unitCharNameDirNames = Path.Combine(charcterNameDirectoryName, characterName);
-                    portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName, characterName);
+            }
+            // Kesten Garess/Shadow of Kesten Garess
+            else if (File.Exists(Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName, characterName, "Medium.png")))
+            {
+                unitCharNameDirNames = Path.Combine(charcterNameDirectoryName, characterName);
+                portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName, characterName);
 
-                }
-                // Dovan From Nisroch/Dovan From Nisroch
-                else if (File.Exists(Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName, charcterNameDirectoryName, "Medium.png")))
-                {
-                    unitCharNameDirNames = Path.Combine(charcterNameDirectoryName, charcterNameDirectoryName);
-                    portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName, charcterNameDirectoryName);
+            }
+            // Dovan From Nisroch/Dovan From Nisroch
+            else if (File.Exists(Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName, charcterNameDirectoryName, "Medium.png")))
+            {
+                unitCharNameDirNames = Path.Combine(charcterNameDirectoryName, charcterNameDirectoryName);
+                portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName, charcterNameDirectoryName);
 
-                }
-          // all portraits/Oleg Leveton/medium.png
+            }
+            // all portraits/Oleg Leveton/medium.png
             else if (File.Exists(Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName, "Medium.png")))
-                {
-                    unitCharNameDirNames = Path.Combine(charcterNameDirectoryName);
-                    portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName);
+            {
+                unitCharNameDirNames = Path.Combine(charcterNameDirectoryName);
+                portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName);
 
-                }
+            }
             else if (File.Exists(Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName, unitNameDirectoryName, Main.GetDefaultPortraitsDirName(), "Medium.png")))
             {
 
@@ -758,19 +785,19 @@ namespace CustomNpcPortraits
                 portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName, unitNameDirectoryName);
 
             }
-            else if (File.Exists(Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName,Main.GetDefaultPortraitsDirName(), "Medium.png")))
+            else if (File.Exists(Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName, Main.GetDefaultPortraitsDirName(), "Medium.png")))
             {
                 unitCharNameDirNames = Path.Combine(charcterNameDirectoryName);
                 portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName);
 
             }
 
-            else 
-                {
+            else
+            {
 
-                    portraitDirectoryPath = "";
+                portraitDirectoryPath = "";
 
-                }
+            }
 
 
             // return Tuple.Create(portraitDirectoryPath, unitCharNameDirNames);
