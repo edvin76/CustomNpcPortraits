@@ -113,8 +113,11 @@ namespace CustomNpcPortraits
 
 
                                 //Main.DebugLog(__instance.Unit.Blueprint.name + " - new one");
+                                Main.pauseGetPortraitsafe = true;
                                 __instance.Unit.UISettings.SetPortrait(pdata);
-                                    __result = pdata.SmallPortrait;
+                                Main.pauseGetPortraitsafe = false;
+
+                                __result = pdata.SmallPortrait;
                                     return false;
 
                                // }

@@ -211,7 +211,7 @@ namespace CustomNpcPortraits
 
 				//!blueprintCampaign.name.Equals("MainCampaign")) || Game.Instance.Player.UnlockableFlags.UnlockedFlags.Keys.FirstOrDefault(x => x.name.Contains("Fox")
 				if (characterName.Equals(Main.NenioName) )
-					characterName = "NenioFox_Portrait";
+					characterName = Main.NenioName+"Fox_Portrait";
 
 
 				string prefix = Main.GetCompanionPortraitDirPrefix();
@@ -951,10 +951,11 @@ namespace CustomNpcPortraits
 		{
 
 
+
 			ModEntry = modEntry;
 
 
-			Logger = modEntry.Logger;
+			//Logger = modEntry.Logger;
 
 
 			/*
@@ -999,8 +1000,6 @@ namespace CustomNpcPortraits
 
 			UIUtility.SendWarning(bpbuffs.Count().ToString());
 			*/
-
-			if (!BlueprintsCache_Patch.loaded) BlueprintsCache_Patch.popUnitNames();
 
 
 
@@ -1107,7 +1106,51 @@ namespace CustomNpcPortraits
 			}
 
 
+			BlueprintUnit dummyUnit = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("1b893f7cf2b150e4f8bc2b3c389ba71d");
 
+			if (dummyUnit != null)
+			{
+
+
+				NenioName = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("1b893f7cf2b150e4f8bc2b3c389ba71d").LocalizedName.String;
+
+				ArueName = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("a352873d37ec6c54c9fa8f6da3a6b3e1").LocalizedName.String;
+				CiarName = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("7ece3afabe2b6f343b17d1eaa409d273").LocalizedName.String;
+				WoljifName = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("766435873b1361c4287c351de194e5f9").LocalizedName.String;
+				GalfreyName = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("e46927657a79db64ea30758db3f42bb9").LocalizedName.String;
+				StauntonName = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("0bcf3c125a28d164191e874e3c0c52de").LocalizedName.String;
+
+
+				IrabethName = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("d1e567736abf23943b9f041ba7a0bc23").LocalizedName.String;
+
+
+				AstyName = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("d8e2475977bd87b439c4bba8f5f55949").LocalizedName.String;
+				TranName = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("c35607fd0f8064f42b4d71f7eb50e96c").LocalizedName.String;
+				VelhmName = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("f9c01a9515cd1f347800685ddbfbcc41").LocalizedName.String;
+
+				companions = new List<string>{
+ArueName,
+"Camellia",
+CiarName,
+"Daeran",
+"Delamere",
+"Ember",
+"Finnean",
+"Greybor",
+"Kestoglyr",
+"Lann",
+NenioName,
+GalfreyName,
+"Regill",
+"Seelah",
+"Sosiel",
+StauntonName,
+"Ulbrig",
+"Wenduag",
+WoljifName };
+				BlueprintsCache_Patch.popUnitNames();
+
+			}
 
 			return true;
 		}
@@ -1133,25 +1176,65 @@ namespace CustomNpcPortraits
 				Main.GetArmyPortraitsDirectory();
 
 				Main.DebugLog("Trying to run popUnitNames");
+
+
+
+
+
+
+
+
+				//arue a352873d37ec6c54c9fa8f6da3a6b3e1
+				//ciar 7ece3afabe2b6f343b17d1eaa409d273
+				//wolj 766435873b1361c4287c351de194e5f9
+				//galfrey e46927657a79db64ea30758db3f42bb9
+				//stauntn 0bcf3c125a28d164191e874e3c0c52de
+
+
+				NenioName = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("1b893f7cf2b150e4f8bc2b3c389ba71d").LocalizedName.String;
+
+				ArueName = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("a352873d37ec6c54c9fa8f6da3a6b3e1").LocalizedName.String;
+				CiarName = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("7ece3afabe2b6f343b17d1eaa409d273").LocalizedName.String;
+				WoljifName = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("766435873b1361c4287c351de194e5f9").LocalizedName.String;
+				GalfreyName = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("e46927657a79db64ea30758db3f42bb9").LocalizedName.String;
+				StauntonName = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("0bcf3c125a28d164191e874e3c0c52de").LocalizedName.String;
+
+				
+				IrabethName = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("d1e567736abf23943b9f041ba7a0bc23").LocalizedName.String;
+
+
+				AstyName = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("d8e2475977bd87b439c4bba8f5f55949").LocalizedName.String;
+				TranName = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("c35607fd0f8064f42b4d71f7eb50e96c").LocalizedName.String;
+				VelhmName = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("f9c01a9515cd1f347800685ddbfbcc41").LocalizedName.String;
+
+				companions = new List<string>{
+ArueName,
+"Camellia",
+CiarName,
+"Daeran",
+"Delamere",
+"Ember",
+"Finnean",
+"Greybor",
+"Kestoglyr",
+"Lann",
+NenioName,
+GalfreyName,
+"Regill",
+"Seelah",
+"Sosiel",
+StauntonName,
+"Ulbrig",
+"Wenduag",
+WoljifName };
+
+
+
 				Main.SafeLoad(new Action(popUnitNames), "popUnitNames");
 
-
-
-
-
-
-
-
-
-
-				NenioBlueprint = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("1b893f7cf2b150e4f8bc2b3c389ba71d");
-
-				NenioName = NenioBlueprint.LocalizedName.String;
-
-
-
-
-
+				// asty d8e2475977bd87b439c4bba8f5f55949
+				// tran c35607fd0f8064f42b4d71f7eb50e96c
+				// velhm f9c01a9515cd1f347800685ddbfbcc41
 
 
 
@@ -1266,6 +1349,7 @@ namespace CustomNpcPortraits
 
 			public static void popUnitNames()
 			{
+				/*
 				string str = BundlesLoadService.BundlesPath("cheatdata.json");
 				BlueprintList blueprintList = new BlueprintList()
 				{
@@ -1275,41 +1359,58 @@ namespace CustomNpcPortraits
 				if (File.Exists(str))
 					blueprintList = JsonUtility.FromJson<BlueprintList>(File.ReadAllText(str));
 
+				*/
+				var list = Utilities.GetAllBlueprints();
 
 				//Main.DebugLog("popUnitNames()");
 				int i = 0;
 				int j = 0;
-				foreach (BlueprintList.Entry be in blueprintList.Entries)
+				//foreach (BlueprintList.Entry be in blueprintList.Entries)
+				foreach (BlueprintList.Entry be in list.Entries)
 				{
-
 					try
 					{
-						if (be.TypeFullName.Equals("Kingmaker.DialogSystem.Blueprints.BlueprintCue"))
+
+						//if (be.TypeFullName.Equals("Kingmaker.DialogSystem.Blueprints.BlueprintCue"))
+						if (be.Type.Name.Equals("BlueprintCue"))
 						{
-
-							BlueprintCue bc = Utilities.GetBlueprintByGuid<BlueprintCue>(be.Guid);
-							if (bc.Speaker != null && bc.Speaker.Blueprint != null && !bc.Speaker.Blueprint.name.IsNullOrEmpty() && !unitNames.Contains(bc.Speaker.Blueprint.name) && !companions.Contains(bc.Speaker.Blueprint.CharacterName))
+							
+							if (be != null && be.Guid != null)
 							{
-								if (!bc.Speaker.Blueprint.IsCompanion /* && !fyou.Contains(bc.Speaker.Blueprint.name)*/)
-								{
+						//		Main.DebugLog(be.Guid);
 
-									if (bc.Speaker.Blueprint.name != bc.Speaker.Blueprint.CharacterName)
+								BlueprintCue bc = Utilities.GetBlueprintByGuid<BlueprintCue>(be.Guid);
+
+								if (bc != null && bc.Speaker != null && bc.Speaker.Blueprint != null && !bc.Speaker.Blueprint.name.IsNullOrEmpty() && !bc.Speaker.Blueprint.CharacterName.IsNullOrEmpty() && !unitNames.Contains(bc.Speaker.Blueprint.name) && !companions.Contains(bc.Speaker.Blueprint.CharacterName))
+								{
+							//		Main.DebugLog("1");
+
+									if (!bc.Speaker.Blueprint.IsCompanion /* && !fyou.Contains(bc.Speaker.Blueprint.name)*/)
 									{
-										unitNames.Add(bc.Speaker.Blueprint.name);
-										i++;
+							//			Main.DebugLog("2");
+										if (bc.Speaker.Blueprint.name != bc.Speaker.Blueprint?.CharacterName)
+										{
+							
+											//Main.DebugLog("3");
+											unitNames.Add(bc.Speaker.Blueprint.name);
+											i++;
+										}
 									}
 								}
-							}
-							if (bc.Listener != null && !bc.Listener.name.IsNullOrEmpty() && !unitNames.Contains(bc.Listener.name) && !companions.Contains(bc.Listener.CharacterName))
-							{
-								if (!bc.Listener.IsCompanion)
+						//		Main.DebugLog("4");
+								if (bc != null && bc.Listener != null && !bc.Listener.name.IsNullOrEmpty() && !bc.Listener.CharacterName.IsNullOrEmpty() && !unitNames.Contains(bc.Listener.name) && !companions.Contains(bc.Listener.CharacterName))
 								{
-
-									if (bc.Listener.name != bc.Listener.CharacterName)
+							//		Main.DebugLog("5");
+									if (!bc.Listener.IsCompanion)
 									{
-										unitNames.Add(bc.Listener.name);
-										i++;
+							//			Main.DebugLog("6");
+										if (bc.Listener.name != bc.Listener?.CharacterName)
+										{
+							//				Main.DebugLog("7");
+											unitNames.Add(bc.Listener.name);
+											i++;
 
+										}
 									}
 								}
 							}
@@ -1347,12 +1448,25 @@ namespace CustomNpcPortraits
 					{
 						//Main.DebugLog("1");
 
-						if (charcterNameDirectoryName.Equals("Asty") || charcterNameDirectoryName.Equals("Velhm") || charcterNameDirectoryName.Equals("Tran"))
+						if (charcterNameDirectoryName.Equals(Main.AstyName) ||
+							charcterNameDirectoryName.Equals(Main.VelhmName) || 
+							charcterNameDirectoryName.Equals(Main.TranName) 
+							)
 						{
 							if (Game.Instance.DialogController.CurrentSpeaker.View.name.ToLower().Contains("drow"))
 								charcterNameDirectoryName = charcterNameDirectoryName + " - Drow";
 
 						}
+
+						//Irabeth scar
+						if (charcterNameDirectoryName.Equals(Main.IrabethName))
+							if (Game.Instance.Player.EtudesSystem.EtudeIsStarted(ResourcesLibrary.TryGetBlueprint<BlueprintEtude>("b4f08736cf124ae4996fcef7c0a33bf1")))
+							{
+
+								Directory.CreateDirectory(Path.Combine(Main.GetCompanionPortraitsDirectory(), charcterNameDirectoryName + " - Scar"));
+								charcterNameDirectoryName = charcterNameDirectoryName + " - Scar";
+							}
+
 						string NpcPortraitPath = Path.Combine(GetNpcPortraitsDirectory(), charcterNameDirectoryName);
 
 
@@ -2521,31 +2635,42 @@ namespace CustomNpcPortraits
 
 					string NpcPortraitPath = Path.Combine(GetNpcPortraitsDirectory(), CurrentSpeakerName);
 
-					if (CurrentSpeakerName.Equals("Asty"))
+					if (CurrentSpeakerName.Equals(AstyName))
 					{
 
 						if (Game.Instance.DialogController.CurrentSpeaker.View.name.ToLower().Contains("drow"))
-							CurrentSpeakerName = "Asty - Drow";
+							CurrentSpeakerName = AstyName+" - Drow";
 						else
 							savedNpc = true;
 					}
-					if (CurrentSpeakerName.Equals("Velhm"))
+					if (CurrentSpeakerName.Equals(VelhmName))
 					{
 						if (Game.Instance.DialogController.CurrentSpeaker.View.name.ToLower().Contains("drow"))
-							CurrentSpeakerName = "Velhm - Drow";
+							CurrentSpeakerName = VelhmName+" - Drow";
 						else
 							savedNpc = true;
 					}
-					if (CurrentSpeakerName.Equals("Tran"))
+					if (CurrentSpeakerName.Equals(TranName))
 					{
 						if (Game.Instance.DialogController.CurrentSpeaker.View.name.ToLower().Contains("drow"))
-							CurrentSpeakerName = "Tran - Drow";
+							CurrentSpeakerName = TranName+" - Drow";
 						else
 							savedNpc = true;
 					}
 
+						//Irabeth scar
+						if (CurrentSpeakerName.Equals(Main.IrabethName))
+						{
+							if (Game.Instance.Player.EtudesSystem.EtudeIsStarted(ResourcesLibrary.TryGetBlueprint<BlueprintEtude>("b4f08736cf124ae4996fcef7c0a33bf1")))
+							{
 
-					if (!companion)
+								CurrentSpeakerName = CurrentSpeakerName + " - Scar";
+							}
+							else
+								savedNpc = true;
+						}
+
+						if (!companion)
 					{
 
 
@@ -2667,21 +2792,21 @@ namespace CustomNpcPortraits
 						*/
 
 
-						if (CurrentSpeakerName.Equals("Arueshalae - Evil") && Main.settings.AutoBackup && !savedComp)
+						if (CurrentSpeakerName.Equals(Main.ArueName+" - Evil") && Main.settings.AutoBackup && !savedComp)
 						{
 							savedComp = true;
 							BlueprintPortrait blueprintPortrait = Utilities.GetBlueprintByGuid<BlueprintPortrait>("484588d56f2c2894ab6d48b91509f5e3");
 							Main.SaveOriginals2(blueprintPortrait.Data, Path.Combine(GetCompanionPortraitsDirectory(), GetCompanionPortraitDirPrefix() + CurrentSpeakerName));
 						}
 
-						if (CurrentSpeakerName.Equals("NenioFox_Portrait") && Main.settings.AutoBackup && !savedComp)
+						if (CurrentSpeakerName.Equals(Main.NenioName+"Fox_Portrait") && Main.settings.AutoBackup && !savedComp)
 						{
 							savedComp = true;
 							BlueprintPortrait blueprintPortrait = Utilities.GetBlueprintByGuid<BlueprintPortrait>("2b4b8a23024093e42a5db714c2f52dbc");
 							Main.SaveOriginals2(blueprintPortrait.Data, Path.Combine(GetCompanionPortraitsDirectory(), GetCompanionPortraitDirPrefix() + CurrentSpeakerName));
 						}
 
-						if (CurrentSpeakerName.Equals("Ciar - Undead") && Main.settings.AutoBackup && !savedComp)
+						if (CurrentSpeakerName.Equals(Main.CiarName+" - Undead") && Main.settings.AutoBackup && !savedComp)
 						{
 							savedComp = true;
 							BlueprintPortrait blueprintPortrait = Utilities.GetBlueprintByGuid<BlueprintPortrait>("dc2f02dd42cfe2b40923eb014591a009");
@@ -2689,21 +2814,36 @@ namespace CustomNpcPortraits
 						}
 
 
-						/*                          [CustomNpcPortraits] GalfreyUndead_Portrait
-												[CustomNpcPortraits] 767456b1656ca064dadac544d39d7e40
-												[CustomNpcPortraits] GalfreyOld_Portrait
-												[CustomNpcPortraits] 4e8dfb75015d356469b976145c851087
-												[CustomNpcPortraits] GalfreyYoung_Portrait
-												[CustomNpcPortraits] a3ba06b4723c7a74fb5054ccb2289efb
-					  */
-						if (CurrentSpeakerName.Equals("Queen Galfrey - Undead") && Main.settings.AutoBackup && !savedComp)
+							/*                          [CustomNpcPortraits] GalfreyUndead_Portrait
+													[CustomNpcPortraits] 767456b1656ca064dadac544d39d7e40
+													[CustomNpcPortraits] GalfreyOld_Portrait
+													[CustomNpcPortraits] 4e8dfb75015d356469b976145c851087
+													[CustomNpcPortraits] GalfreyYoung_Portrait
+													[CustomNpcPortraits] a3ba06b4723c7a74fb5054ccb2289efb
+						  */
+	
+							if (CurrentSpeakerName.Equals(Main.GalfreyName+" - Undead") && Main.settings.AutoBackup && !savedComp)
 						{
 							savedComp = true;
 							BlueprintPortrait blueprintPortrait = Utilities.GetBlueprintByGuid<BlueprintPortrait>("767456b1656ca064dadac544d39d7e40");
 							Main.SaveOriginals2(blueprintPortrait.Data, Path.Combine(GetCompanionPortraitsDirectory(), GetCompanionPortraitDirPrefix() + CurrentSpeakerName));
 						}
 
-						if (CurrentSpeakerName.Equals("Staunton Vane - Undead") && Main.settings.AutoBackup && !savedComp)
+							if (CurrentSpeakerName.Equals(Main.GalfreyName + " - Old") && Main.settings.AutoBackup && !savedComp)
+							{
+								savedComp = true;
+								BlueprintPortrait blueprintPortrait = Utilities.GetBlueprintByGuid<BlueprintPortrait>("4e8dfb75015d356469b976145c851087");
+								Main.SaveOriginals2(blueprintPortrait.Data, Path.Combine(GetCompanionPortraitsDirectory(), GetCompanionPortraitDirPrefix() + CurrentSpeakerName));
+							}
+							if (CurrentSpeakerName.Equals(Main.WoljifName+" - Demon") && Main.settings.AutoBackup && !savedComp)
+							{
+								savedComp = true;
+								BlueprintPortrait blueprintPortrait = Utilities.GetBlueprintByGuid<BlueprintPortrait>("f2bd5a94ade889444921b4a74b9e34a9");
+								Main.SaveOriginals2(blueprintPortrait.Data, Path.Combine(GetCompanionPortraitsDirectory(), GetCompanionPortraitDirPrefix() + CurrentSpeakerName));
+							}
+
+
+							if (CurrentSpeakerName.Equals(Main.StauntonName+" - Undead") && Main.settings.AutoBackup && !savedComp)
 						{
 							savedComp = true;
 							BlueprintPortrait blueprintPortrait = Utilities.GetBlueprintByGuid<BlueprintPortrait>("f4bbe08217bcaa54c91fe73bcea70ede");
@@ -3313,8 +3453,19 @@ namespace CustomNpcPortraits
 	}
 
 
-		public static BlueprintUnit NenioBlueprint;
 		public static string NenioName = "Nenio";
+
+		public static string ArueName = "Arueshalae";
+		public static string CiarName = "Ciar";
+		public static string WoljifName = "Woljif";
+		public static string GalfreyName = "Queen Galfrey";
+		public static string StauntonName = "Staunton Vhane";
+
+		public static string IrabethName = "Irabeth";
+
+		public static string AstyName = "Asty";
+		public static string TranName = "Tran";
+		public static string VelhmName = "Velhm";
 
 
 		public static UnityModManager.ModEntry.ModLogger Logger;
@@ -3526,22 +3677,26 @@ namespace CustomNpcPortraits
 					if (bc.Speaker != null && bc.Speaker.Blueprint != null && !bc.Speaker.Blueprint.name.IsNullOrEmpty())
 					{
 						characterName = bc.Speaker.Blueprint.CharacterName;
-						if (bc.Speaker.Blueprint.CharacterName.ToLower().Equals("asty"))
+						if (bc.Speaker.Blueprint.CharacterName.Equals(AstyName))
 						{
-							Directory.CreateDirectory(Path.Combine(portraitsDirectoryPath, "Asty"));
-							characterName = "Asty - Drow";
+							Directory.CreateDirectory(Path.Combine(portraitsDirectoryPath, AstyName));
+							characterName = AstyName+" - Drow";
 						}
-						if (bc.Speaker.Blueprint.CharacterName.ToLower().Equals("tran"))
+						if (bc.Speaker.Blueprint.CharacterName.Equals(TranName))
 						{
-							Directory.CreateDirectory(Path.Combine(portraitsDirectoryPath, "Tran"));
-							characterName = "Tran - Drow";
+							Directory.CreateDirectory(Path.Combine(portraitsDirectoryPath, TranName));
+							characterName = TranName+" - Drow";
 						}
-						if (bc.Speaker.Blueprint.CharacterName.ToLower().Equals("velhm"))
+						if (bc.Speaker.Blueprint.CharacterName.Equals(VelhmName))
 						{
-							Directory.CreateDirectory(Path.Combine(portraitsDirectoryPath, "Velhm"));
-							characterName = "Velhm - Drow";
+							Directory.CreateDirectory(Path.Combine(portraitsDirectoryPath, VelhmName));
+							characterName = VelhmName+" - Drow";
 						}
-						
+						if (bc.Speaker.Blueprint.CharacterName.Equals(IrabethName))
+						{
+							Directory.CreateDirectory(Path.Combine(portraitsDirectoryPath, IrabethName));
+							characterName = IrabethName + " - Scar";
+						}
 
 
 
@@ -3589,20 +3744,25 @@ namespace CustomNpcPortraits
 						{
 
 							characterName = bc.Listener.CharacterName;
-							if (bc.Listener.CharacterName.ToLower().Equals("asty"))
+							if (bc.Listener.CharacterName.Equals(AstyName))
 							{
-								Directory.CreateDirectory(Path.Combine(portraitsDirectoryPath, "Asty"));
-								characterName = "Asty - Drow";
+								Directory.CreateDirectory(Path.Combine(portraitsDirectoryPath, AstyName));
+								characterName = AstyName + " - Drow";
 							}
-							if (bc.Listener.CharacterName.ToLower().Equals("tran"))
+							if (bc.Listener.CharacterName.Equals(TranName))
 							{
-								Directory.CreateDirectory(Path.Combine(portraitsDirectoryPath, "Tran"));
-								characterName = "Tran - Drow";
+								Directory.CreateDirectory(Path.Combine(portraitsDirectoryPath, TranName));
+								characterName = TranName + " - Drow";
 							}
-							if (bc.Listener.CharacterName.ToLower().Equals("velhm"))
+							if (bc.Listener.CharacterName.Equals(VelhmName))
 							{
-								Directory.CreateDirectory(Path.Combine(portraitsDirectoryPath, "Velhm"));
-								characterName = "Velhm - Drow";
+								Directory.CreateDirectory(Path.Combine(portraitsDirectoryPath, VelhmName));
+								characterName = VelhmName + " - Drow";
+							}
+							if (bc.Listener.CharacterName.Equals(IrabethName))
+							{
+								Directory.CreateDirectory(Path.Combine(portraitsDirectoryPath, IrabethName));
+								characterName = IrabethName + " - Scar";
 							}
 
 							if (!speakers.ContainsKey(bc.Listener.name) && !companions.Contains(bc.Listener.CharacterName) && !bc.Listener.IsCompanion /*&& !fyou.Contains(bc.Listener.name)*/)
@@ -3748,23 +3908,29 @@ if(be.TypeFullName.Contains("BlueprintUnlockableFlag"))
 												//characterName = bc.Listener.CharacterName;
 												string portraitDirectoryName = bc.Speaker.Blueprint.CharacterName;
 
-												if (bc.Speaker.Blueprint.CharacterName.ToLower().Equals("asty"))
-												{
-													Directory.CreateDirectory(Path.Combine(portraitsDirectoryPath, "Asty"));
-													portraitDirectoryName = "Asty - Drow";
-												}
-												if (bc.Speaker.Blueprint.CharacterName.ToLower().Equals("tran"))
-												{
-													Directory.CreateDirectory(Path.Combine(portraitsDirectoryPath, "Tran"));
-													portraitDirectoryName = "Tran - Drow";
-												}
-												if (bc.Speaker.Blueprint.CharacterName.ToLower().Equals("velhm"))
-												{
-													Directory.CreateDirectory(Path.Combine(portraitsDirectoryPath, "Velhm"));
-													portraitDirectoryName = "Velhm - Drow";
-												}
 
-												if (!bc.Speaker.Blueprint.IsCompanion 
+							if (bc.Speaker.Blueprint.CharacterName.Equals(AstyName))
+							{
+								Directory.CreateDirectory(Path.Combine(portraitsDirectoryPath, AstyName));
+								portraitDirectoryName = AstyName + " - Drow";
+							}
+							if (bc.Speaker.Blueprint.CharacterName.Equals(TranName))
+							{
+								Directory.CreateDirectory(Path.Combine(portraitsDirectoryPath, TranName));
+								portraitDirectoryName = TranName + " - Drow";
+							}
+							if (bc.Speaker.Blueprint.CharacterName.Equals(VelhmName))
+							{
+								Directory.CreateDirectory(Path.Combine(portraitsDirectoryPath, VelhmName));
+								portraitDirectoryName = VelhmName + " - Drow";
+							}
+							if (bc.Speaker.Blueprint.CharacterName.Equals(IrabethName))
+							{
+								Directory.CreateDirectory(Path.Combine(portraitsDirectoryPath, IrabethName));
+								portraitDirectoryName = IrabethName + " - Scar";
+							}
+
+							if (!bc.Speaker.Blueprint.IsCompanion 
 										)
 												{
 
@@ -3789,23 +3955,28 @@ if(be.TypeFullName.Contains("BlueprintUnlockableFlag"))
 											{
 												string portraitDirectoryName = bc.Listener.CharacterName;
 
-												if (bc.Listener.CharacterName.ToLower().Equals("asty"))
-												{
-													Directory.CreateDirectory(Path.Combine(portraitsDirectoryPath, "Asty"));
-													portraitDirectoryName = "Asty - Drow";
-												}
-												if (bc.Listener.CharacterName.ToLower().Equals("tran"))
-												{
-													Directory.CreateDirectory(Path.Combine(portraitsDirectoryPath, "Tran"));
-													portraitDirectoryName = "Tran - Drow";
-												}
-												if (bc.Listener.CharacterName.ToLower().Equals("velhm"))
-												{
-													Directory.CreateDirectory(Path.Combine(portraitsDirectoryPath, "Velhm"));
-													portraitDirectoryName = "Velhm - Drow";
-												}
+							if (bc.Listener.CharacterName.Equals(AstyName))
+							{
+								Directory.CreateDirectory(Path.Combine(portraitsDirectoryPath, AstyName));
+								portraitDirectoryName = AstyName + " - Drow";
+							}
+							if (bc.Listener.CharacterName.Equals(TranName))
+							{
+								Directory.CreateDirectory(Path.Combine(portraitsDirectoryPath, TranName));
+								portraitDirectoryName = TranName + " - Drow";
+							}
+							if (bc.Listener.CharacterName.Equals(VelhmName))
+							{
+								Directory.CreateDirectory(Path.Combine(portraitsDirectoryPath, VelhmName));
+								portraitDirectoryName = VelhmName + " - Drow";
+							}
+							if (bc.Listener.CharacterName.Equals(IrabethName))
+							{
+								Directory.CreateDirectory(Path.Combine(portraitsDirectoryPath, IrabethName));
+								portraitDirectoryName = IrabethName + " - Scar";
+							}
 
-												if (!bc.Listener.IsCompanion)
+							if (!bc.Listener.IsCompanion)
 												{
 
 													speakers.Add(bc.Listener.name, bc.Listener.CharacterName);
@@ -3931,67 +4102,57 @@ if(be.TypeFullName.Contains("BlueprintUnlockableFlag"))
 			{
 				string charcterNameDirectoryName = unitEntityData.CharacterName.cleanCharname();
 				//	Main.DebugLog("1 " + charcterNameDirectoryName);
-				if (charcterNameDirectoryName.ToLower().Contains("aruesh"))
+				if (charcterNameDirectoryName.Equals(ArueName))
 				{
 					//if (unitEntityData.Blueprint.Race.name.ToLower().Contains("succubusrace"))
 					if (unitEntityData.Descriptor.Progression.Race.name.ToLower().Contains("succubusrace"))
 					{
 
-						charcterNameDirectoryName = charcterNameDirectoryName + " - Evil";
+						charcterNameDirectoryName = charcterNameDirectoryName+" - Evil";
 
 
 					}
 					//Main.DebugLog(unitEntityData.View.Blueprint.Race.name);
 				}
 				//Main.DebugLog("2");
-				if (charcterNameDirectoryName.Equals("Ciar"))
+				if (charcterNameDirectoryName.Equals(CiarName))
 				{
 					if (unitEntityData.Alignment.ValueRaw.ToString().ToLower().Contains("evil") || unitEntityData.Descriptor.IsUndead)
 
 						//if (unitEntityData.Blueprint.Alignment.ToString().ToLower().Contains("evil") || unitEntityData.Descriptor.IsUndead)
-						charcterNameDirectoryName = "Ciar - Undead";
+						charcterNameDirectoryName = charcterNameDirectoryName+" - Undead";
 
 				}
 				//Main.DebugLog("3");
-				if (charcterNameDirectoryName.Equals("Queen Galfrey"))
+				if (charcterNameDirectoryName.Equals(GalfreyName))
 				{
 					if (unitEntityData.Blueprint.Alignment.ToString().ToLower().Contains("evil") || unitEntityData.Descriptor.IsUndead)
-						charcterNameDirectoryName = "Queen Galfrey - Undead";
+						charcterNameDirectoryName = charcterNameDirectoryName + " - Undead";
 
 					//Galfrey old
 					if (Game.Instance.Player.EtudesSystem.EtudeIsStarted(ResourcesLibrary.TryGetBlueprint<BlueprintEtude>("0ab81986d8f7c484a8fede0d2188125c")))
 					{
-						Directory.CreateDirectory(Path.Combine(Main.GetCompanionPortraitsDirectory(), "Queen Galfrey - Old"));
-
-						charcterNameDirectoryName = "Queen Galfrey - Old";
+						charcterNameDirectoryName = charcterNameDirectoryName + " - Old";
 					}
 
 
 				}
 				//Game.Instance.DialogController.CurrentSpeaker.View.Blueprint.Alignment == Kingmaker.Enums.Alignment.LawfulEvil
 				//Main.DebugLog("4");
-				if (charcterNameDirectoryName.Equals("Staunton Vhane"))
+				if (charcterNameDirectoryName.Equals(StauntonName))
 				{
 					if (unitEntityData.Blueprint.Alignment.ToString().ToLower().Contains("evil") || unitEntityData.Descriptor.IsUndead)
-						charcterNameDirectoryName = "Staunton Vhane - Undead";
+						charcterNameDirectoryName = charcterNameDirectoryName + " - Undead";
 
 				}
 
-				//Irabeth scar
-				if (charcterNameDirectoryName.Contains("Irabeth"))
-				if (Game.Instance.Player.EtudesSystem.EtudeIsStarted(ResourcesLibrary.TryGetBlueprint<BlueprintEtude>("b4f08736cf124ae4996fcef7c0a33bf1")))
-				{
 
-					Directory.CreateDirectory(Path.Combine(Main.GetCompanionPortraitsDirectory(), "Irabeth - Scar"));
-					charcterNameDirectoryName = "Irabeth - Scar";
-				}
 
 				//Woljif demon
-				if (charcterNameDirectoryName.Equals("Woljif"))
+				if (charcterNameDirectoryName.Equals(WoljifName))
 				if (Game.Instance.Player.EtudesSystem.EtudeIsStarted(ResourcesLibrary.TryGetBlueprint<BlueprintEtude>("709161cd9da156146ac6e3c394caa854")))
 				{
-						Directory.CreateDirectory(Path.Combine(Main.GetCompanionPortraitsDirectory(), "Woljif - Demon"));
-						charcterNameDirectoryName = "Woljif - Demon";
+						charcterNameDirectoryName = charcterNameDirectoryName + " - Demon";
 				}
 
 				//AscendingSuccubus
@@ -4035,7 +4196,7 @@ if(be.TypeFullName.Contains("BlueprintUnlockableFlag"))
 
 
 							//Main.DebugLog("fox");
-							charcterNameDirectoryName = "NenioFox_Portrait";
+							charcterNameDirectoryName = charcterNameDirectoryName + "Fox_Portrait";
 
 						}
 
@@ -4408,6 +4569,7 @@ if(be.TypeFullName.Contains("BlueprintUnlockableFlag"))
 		private static bool Unload(UnityModManager.ModEntry modEntry)
 		{
 
+
 			harmonyInstance.UnpatchAll(modEntry.Info.Id);
 
 			UnityModManager.Logger.Clear();
@@ -4430,26 +4592,8 @@ if(be.TypeFullName.Contains("BlueprintUnlockableFlag"))
 			else { Main.DebugLog("couldn't find patches to unload!"); return true; }
 		}
 #endif
-		public static List<string> companions = new List<string>{
-"Arueshalae",
-"Camellia",
-"Ciar",
-"Daeran",
-"Delamere",
-"Ember",
-"Finnean",
-"Greybor",
-"Kestoglyr",
-"Lann",
-Main.NenioName,
-"Queen Galfrey",
-"Regill",
-"Seelah",
-"Sosiel",
-"Staunton Vhane",
-"Ulbrig",
-"Wenduag",
-"Woljif" };
+		public static List<string> companions;
+
 
 		public static bool isSetPortrait = false;
 		public static PortraitData SetPortrait(UnitEntityData unitEntityData)
@@ -4677,23 +4821,30 @@ Main.NenioName,
 
 					if (characterName.Equals(Main.NenioName))
 						blueprintPortrait = Utilities.GetBlueprintByGuid<BlueprintPortrait>("a6e4ff25a8da46a44a24ecc5da296073");
-					if (characterName.Equals("NenioFox_Portrait"))
+					if (characterName.Equals(Main.NenioName+"Fox_Portrait"))
 						blueprintPortrait = Utilities.GetBlueprintByGuid<BlueprintPortrait>("2b4b8a23024093e42a5db714c2f52dbc");
 
-					if (characterName.Equals("Arueshalae"))
+					if (characterName.Equals(Main.ArueName))
 						blueprintPortrait = Utilities.GetBlueprintByGuid<BlueprintPortrait>("db413e67276547b40b1a6bb8178c6951");
-					if (characterName.Equals("Arueshalae - Evil"))
+					if (characterName.Equals(Main.ArueName+" - Evil"))
 						blueprintPortrait = Utilities.GetBlueprintByGuid<BlueprintPortrait>("484588d56f2c2894ab6d48b91509f5e3");
 
-					if (characterName.Equals("Queen Galfrey"))
+					if (characterName.Equals(Main.GalfreyName))
 						blueprintPortrait = Utilities.GetBlueprintByGuid<BlueprintPortrait>("a3ba06b4723c7a74fb5054ccb2289efb");
-					if (characterName.Equals("Queen Galfrey - Undead"))
+					if (characterName.Equals(Main.GalfreyName + " - Undead"))
 						blueprintPortrait = Utilities.GetBlueprintByGuid<BlueprintPortrait>("767456b1656ca064dadac544d39d7e40");
+					if (characterName.Equals(Main.GalfreyName + " - Old"))
+						blueprintPortrait = Utilities.GetBlueprintByGuid<BlueprintPortrait>("4e8dfb75015d356469b976145c851087");
+					
+					if (characterName.Equals(Main.WoljifName+" - Demon"))
+						blueprintPortrait = Utilities.GetBlueprintByGuid<BlueprintPortrait>("f2bd5a94ade889444921b4a74b9e34a9");
 
-					if (characterName.Equals("Ciar - Undead"))
+
+					
+					if (characterName.Equals(Main.CiarName+" - Undead"))
 						blueprintPortrait = Utilities.GetBlueprintByGuid<BlueprintPortrait>("dc2f02dd42cfe2b40923eb014591a009");
 
-					if (characterName.Equals("Staunton Vhane - Undead"))
+					if (characterName.Equals(Main.StauntonName+" - Undead"))
 						blueprintPortrait = Utilities.GetBlueprintByGuid<BlueprintPortrait>("f4bbe08217bcaa54c91fe73bcea70ede");
 
 					PortraitData data = blueprintPortrait.Data;
@@ -5268,23 +5419,30 @@ Main.NenioName,
 
 						if (characterName.Equals(Main.NenioName))
 							blueprintPortrait = Utilities.GetBlueprintByGuid<BlueprintPortrait>("a6e4ff25a8da46a44a24ecc5da296073");
-						if (characterName.Equals("NenioFox_Portrait"))
+						if (characterName.Equals(Main.NenioName + "Fox_Portrait"))
 							blueprintPortrait = Utilities.GetBlueprintByGuid<BlueprintPortrait>("2b4b8a23024093e42a5db714c2f52dbc");
 
-						if (characterName.Equals("Arueshalae"))
+						if (characterName.Equals(Main.ArueName))
 							blueprintPortrait = Utilities.GetBlueprintByGuid<BlueprintPortrait>("db413e67276547b40b1a6bb8178c6951");
-						if (characterName.Equals("Arueshalae - Evil"))
+						if (characterName.Equals(Main.ArueName + " - Evil"))
 							blueprintPortrait = Utilities.GetBlueprintByGuid<BlueprintPortrait>("484588d56f2c2894ab6d48b91509f5e3");
 
-						if (characterName.Equals("Queen Galfrey"))
+						if (characterName.Equals(Main.GalfreyName))
 							blueprintPortrait = Utilities.GetBlueprintByGuid<BlueprintPortrait>("a3ba06b4723c7a74fb5054ccb2289efb");
-						if (characterName.Equals("Queen Galfrey - Undead"))
+						if (characterName.Equals(Main.GalfreyName + " - Undead"))
 							blueprintPortrait = Utilities.GetBlueprintByGuid<BlueprintPortrait>("767456b1656ca064dadac544d39d7e40");
+						if (characterName.Equals(Main.GalfreyName + " - Old"))
+							blueprintPortrait = Utilities.GetBlueprintByGuid<BlueprintPortrait>("4e8dfb75015d356469b976145c851087");
 
-						if (characterName.Equals("Ciar - Undead"))
+						if (characterName.Equals(Main.WoljifName + " - Demon"))
+							blueprintPortrait = Utilities.GetBlueprintByGuid<BlueprintPortrait>("f2bd5a94ade889444921b4a74b9e34a9");
+
+
+
+						if (characterName.Equals(Main.CiarName + " - Undead"))
 							blueprintPortrait = Utilities.GetBlueprintByGuid<BlueprintPortrait>("dc2f02dd42cfe2b40923eb014591a009");
 
-						if (characterName.Equals("Staunton Vhane - Undead"))
+						if (characterName.Equals(Main.StauntonName + " - Undead"))
 							blueprintPortrait = Utilities.GetBlueprintByGuid<BlueprintPortrait>("f4bbe08217bcaa54c91fe73bcea70ede");
 
 
@@ -5305,7 +5463,7 @@ Main.NenioName,
 							blueprintPortrait = (BlueprintPortraitReference)typeof(BlueprintUnit).GetField("m_Portrait", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(unitEntityData.Blueprint);
 
 	*/
-			//			Main.DebugLog("setportraits: 10b " + characterName);
+						//			Main.DebugLog("setportraits: 10b " + characterName);
 
 						if (unitEntityData.IsPet)
 						{
@@ -5330,9 +5488,11 @@ Main.NenioName,
 								Main.pauseGetPortraitsafe = true;
 
 								blueprintPortrait = unitEntityData.Blueprint.PortraitSafe;
-								Main.pauseGetPortraitsafe = false;
+		
 
 								unitEntityData.UISettings.SetPortrait(blueprintPortrait.Data);
+
+								Main.pauseGetPortraitsafe = false;
 								//typeof(UnitUISettings).GetField("m_CustomPortrait", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(unitEntityData.UISettings, null);
 
 								//typeof(UnitUISettings).GetField("m_Portrait", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(unitEntityData.UISettings, blueprintPortrait);
