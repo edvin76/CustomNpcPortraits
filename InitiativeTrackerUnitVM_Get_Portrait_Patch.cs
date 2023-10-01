@@ -92,12 +92,12 @@ namespace CustomNpcPortraits
                         if (File.Exists(Path.Combine(portraitDirectoryPath, "Small.png")))
                         { 
 
-                            Vector2Int v2 = ImageHeader.GetDimensions(Path.Combine(portraitDirectoryPath, "Small.png"));
+                            //Vector2Int v2 = ImageHeader.GetDimensions(Path.Combine(portraitDirectoryPath, "Small.png"));
 
                             //  Main.DebugLog("huh 2 " + pdata.SmallPortrait.texture.width);
 
-                            if (v2.x > 100)
-                            {
+                            //if (v2.x > 100)
+                            //{
                                 CustomPortraitsManager.Instance.Storage.Unload(Path.Combine(portraitDirectoryPath, "Small.png"));
 
                                 PortraitData pdata = new PortraitData(portraitDirectoryPath);
@@ -107,7 +107,7 @@ namespace CustomNpcPortraits
                                 pdata.m_PetEyeImage = __instance.Unit.Blueprint.PortraitSafe.Data.m_PetEyeImage;
 
                                 Main.pauseGetPortraitsafe = false;
-
+                                
 
                                 //Main.DebugLog("huh 3 " + Path.Combine(portraitDirectoryPath, "Small.png"));
 
@@ -122,7 +122,7 @@ namespace CustomNpcPortraits
 
                                // }
 
-                            }
+                            //}
                         }
 
                         //    Main.DebugLog("huh 6");

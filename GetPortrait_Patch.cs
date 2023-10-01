@@ -638,7 +638,7 @@ namespace CustomNpcPortraits
             {
 
                 if (Game.Instance == null ||
-                   // Game.Instance == null ||
+                    Game.Instance.CurrentMode != GameModeType.Dialog ||
                     Game.Instance.DialogController == null || 
                     Game.Instance.DialogController.CurrentCue == null || 
                     Game.Instance.DialogController.CurrentCue.Speaker == null)
