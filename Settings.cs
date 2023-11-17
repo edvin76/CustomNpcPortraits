@@ -5,7 +5,7 @@ namespace CustomNpcPortraits
 {
 	public class Settings : UnityModManager.ModSettings
 	{
-
+		public bool SwarmRiddance = false;
 
 		public bool RightverseGroupPortraits = true;
 
@@ -27,6 +27,9 @@ namespace CustomNpcPortraits
 		public bool ManageCompanions = true;
 
 		public bool isCleaned = false;
+
+		public bool isCleaned2 = false;
+
 
 		public string enterPoint = "GrayGarrisonBasement1From1stFloor";
 

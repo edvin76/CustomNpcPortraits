@@ -52,7 +52,12 @@ namespace CustomNpcPortraits
                 if ((Game.Instance.CurrentMode == GameModeType.GlobalMap || Game.Instance.CurrentMode == GameModeType.CutsceneGlobalMap )
 &&                        Main.companions.Contains(__instance.CharacterName))
                 {
-                   // Main.DebugLog("getportraitsafe: in");
+                    if (!Main.settings.ManageCompanions)
+                    {
+                        return true;
+                    }
+
+                    // Main.DebugLog("getportraitsafe: in");
                     string characterName = Main.GetCompanionDirName(__instance.CharacterName);
                     string prefix = Main.GetCompanionPortraitDirPrefix();
                     string portraitsDirectoryPath = Main.GetCompanionPortraitsDirectory();
@@ -133,8 +138,32 @@ namespace CustomNpcPortraits
                     else
                         return true;
                 }
-                
 
+
+
+                if(__instance.CharacterName == Main.FinneanName)
+                {
+
+                    string dir = Path.Combine(Main.GetCompanionPortraitsDirectory(), Main.GetCompanionPortraitDirPrefix() + __instance.CharacterName);
+                    Directory.CreateDirectory(dir);
+
+
+                    if (Main.settings.AutoBackup)
+                        if (!File.Exists(Path.Combine(dir, Main.GetDefaultPortraitsDirName(), "Medium.png")))
+                            Main.SaveOriginals2((__instance.m_Portrait.GetBlueprint() as BlueprintPortrait).Data, dir);
+
+                    if (File.Exists(Path.Combine(dir, "Medium.png")))
+                    {
+
+                        BlueprintPortrait bp = new BlueprintPortrait();
+                        
+                        bp.Data = new PortraitData(dir);
+
+                        __result = bp;
+
+                        return false;
+                    }
+                }
                 // Main.DebugLog("GetPortraitSafe() 2");
                 if (Game.Instance.CurrentMode == GameModeType.Cutscene || Game.Instance.CurrentMode == GameModeType.Dialog)
                 {
@@ -257,11 +286,13 @@ namespace CustomNpcPortraits
                        || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Hand of the Inheritor") && __instance.CharacterName.Equals("Hand of the Inheritor"))
                        || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Fulsome Queen") && __instance.CharacterName.Equals("Fulsome Queen"))
                        || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Shadow") && __instance.CharacterName.Equals("Shadow"))
-
-
+                       
+                       || (Game.Instance.DialogController.CurrentSpeakerName.Equals("The Spinner of Nightmares") && __instance.CharacterName.Equals("The Spinner of Nightmares"))
                        || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Katair") && __instance.CharacterName.Equals("Katair"))
                        || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Nocticula") && __instance.CharacterName.Equals("Nocticula"))
                        || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Areelu Vorlesh") && __instance.CharacterName.Equals("Areelu Vorlesh"))
+
+                      // || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Targona") && __instance.CharacterName.Equals("Targona"))
 
 
                        || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Arsinoe") && __instance.CharacterName.Equals("Arsinoe"))

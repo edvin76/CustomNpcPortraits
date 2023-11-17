@@ -1,6 +1,7 @@
 ﻿using System;
 using Harmony12;
 using Kingmaker;
+using Kingmaker.DialogSystem.Blueprints;
 using Kingmaker.DLC;
 using Kingmaker.GameModes;
 
@@ -27,4 +28,8 @@ namespace CustomNpcPortraits
             }
         }
     }
+
+
+
+
 }
