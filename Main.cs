@@ -3279,12 +3279,12 @@ WoljifName };
 		GUILayout.EndHorizontal();
 
 
-		Main.settings.ManageCompanions = GUILayout.Toggle(Main.settings.ManageCompanions, "Let the mod manage the portraits of companions and mercenaries.", new GUILayoutOption[0]);
+		Main.settings.ManageCompanions = GUILayout.Toggle(Main.settings.ManageCompanions, "Let the mod manage the portraits of main char, companions, and mercenaries.", new GUILayoutOption[0]);
 
-		Main.settings.AutoBackup = GUILayout.Toggle(Main.settings.AutoBackup, "Keep game defaults auto backed up in 'Game Default Portraits' of each subdir.", new GUILayoutOption[0]);
+		Main.settings.AutoBackup = GUILayout.Toggle(Main.settings.AutoBackup, "Keep game defaults auto backed up in 'Backup of Game Default Portraits' of each subdir.", new GUILayoutOption[0]);
 		Main.settings.AutoSecret = GUILayout.Toggle(Main.settings.AutoSecret, "Extract and use the turn based portraits of NPC-s in dialogs where available.", new GUILayoutOption[0]);
 
-		Main.settings.RightverseGroupPortraits = GUILayout.Toggle(Main.settings.RightverseGroupPortraits, "Show active party portraits first in palces like cities on group portrait bar", new GUILayoutOption[0]);
+		Main.settings.RightverseGroupPortraits = GUILayout.Toggle(Main.settings.RightverseGroupPortraits, "Show current party members' portraits first in places like cities on group portrait bar", new GUILayoutOption[0]);
 
 
 
@@ -4551,6 +4551,8 @@ if(be.TypeFullName.Contains("BlueprintUnlockableFlag"))
 
 			}
 		}*/
+
+
 
 		public static UnitEntityData RealCurrentSpeakerEntity(string characterName)
         {

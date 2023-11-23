@@ -7,6 +7,7 @@ using UnityEngine;
 using Kingmaker.UI;
 using System.Reflection;
 
+
 namespace CustomNpcPortraits
 {
     [HarmonyPatch(typeof(KingdomUILeaderCharacterController), "SetPortrait")]
