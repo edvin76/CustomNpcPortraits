@@ -1304,17 +1304,38 @@ WoljifName,
 					Directory.CreateDirectory(Path.GetFullPath(CustomPortraitsManager.PortraitsRootFolderPath));
 					foreach (string sDir in System.IO.Directory.GetDirectories(Main.GetCompanionPortraitsDirectory(), "Game Default Portraits", SearchOption.AllDirectories))
 					{
-						System.IO.Directory.Move(sDir, Path.Combine(Directory.GetParent(sDir).FullName, Main.GetDefaultPortraitsDirName()));
+						if(!Directory.Exists(Path.Combine(Directory.GetParent(sDir).FullName, Main.GetDefaultPortraitsDirName())))
+							System.IO.Directory.Move(sDir, Path.Combine(Directory.GetParent(sDir).FullName, Main.GetDefaultPortraitsDirName()));
+						else
+                        {
+							Directory.Delete(Path.Combine(Directory.GetParent(sDir).FullName, Main.GetDefaultPortraitsDirName()));
+							System.IO.Directory.Move(sDir, Path.Combine(Directory.GetParent(sDir).FullName, Main.GetDefaultPortraitsDirName()));
+
+						}
 					}
 
 					foreach (string sDir in System.IO.Directory.GetDirectories(Main.GetNpcPortraitsDirectory(), "Game Default Portraits", SearchOption.AllDirectories))
 					{
-						System.IO.Directory.Move(sDir, Path.Combine(Directory.GetParent(sDir).FullName, Main.GetDefaultPortraitsDirName()));
+						if (!Directory.Exists(Path.Combine(Directory.GetParent(sDir).FullName, Main.GetDefaultPortraitsDirName())))
+							System.IO.Directory.Move(sDir, Path.Combine(Directory.GetParent(sDir).FullName, Main.GetDefaultPortraitsDirName()));
+						else
+						{
+							Directory.Delete(Path.Combine(Directory.GetParent(sDir).FullName, Main.GetDefaultPortraitsDirName()));
+							System.IO.Directory.Move(sDir, Path.Combine(Directory.GetParent(sDir).FullName, Main.GetDefaultPortraitsDirName()));
+
+						}
 					}
 
 					foreach (string sDir in System.IO.Directory.GetDirectories(Main.GetArmyPortraitsDirectory(), "Game Default Portraits", SearchOption.AllDirectories))
 					{
-						System.IO.Directory.Move(sDir, Path.Combine(Directory.GetParent(sDir).FullName, Main.GetDefaultPortraitsDirName()));
+						if (!Directory.Exists(Path.Combine(Directory.GetParent(sDir).FullName, Main.GetDefaultPortraitsDirName())))
+							System.IO.Directory.Move(sDir, Path.Combine(Directory.GetParent(sDir).FullName, Main.GetDefaultPortraitsDirName()));
+						else
+						{
+							Directory.Delete(Path.Combine(Directory.GetParent(sDir).FullName, Main.GetDefaultPortraitsDirName()));
+							System.IO.Directory.Move(sDir, Path.Combine(Directory.GetParent(sDir).FullName, Main.GetDefaultPortraitsDirName()));
+
+						}
 					}
 
 					Main.settings.isCleaned2 = true;
