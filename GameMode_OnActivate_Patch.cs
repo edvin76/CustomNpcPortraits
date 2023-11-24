@@ -57,7 +57,7 @@ namespace CustomNpcPortraits
 
            // Main.DebugLog("GameMode: " + __instance.ToString() + " - " + __instance.Type.ToString());
 
-            if (!Main.enabled)
+            if (!Main.enabled || !Main.settings.ManageCompanions)
                 return;
 
             try

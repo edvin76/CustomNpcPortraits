@@ -172,6 +172,10 @@ namespace CustomNpcPortraits
 		{
 			//Main.DebugLog("Deativate: " + __instance.OwnerBlueprint.name);
 
+			if (!Main.enabled || !Main.settings.ManageCompanions)
+				return;
+
+
 			if (Game.Instance.Player.AllCharacters.Contains(__instance.Owner))
 			{
 
@@ -243,6 +247,8 @@ namespace CustomNpcPortraits
 		// Token: 0x06000053 RID: 83 RVA: 0x00005694 File Offset: 0x00003894
 		public static void Postfix(Polymorph __instance)
 		{
+			if (!Main.enabled || !Main.settings.ManageCompanions)
+				return;
 			//return;
 			//	Main.DebugLog("OnActivate");
 
@@ -681,14 +687,16 @@ namespace CustomNpcPortraits
 	}
 
 
+
 	[HarmonyPatch(typeof(DollCamera), nameof(DollCamera.OnEnable))]
 	internal static class DollCamera_OnEnable
 	{
 		static void Postfix(DollCamera __instance)
 		{
 			//if(Main.dollRoomxtraFxBrightness)
-			if (!Main.settings.DollroomHalo) return;
+			if (!Main.enabled || !Main.settings.DollroomHalo) return;
 
+			if(__instance.GetComponentInChildren<UnityEngine.Rendering.Volume>() != null && __instance.GetComponentInChildren<UnityEngine.Rendering.Volume>().gameObject != null)
 			__instance.GetComponentInChildren<UnityEngine.Rendering.Volume>().gameObject.SetActive(false);
 		}
 	}
@@ -705,7 +713,7 @@ namespace CustomNpcPortraits
 
 			
 			if (!__instance.IsInDollRoom) return;
-			if (!Main.settings.DollroomHalo) return;
+			if (!Main.enabled || !Main.settings.DollroomHalo) return;
 
 			//var LightHaloFeature = ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("8fb2ee1d545f46f2be5b33bdcdd5f138");
 
@@ -1087,27 +1095,46 @@ namespace CustomNpcPortraits
 				AstyName = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("d8e2475977bd87b439c4bba8f5f55949").LocalizedName.String;
 				TranName = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("c35607fd0f8064f42b4d71f7eb50e96c").LocalizedName.String;
 				VelhmName = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("f9c01a9515cd1f347800685ddbfbcc41").LocalizedName.String;
+				LannName = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("cb29621d99b902e4da6f5d232352fbda").LocalizedName.String;
+				EmberName = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("2779754eecffd044fbd4842dba55312c").LocalizedName.String;
+				PentaName = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("942862a48f1644ae85ac5e3c9deb720c").LocalizedName.String;
+				SeelahName = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("54be53f0b35bf3c4592a97ae335fe765").LocalizedName.String;
+				DaeranName = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("096fc4a96d675bb45a0396bcaa7aa993").LocalizedName.String;
+				RegillName = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("0d37024170b172346b3769df92a971f5").LocalizedName.String;
+				SendriName = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("561036c882a640089b1d42f03ebe3a6c").LocalizedName.String;
+				UlbrigName = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("42f0d5ec3dc844feb44b04507a7c1bfc").LocalizedName.String;
+				TreverName = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("0bb1c03b9f7bbcf42bb74478af2c6258").LocalizedName.String;
+				WenduagName = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("ae766624c03058440a036de90a7f2009").LocalizedName.String;
+				RekarthName = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("3e0014e4be454482a2797fd81123d7b4").LocalizedName.String;
+				GreyborName = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("f72bb7c48bb3e45458f866045448fb58").LocalizedName.String;
+				CamelliaName = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("397b090721c41044ea3220445300e1b8").LocalizedName.String;
+				DelamereName = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("6b1f599497f5cfa42853d095bda6dafd").LocalizedName.String;
+				KestoglyrName = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("e551850403d61eb48bb2de010d12c894").LocalizedName.String;
+				SosielName = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("1cbbbb892f93c3d439f8417ad7cbb6aa").LocalizedName.String;
 
 				companions = new List<string>{
 ArueName,
-"Camellia",
 CiarName,
-"Daeran",
-"Delamere",
-"Ember",
-"Finnean",
-"Greybor",
-"Kestoglyr",
-"Lann",
 NenioName,
 GalfreyName,
-"Regill",
-"Seelah",
-"Sosiel",
 StauntonName,
-"Ulbrig",
-"Wenduag",
-WoljifName };
+WoljifName,
+				LannName,
+				EmberName,
+				PentaName,
+				SeelahName,
+				DaeranName,
+				RegillName,
+				SendriName,
+				UlbrigName,
+				TreverName,
+				WenduagName,
+				RekarthName,
+				GreyborName,
+				CamelliaName,
+				DelamereName,
+				KestoglyrName,
+				SosielName          };
 				BlueprintsCache_Patch.popUnitNames();
 
 			}
@@ -1154,7 +1181,12 @@ WoljifName };
 				//finnean ea8034769ab7d584e97b5227cbc03296
 
 
-				NenioName = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("1b893f7cf2b150e4f8bc2b3c389ba71d").LocalizedName.String;
+
+
+
+
+
+			NenioName = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("1b893f7cf2b150e4f8bc2b3c389ba71d").LocalizedName.String;
 
 				ArueName = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("a352873d37ec6c54c9fa8f6da3a6b3e1").LocalizedName.String;
 				FinneanName = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("ea8034769ab7d584e97b5227cbc03296").LocalizedName.String;
@@ -1171,26 +1203,62 @@ WoljifName };
 				TranName = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("c35607fd0f8064f42b4d71f7eb50e96c").LocalizedName.String;
 				VelhmName = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("f9c01a9515cd1f347800685ddbfbcc41").LocalizedName.String;
 
+				//lann cb29621d99b902e4da6f5d232352fbda
+				//ember 2779754eecffd044fbd4842dba55312c
+				//penta 942862a48f1644ae85ac5e3c9deb720c
+				//seelah 54be53f0b35bf3c4592a97ae335fe765
+				//daeran 096fc4a96d675bb45a0396bcaa7aa993
+				//regill 0d37024170b172346b3769df92a971f5
+				//sendri 561036c882a640089b1d42f03ebe3a6c
+				//ulbrig 42f0d5ec3dc844feb44b04507a7c1bfc
+				//trever 0bb1c03b9f7bbcf42bb74478af2c6258
+				//wendu  ae766624c03058440a036de90a7f2009
+				//rekarth 3e0014e4be454482a2797fd81123d7b4
+				//greybor f72bb7c48bb3e45458f866045448fb58
+				//camelia 397b090721c41044ea3220445300e1b8
+				//delamere 6b1f599497f5cfa42853d095bda6dafd
+				//kestoglyr e551850403d61eb48bb2de010d12c894
+				//sosiel 1cbbbb892f93c3d439f8417ad7cbb6aa
+				LannName = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("cb29621d99b902e4da6f5d232352fbda").LocalizedName.String;
+				EmberName = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("2779754eecffd044fbd4842dba55312c").LocalizedName.String;
+				PentaName = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("942862a48f1644ae85ac5e3c9deb720c").LocalizedName.String;
+				SeelahName = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("54be53f0b35bf3c4592a97ae335fe765").LocalizedName.String;
+				DaeranName = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("096fc4a96d675bb45a0396bcaa7aa993").LocalizedName.String;
+				RegillName = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("0d37024170b172346b3769df92a971f5").LocalizedName.String;
+				SendriName = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("561036c882a640089b1d42f03ebe3a6c").LocalizedName.String;
+				UlbrigName = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("42f0d5ec3dc844feb44b04507a7c1bfc").LocalizedName.String;
+				TreverName = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("0bb1c03b9f7bbcf42bb74478af2c6258").LocalizedName.String;
+				WenduagName = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("ae766624c03058440a036de90a7f2009").LocalizedName.String;
+				RekarthName = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("3e0014e4be454482a2797fd81123d7b4").LocalizedName.String;
+				GreyborName = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("f72bb7c48bb3e45458f866045448fb58").LocalizedName.String;
+				CamelliaName = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("397b090721c41044ea3220445300e1b8").LocalizedName.String;
+				DelamereName = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("6b1f599497f5cfa42853d095bda6dafd").LocalizedName.String;
+				KestoglyrName = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("e551850403d61eb48bb2de010d12c894").LocalizedName.String;
+				SosielName = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("1cbbbb892f93c3d439f8417ad7cbb6aa").LocalizedName.String;
+
 				companions = new List<string>{
 ArueName,
-"Camellia",
 CiarName,
-"Daeran",
-"Delamere",
-"Ember",
-"Finnean",
-"Greybor",
-"Kestoglyr",
-"Lann",
 NenioName,
 GalfreyName,
-"Regill",
-"Seelah",
-"Sosiel",
 StauntonName,
-"Ulbrig",
-"Wenduag",
-WoljifName };
+WoljifName,
+				LannName,
+				EmberName,
+				PentaName,
+				SeelahName,
+				DaeranName,
+				RegillName,
+				SendriName,
+				UlbrigName,
+				TreverName,
+				WenduagName,
+				RekarthName,
+				GreyborName,
+				CamelliaName,
+				DelamereName,
+				KestoglyrName,
+				SosielName			};
 
 
 
@@ -1412,7 +1480,7 @@ WoljifName };
 					}
 					catch (Exception e)
 					{
-						Main.DebugError(e);
+						//Main.DebugError(e);
 						j++;
 					}
 				}
@@ -1622,7 +1690,9 @@ WoljifName };
 				GUILayout.Width(200f),
 				GUILayout.Height(20f)
 };
-		private static void OnGUI(UnityModManager.ModEntry modEntry)
+        static List<string> allCompNames = new List<string>();
+
+        private static void OnGUI(UnityModManager.ModEntry modEntry)
 	{
 		//bool globalMap = false;
 		//	if (Game.Instance.CurrentMode == GameModeType.GlobalMap)
@@ -3759,7 +3829,39 @@ WoljifName };
 		public static string TranName = "Tran";
 		public static string VelhmName = "Velhm";
 
+		public static string LannName = "Lann";
+		public static string EmberName = "Ember";
+		public static string PentaName = "Penta";
+		public static string SeelahName = "Seelah";
+		public static string DaeranName = "Daeran";
+		public static string RegillName = "Regill";
+		public static string SendriName = "Sendri";
+		public static string UlbrigName = "Ulbrig";
+		public static string TreverName = "Trever";
+		public static string WenduagName = "Wenduag";
+		public static string RekarthName = "Rekarth";
+		public static string GreyborName = "Greybor";
+		public static string CamelliaName = "Camellia";
+		public static string DelamereName = "Delamere";
+		public static string KestoglyrName = "Kestoglyr";
+		public static string SosielName = "Sosiel";
 
+		//lann cb29621d99b902e4da6f5d232352fbda
+		//ember 2779754eecffd044fbd4842dba55312c
+		//penta 942862a48f1644ae85ac5e3c9deb720c
+		//seelah 54be53f0b35bf3c4592a97ae335fe765
+		//daeran 096fc4a96d675bb45a0396bcaa7aa993
+		//regill 0d37024170b172346b3769df92a971f5
+		//sendri 561036c882a640089b1d42f03ebe3a6c
+		//ulbrig 42f0d5ec3dc844feb44b04507a7c1bfc
+		//trever 0bb1c03b9f7bbcf42bb74478af2c6258
+		//wendu  ae766624c03058440a036de90a7f2009
+		//rekarth 3e0014e4be454482a2797fd81123d7b4
+		//greybor f72bb7c48bb3e45458f866045448fb58
+		//camelia 397b090721c41044ea3220445300e1b8
+		//delamere 6b1f599497f5cfa42853d095bda6dafd
+		//kestoglyr e551850403d61eb48bb2de010d12c894
+		//sosiel 1cbbbb892f93c3d439f8417ad7cbb6aa
 		public static UnityModManager.ModEntry.ModLogger Logger;
 
 		public static List<BlueprintBuff> buffs = new List<BlueprintBuff>();
