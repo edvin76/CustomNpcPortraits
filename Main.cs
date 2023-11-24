@@ -1308,7 +1308,7 @@ WoljifName,
 							System.IO.Directory.Move(sDir, Path.Combine(Directory.GetParent(sDir).FullName, Main.GetDefaultPortraitsDirName()));
 						else
                         {
-							Directory.Delete(Path.Combine(Directory.GetParent(sDir).FullName, Main.GetDefaultPortraitsDirName()));
+							Directory.Delete(Path.Combine(Directory.GetParent(sDir).FullName, Main.GetDefaultPortraitsDirName()), true);
 							System.IO.Directory.Move(sDir, Path.Combine(Directory.GetParent(sDir).FullName, Main.GetDefaultPortraitsDirName()));
 
 						}
@@ -1320,7 +1320,7 @@ WoljifName,
 							System.IO.Directory.Move(sDir, Path.Combine(Directory.GetParent(sDir).FullName, Main.GetDefaultPortraitsDirName()));
 						else
 						{
-							Directory.Delete(Path.Combine(Directory.GetParent(sDir).FullName, Main.GetDefaultPortraitsDirName()));
+							Directory.Delete(Path.Combine(Directory.GetParent(sDir).FullName, Main.GetDefaultPortraitsDirName()),true);
 							System.IO.Directory.Move(sDir, Path.Combine(Directory.GetParent(sDir).FullName, Main.GetDefaultPortraitsDirName()));
 
 						}
@@ -1332,7 +1332,7 @@ WoljifName,
 							System.IO.Directory.Move(sDir, Path.Combine(Directory.GetParent(sDir).FullName, Main.GetDefaultPortraitsDirName()));
 						else
 						{
-							Directory.Delete(Path.Combine(Directory.GetParent(sDir).FullName, Main.GetDefaultPortraitsDirName()));
+							Directory.Delete(Path.Combine(Directory.GetParent(sDir).FullName, Main.GetDefaultPortraitsDirName()), true);
 							System.IO.Directory.Move(sDir, Path.Combine(Directory.GetParent(sDir).FullName, Main.GetDefaultPortraitsDirName()));
 
 						}
