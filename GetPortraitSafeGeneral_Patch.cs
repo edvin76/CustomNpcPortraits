@@ -135,7 +135,7 @@ namespace CustomNpcPortraits
 
                     Directory.CreateDirectory(portraitDirectoryPath);
 
-                    if (!File.Exists(Path.Combine(portraitDirectoryPath, "Game Default Portraits", "Medium.png")))
+                    if (!File.Exists(Path.Combine(portraitDirectoryPath, Main.GetDefaultPortraitsDirName(), "Medium.png")))
                     {
                         // Main.DebugLog("GetPortraitSafeGeneral() -> Saveoriginals2 ");
 

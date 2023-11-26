@@ -485,10 +485,10 @@ namespace CustomNpcPortraits
              //       Main.DebugLog(__instance.Name);
 
                     Directory.CreateDirectory(portraitDirectoryPath);
-                    Directory.CreateDirectory(Path.Combine(portraitDirectoryPath, "Game Default Portraits"));
+                    Directory.CreateDirectory(Path.Combine(portraitDirectoryPath, Main.GetDefaultPortraitsDirName()));
                     
 
-                    if (!File.Exists(Path.Combine(portraitDirectoryPath, "Game Default Portraits", "Medium.png")))
+                    if (!File.Exists(Path.Combine(portraitDirectoryPath, Main.GetDefaultPortraitsDirName(), "Medium.png")))
                     {
 
                         //BlueprintPortrait bp = ___m_Portrait;

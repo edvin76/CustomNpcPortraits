@@ -1071,6 +1071,13 @@ namespace CustomNpcPortraits
 			{
 				throw Main.Error("Failed to patch GameMode_OnDeActivate");
 			}
+
+
+			if (!Main.ApplyPatch(typeof(EyePortraitInjector), "EyePortraitInjector"))
+			{
+				throw Main.Error("EyePortraitInjector");
+			}
+
 			
 
 			BlueprintUnit dummyUnit = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("1b893f7cf2b150e4f8bc2b3c389ba71d");
@@ -5017,6 +5024,18 @@ if(be.TypeFullName.Contains("BlueprintUnlockableFlag"))
 #endif
 		public static List<string> companions;
 
+		[HarmonyPatch(typeof(PortraitData), "get_PetEyePortrait")]
+		public static class EyePortraitInjector
+		{
+			public static Dictionary<PortraitData, Sprite> Replacements = new Dictionary<PortraitData, Sprite>();
+			public static bool Prefix(PortraitData __instance, ref Sprite __result)
+			{
+				if (Replacements.TryGetValue(__instance, out __result))
+					return false;
+				return true;
+			}
+		}
+
 
 		public static bool isSetPortrait = false;
 		public static PortraitData SetPortrait(UnitEntityData unitEntityData)
@@ -5189,6 +5208,14 @@ if(be.TypeFullName.Contains("BlueprintUnlockableFlag"))
 					}
 					else
 					data.m_PetEyeImage = blueprintPortrait.Data.m_PetEyeImage;
+
+					if(File.Exists(Path.Combine(portraitDirectoryPath,"PetEye.png")))
+                    {
+						
+						EyePortraitInjector.Replacements[data] = PortraitLoader.Image2Sprite.Create(Path.Combine(portraitDirectoryPath, "PetEye.png"), new UnityEngine.Vector2Int(176, 24), TextureFormat.BGRA32);
+
+					}
+					
 
 					//		Main.DebugLog("SetPortrait() 8");
 
@@ -5819,7 +5846,7 @@ if(be.TypeFullName.Contains("BlueprintUnlockableFlag"))
                         {
 
 							//Main.DebugLog("default portrait? " + characterName);
-							if(portraitDirectoryPath.Contains("Game Default Portraits"))
+							if(portraitDirectoryPath.Contains(Main.GetDefaultPortraitsDirName()))
 								blueprintPortrait.Data = new PortraitData(portraitDirectoryPath);
 							else
 							blueprintPortrait.Data = new PortraitData(Path.Combine(portraitDirectoryPath, Main.GetDefaultPortraitsDirName()));
