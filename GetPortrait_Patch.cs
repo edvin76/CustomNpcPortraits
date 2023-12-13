@@ -722,42 +722,53 @@ namespace CustomNpcPortraits
             }
             */
 
-
+            UnitEntityData unitEntityData = null;
+            if (Game.Instance.DialogController != null &&
+                Game.Instance.DialogController.CurrentSpeaker != null)
+            {
+                unitEntityData = Game.Instance.DialogController.CurrentSpeaker;
+            }
+            else
+            {
+                foreach (var unit in Game.Instance.State.Units)
+                {
+                    if (unit.Blueprint.name.Equals(blueprintUnit.name))
+                        unitEntityData = unit;
+                }
+            }
             // Kressle
             string portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName);
                 string unitCharNameDirNames = Path.Combine(charcterNameDirectoryName);
-            if (Game.Instance.DialogController?.Dialog != null && 
-                (bool)Game.Instance.DialogController?.CurrentSpeaker?.Body.IsPolymorphed && 
-                !(bool)Game.Instance.DialogController?.CurrentSpeaker?.CharacterName.Equals(Main.NenioName)
+            if (unitEntityData.Body.IsPolymorphed &&
+                unitEntityData.CharacterName.Equals(Main.NenioName)
                 
                 )
             {
-                if (Game.Instance.DialogController?.CurrentSpeaker?.Blueprint?.name != null && Game.Instance.DialogController?.CurrentSpeaker?.Blueprint?.name.Length > 2)
+                if (unitEntityData.Blueprint.name != null && unitEntityData.Blueprint.name.Length > 2)
                 {
-                   if((bool)Game.Instance.DialogController?.CurrentSpeaker?.Blueprint?.CharacterName.Equals(Game.Instance.DialogController?.CurrentSpeaker?.CharacterName))
+                   if(unitEntityData.Blueprint.CharacterName.Equals(unitEntityData.CharacterName))
 
                    
                         {
 
-                        if (!Directory.Exists(Path.Combine(portraitDirectoryPath, Game.Instance.DialogController?.CurrentSpeaker?.GetActivePolymorph().Runtime?.SourceBlueprintComponent?.OwnerBlueprint?.name)))
-                            Directory.CreateDirectory(Path.Combine(portraitDirectoryPath, Game.Instance.DialogController.CurrentSpeaker.GetActivePolymorph().Runtime?.SourceBlueprintComponent?.OwnerBlueprint?.name));
+                        if (!Directory.Exists(Path.Combine(portraitDirectoryPath, unitEntityData.GetActivePolymorph().Runtime?.SourceBlueprintComponent?.OwnerBlueprint?.name)))
+                            Directory.CreateDirectory(Path.Combine(portraitDirectoryPath, unitEntityData.GetActivePolymorph().Runtime?.SourceBlueprintComponent?.OwnerBlueprint?.name));
 
-                        if (Game.Instance.DialogController?.CurrentSpeaker?.GetActivePolymorph().Component?.m_Portrait.GetBlueprint() != null)
-                            if (!File.Exists(Path.Combine(portraitDirectoryPath, Game.Instance.DialogController?.CurrentSpeaker?.GetActivePolymorph().Runtime?.SourceBlueprintComponent?.OwnerBlueprint?.name, Main.GetDefaultPortraitsDirName(), "Medium.png")))
-                            Main.SaveOriginals2((Game.Instance.DialogController?.CurrentSpeaker?.GetActivePolymorph().Component.m_Portrait.GetBlueprint() as BlueprintPortrait).Data, Path.Combine(portraitDirectoryPath, Game.Instance.DialogController?.CurrentSpeaker?.GetActivePolymorph().Runtime?.SourceBlueprintComponent?.OwnerBlueprint?.name));
+                        if (unitEntityData.GetActivePolymorph().Component?.m_Portrait.GetBlueprint() != null)
+                            if (!File.Exists(Path.Combine(portraitDirectoryPath, unitEntityData.GetActivePolymorph().Runtime?.SourceBlueprintComponent?.OwnerBlueprint?.name, Main.GetDefaultPortraitsDirName(), "Medium.png")))
+                            Main.SaveOriginals2((unitEntityData.GetActivePolymorph().Component.m_Portrait.GetBlueprint() as BlueprintPortrait).Data, Path.Combine(portraitDirectoryPath, unitEntityData.GetActivePolymorph().Runtime?.SourceBlueprintComponent?.OwnerBlueprint?.name));
                     }
                 }
 
 
             }
-            if (Game.Instance.DialogController?.Dialog != null &&
-    (bool)Game.Instance.DialogController?.CurrentSpeaker?.Body.IsPolymorphed &&
-    !(bool)Game.Instance.DialogController?.CurrentSpeaker?.CharacterName.Equals(Main.NenioName) &&
-    File.Exists(Path.Combine(portraitDirectoryPath, Game.Instance.DialogController?.CurrentSpeaker?.GetActivePolymorph().Runtime?.SourceBlueprintComponent?.OwnerBlueprint?.name, "Medium.png"))
+            if (unitEntityData.Body.IsPolymorphed &&
+    !unitEntityData.CharacterName.Equals(Main.NenioName) &&
+    File.Exists(Path.Combine(portraitDirectoryPath, unitEntityData.GetActivePolymorph().Runtime?.SourceBlueprintComponent?.OwnerBlueprint?.name, "Medium.png"))
     )
             {
                 
-                    portraitDirectoryPath = Path.Combine(portraitDirectoryPath, Game.Instance.DialogController.CurrentSpeaker.GetActivePolymorph().Runtime?.SourceBlueprintComponent?.OwnerBlueprint?.name);
+                    portraitDirectoryPath = Path.Combine(portraitDirectoryPath, unitEntityData.GetActivePolymorph().Runtime?.SourceBlueprintComponent?.OwnerBlueprint?.name);
 
             }
             else if (Game.Instance.DialogController?.Dialog != null && File.Exists(Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName, Game.Instance.DialogController.Dialog.name, "Medium.png")))

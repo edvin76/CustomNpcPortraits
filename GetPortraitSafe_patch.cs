@@ -156,12 +156,46 @@ namespace CustomNpcPortraits
                     {
 
                         BlueprintPortrait bp = new BlueprintPortrait();
-                        
+
                         bp.Data = new PortraitData(dir);
 
                         __result = bp;
 
                         return false;
+                    }
+                    else
+                        return true;
+                }
+
+                if (__instance.CharacterName == Main.PillarName)
+                {
+
+                    string dir = Path.Combine(Main.GetNpcPortraitsDirectory(), __instance.CharacterName);
+                    Directory.CreateDirectory(dir);
+
+                    if (Main.settings.AutoBackup && !__instance.m_Portrait.NameSafe().Equals("-not set-"))
+                        if (!File.Exists(Path.Combine(dir, Main.GetDefaultPortraitsDirName(), "Medium.png")))
+                        {
+                            Main.SaveOriginals2((__instance.m_Portrait.GetBlueprint() as BlueprintPortrait).Data, dir);
+                        }
+
+
+
+                    if (File.Exists(Path.Combine(dir, "Medium.png")))
+                    {
+                        BlueprintPortrait bp = new BlueprintPortrait();
+
+                        bp.Data = new PortraitData(dir);
+
+                        __result = bp;
+
+                        return false;
+                    }
+                    else
+                    {
+
+                        return true;
+
                     }
                 }
                 // Main.DebugLog("GetPortraitSafe() 2");
@@ -292,7 +326,9 @@ namespace CustomNpcPortraits
                        || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Nocticula") && __instance.CharacterName.Equals("Nocticula"))
                        || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Areelu Vorlesh") && __instance.CharacterName.Equals("Areelu Vorlesh"))
 
-                      // || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Targona") && __instance.CharacterName.Equals("Targona"))
+                       || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Siabrae") && __instance.CharacterName.Equals("Siabrae"))
+
+                       // || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Targona") && __instance.CharacterName.Equals("Targona"))
 
 
                        || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Arsinoe") && __instance.CharacterName.Equals("Arsinoe"))
@@ -314,7 +350,7 @@ namespace CustomNpcPortraits
 
                         Directory.CreateDirectory(portraitDirectoryPath);
 
-                        if (GetPortrait_Patch.GetUnitPortraitPath(__instance, portraitDirectoryName)?.Length > 3)
+                        if (!string.IsNullOrEmpty(GetPortrait_Patch.GetUnitPortraitPath(__instance, portraitDirectoryName)))
                         portraitDirectoryPath = GetPortrait_Patch.GetUnitPortraitPath(__instance, portraitDirectoryName);
 
                        // Main.DebugLog("GetPortraitSafe() 2");

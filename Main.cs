@@ -1118,7 +1118,10 @@ namespace CustomNpcPortraits
 				DelamereName = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("6b1f599497f5cfa42853d095bda6dafd").LocalizedName.String;
 				KestoglyrName = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("e551850403d61eb48bb2de010d12c894").LocalizedName.String;
 				SosielName = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("1cbbbb892f93c3d439f8417ad7cbb6aa").LocalizedName.String;
+				PillarName = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("a556fbfa2e0c59e4dad4da70b2e1b1d6").LocalizedName.String;
 
+
+				
 				companions = new List<string>{
 ArueName,
 CiarName,
@@ -1141,7 +1144,8 @@ WoljifName,
 				CamelliaName,
 				DelamereName,
 				KestoglyrName,
-				SosielName          };
+				SosielName          
+	};
 				BlueprintsCache_Patch.popUnitNames();
 
 			}
@@ -1242,6 +1246,8 @@ WoljifName,
 				DelamereName = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("6b1f599497f5cfa42853d095bda6dafd").LocalizedName.String;
 				KestoglyrName = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("e551850403d61eb48bb2de010d12c894").LocalizedName.String;
 				SosielName = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("1cbbbb892f93c3d439f8417ad7cbb6aa").LocalizedName.String;
+
+				PillarName = ResourcesLibrary.TryGetBlueprint<BlueprintUnit>("a556fbfa2e0c59e4dad4da70b2e1b1d6").LocalizedName.String;
 
 				companions = new List<string>{
 ArueName,
@@ -3246,8 +3252,8 @@ WoljifName,
 						foreach (var item in Game.Instance.DialogController.Answers)
 						{
 							Main.Log("Answers.item.AssetGuid: " + item.AssetGuid);
-							Main.Log("Answers.item.AssetGuid: " + item.DisplayText);
-							Main.Log("Answers.item.AssetGuid: " + item.name);
+							Main.Log("Answers.item.DisplayText: " + item.DisplayText);
+							Main.Log("Answers.item.name: " + item.name);
 							Main.Log("Conditions: ");
 							if (item.ShowConditions.Conditions.Length > 0)
 								foreach (var item2 in item.ShowConditions.Conditions)
@@ -3270,28 +3276,30 @@ WoljifName,
 						}
 
 					Main.Log("Body: ");
-					Main.Log("CurrentSpeaker.Blueprint.Body.Armor: " + Game.Instance.DialogController.CurrentSpeaker.Blueprint.Body?.Armor?.NameForAcronym);
-					Main.Log("CurrentSpeaker.Blueprint.Body.Head: " + Game.Instance.DialogController.CurrentSpeaker.Blueprint.Body?.Head?.NameForAcronym);
-					Main.Log("CurrentSpeaker.Blueprint.Body.PrimaryHand: " + Game.Instance.DialogController.CurrentSpeaker.Blueprint?.Body?.PrimaryHand?.NameForAcronym);
-					Main.Log("CurrentSpeaker.Blueprint.Body.SecondaryHand: " + Game.Instance.DialogController.CurrentSpeaker.Blueprint.Body?.SecondaryHand?.NameForAcronym);
+					Main.Log("CurrentSpeaker.Blueprint.Body.Armor: " + Game.Instance.DialogController.CurrentSpeaker?.Blueprint?.Body?.Armor?.NameForAcronym);
+					Main.Log("CurrentSpeaker.Blueprint.Body.Head: " + Game.Instance.DialogController.CurrentSpeaker?.Blueprint.Body?.Head?.NameForAcronym);
+					Main.Log("CurrentSpeaker.Blueprint.Body.PrimaryHand: " + Game.Instance.DialogController.CurrentSpeaker?.Blueprint?.Body?.PrimaryHand?.NameForAcronym);
+					Main.Log("CurrentSpeaker.Blueprint.Body.SecondaryHand: " + Game.Instance.DialogController.CurrentSpeaker?.Blueprint?.Body?.SecondaryHand?.NameForAcronym);
 
-					Main.Log("CurrentSpeaker.Blueprint.name: " + Game.Instance.DialogController.CurrentSpeaker?.Blueprint.name);
-					Main.Log("CurrentSpeaker.Blueprint.Race: " + Game.Instance.DialogController.CurrentSpeaker.Blueprint?.Race);
-					Main.Log("CurrentSpeaker.Blueprint.Type: " + Game.Instance.DialogController.CurrentSpeaker.Blueprint?.Type?.name);
+					Main.Log("CurrentSpeaker.Blueprint.name: " + Game.Instance.DialogController.CurrentSpeaker?.Blueprint?.name);
+						Main.Log("CurrentSpeaker.Blueprint.AssetGuid: " + Game.Instance.DialogController.CurrentSpeaker?.Blueprint?.AssetGuid);
+						Main.Log("CurrentSpeaker.Blueprint.Race: " + Game.Instance.DialogController.CurrentSpeaker?.Blueprint?.Race);
+					Main.Log("CurrentSpeaker.Blueprint.Type: " + Game.Instance.DialogController.CurrentSpeaker?.Blueprint?.Type?.name);
 
-					Main.Log("CurrentSpeaker.Blueprint.Gender: " + Game.Instance.DialogController.CurrentSpeaker.Blueprint?.Gender);
+					Main.Log("CurrentSpeaker.Blueprint.Gender: " + Game.Instance.DialogController.CurrentSpeaker?.Blueprint?.Gender);
 
+						if(Game.Instance.DialogController.CurrentSpeaker != null && Game.Instance.DialogController.CurrentSpeaker.Progression !=null)
 					Game.Instance.DialogController.CurrentSpeaker.Progression.Classes.ForEach(n => Main.Log("CurrentSpeaker.Blueprint.Class: " + n.CharacterClass.name));
 
-					Main.Log("CurrentSpeaker.Blueprint.Alignment: " + Game.Instance.DialogController.CurrentSpeaker.Blueprint.Alignment);
-					Main.Log("CurrentSpeaker.Blueprint.Faction: " + Game.Instance.DialogController.CurrentSpeaker.Blueprint.Faction);
-					Main.Log("CurrentSpeaker.Blueprint.PortraitSafe.name: " + Game.Instance.DialogController.CurrentSpeaker?.Blueprint.PortraitSafe.name);
+					Main.Log("CurrentSpeaker.Blueprint.Alignment: " + Game.Instance.DialogController.CurrentSpeaker?.Blueprint?.Alignment);
+					Main.Log("CurrentSpeaker.Blueprint.Faction: " + Game.Instance.DialogController.CurrentSpeaker?.Blueprint?.Faction);
+					Main.Log("CurrentSpeaker.Blueprint.PortraitSafe.name: " + Game.Instance.DialogController.CurrentSpeaker?.Blueprint?.PortraitSafe.name);
 
 
-					Main.Log("CurrentSpeaker->isPolymorphed: " + Game.Instance.DialogController.CurrentSpeaker?.Body.IsPolymorphed);
+					Main.Log("CurrentSpeaker->isPolymorphed: " + Game.Instance.DialogController.CurrentSpeaker?.Body?.IsPolymorphed);
 
-
-					if ((bool)(Game.Instance.DialogController.CurrentSpeaker?.Body.IsPolymorphed))
+						if(Game.Instance.DialogController.CurrentSpeaker !=null && Game.Instance.DialogController.CurrentSpeaker.Body !=null)
+					if (Game.Instance.DialogController.CurrentSpeaker.Body.IsPolymorphed)
 					{
 						Main.Log("---------------------Poly start");
 						Main.Log("CurrentSpeaker.GetActivePolymorph().Runtime?.SourceBlueprintComponent.OwnerBlueprint.name: " + Game.Instance.DialogController.CurrentSpeaker.GetActivePolymorph().Runtime?.SourceBlueprintComponent?.OwnerBlueprint?.name);
@@ -3346,8 +3354,11 @@ WoljifName,
 						Main.Log("---------------------Polymorph end");
 
 					}
+
 					Main.Log("CurrentSpeakerBlueprint.CharacterName: " + Game.Instance.DialogController.CurrentSpeakerBlueprint?.CharacterName);
 					Main.Log("CurrentSpeakerBlueprint.name: " + Game.Instance.DialogController.CurrentSpeakerBlueprint?.name);
+					Main.Log("CurrentSpeakerBlueprint.AssetGuid: " + Game.Instance.DialogController.CurrentSpeakerBlueprint?.AssetGuid);
+
 					Main.Log("CurrentSpeakerBlueprint.Name: " + Game.Instance.DialogController.CurrentSpeakerBlueprint?.Name);
 
 					Main.Log("CurrentSpeakerBlueprint.Race: " + Game.Instance.DialogController.CurrentSpeakerBlueprint?.Race);
@@ -3357,8 +3368,8 @@ WoljifName,
 
 					//Game.Instance.DialogController.CurrentSpeaker.Progression.Classes.ForEach(n => Main.Log("CurrentSpeaker.Blueprint.Class: " + n.CharacterClass.name));
 
-					Main.Log("CurrentSpeakerBlueprint.Alignment: " + Game.Instance.DialogController.CurrentSpeakerBlueprint.Alignment);
-					Main.Log("CurrentSpeakerBlueprint.Faction: " + Game.Instance.DialogController.CurrentSpeakerBlueprint.Faction);
+					Main.Log("CurrentSpeakerBlueprint.Alignment: " + Game.Instance.DialogController.CurrentSpeakerBlueprint?.Alignment);
+					Main.Log("CurrentSpeakerBlueprint.Faction: " + Game.Instance.DialogController.CurrentSpeakerBlueprint?.Faction);
 					Main.Log("CurrentSpeakerBlueprint.PortraitSafe.name: " + Game.Instance.DialogController.CurrentSpeakerBlueprint?.PortraitSafe.name);
 
 					Main.Log("FirstSpeaker.CharacterName: " + Game.Instance.DialogController.FirstSpeaker?.CharacterName);
@@ -3873,6 +3884,9 @@ WoljifName,
 		public static string DelamereName = "Delamere";
 		public static string KestoglyrName = "Kestoglyr";
 		public static string SosielName = "Sosiel";
+		public static string PillarName = "The Pillar of Skulls";
+
+		//pillar a556fbfa2e0c59e4dad4da70b2e1b1d6
 
 		//lann cb29621d99b902e4da6f5d232352fbda
 		//ember 2779754eecffd044fbd4842dba55312c
@@ -5056,7 +5070,7 @@ if(be.TypeFullName.Contains("BlueprintUnlockableFlag"))
 
 
 
-			//	Main.DebugLog("SetPortrait() 5");
+		//		Main.DebugLog("SetPortrait() 1");
 				string portraitDirectoryName = prefix + characterName;
 
 				string portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, portraitDirectoryName);
@@ -5065,10 +5079,10 @@ if(be.TypeFullName.Contains("BlueprintUnlockableFlag"))
 
 
 
-		//		Main.DebugLog("SetPortrait() 6");
+			//	Main.DebugLog("SetPortrait() 2");
 
 
-				//Main.DebugLog("SetPortrait() 1");
+				
 
 
 
@@ -5086,13 +5100,15 @@ if(be.TypeFullName.Contains("BlueprintUnlockableFlag"))
 				//Main.DebugLog(Path.Combine(portraitDirectoryPath, Game.Instance.DialogController?.CurrentSpeaker?.Blueprint?.name, "Medium.png"));
 				//bool useSetPortrait = true;
 
-			if(Game.Instance.DialogController?.CurrentSpeaker?.Blueprint?.name != null && Game.Instance.DialogController?.CurrentSpeaker?.Blueprint?.name.Length > 2 )
+			//	Main.DebugLog("SetPortrait() 3");
+				if (Game.Instance.DialogController?.CurrentSpeaker?.Blueprint?.name != null && Game.Instance.DialogController?.CurrentSpeaker?.Blueprint?.name.Length > 2 )
 				 if( !Directory.Exists(Path.Combine(portraitDirectoryPath, Game.Instance.DialogController?.CurrentSpeaker?.Blueprint?.name)) &&
 					(bool)Game.Instance.DialogController?.CurrentSpeaker?.Blueprint?.CharacterName.Equals(unitEntityData.CharacterName)
 					
 					)
 					Directory.CreateDirectory(Path.Combine(portraitDirectoryPath, Game.Instance.DialogController?.CurrentSpeaker?.Blueprint?.name));
 
+			//	Main.DebugLog("SetPortrait() 4");
 				if (unitEntityData.Body.IsPolymorphed && !unitEntityData.CharacterName.Equals(Main.NenioName))
 				{
 					if (Game.Instance.DialogController?.CurrentSpeaker?.Blueprint?.name != null && Game.Instance.DialogController?.CurrentSpeaker?.Blueprint?.name.Length > 2)
@@ -5110,6 +5126,7 @@ if(be.TypeFullName.Contains("BlueprintUnlockableFlag"))
 					}
 				}
 
+				//Main.DebugLog("SetPortrait() 5");
 				if (unitEntityData.Body.IsPolymorphed && !unitEntityData.CharacterName.Equals(Main.NenioName) &&
 
 
@@ -5124,8 +5141,8 @@ if(be.TypeFullName.Contains("BlueprintUnlockableFlag"))
 
 
 							portraitDirectoryPath = Path.Combine(portraitDirectoryPath, Game.Instance.DialogController.CurrentSpeaker.GetActivePolymorph().Runtime?.SourceBlueprintComponent?.OwnerBlueprint?.name);
-					
 
+					//Main.DebugLog("SetPortrait() 6");
 
 				}
 				else if (Game.Instance.DialogController?.CurrentSpeaker?.Blueprint?.name != null && Game.Instance.DialogController?.CurrentSpeaker?.Blueprint?.name.Length > 2 &&
@@ -5146,6 +5163,7 @@ if(be.TypeFullName.Contains("BlueprintUnlockableFlag"))
 				}
 				else
 				{
+				//	Main.DebugLog("SetPortrait() 7");
 					if (!File.Exists(Path.Combine(portraitDirectoryPath, "Medium.png")))
 						if (File.Exists(Path.Combine(portraitDirectoryPath, GetDefaultPortraitsDirName(), "Medium.png")))
 						{
@@ -5163,8 +5181,8 @@ if(be.TypeFullName.Contains("BlueprintUnlockableFlag"))
 				foreach (string fileName in Main.PortraitFileNames)
 				{
 					if (characterName != "Ciar" && !fileName.Contains("Fullength"))
-
-						if (!File.Exists(Path.Combine(portraitDirectoryPath, fileName)))
+					//	Main.DebugLog("SetPortrait() 8");
+					if (!File.Exists(Path.Combine(portraitDirectoryPath, fileName)))
 					{
 						missing = true;
 					}
@@ -5185,10 +5203,10 @@ if(be.TypeFullName.Contains("BlueprintUnlockableFlag"))
 						blueprintPortrait.Data.m_PetEyeImage = oldP.Data.m_PetEyeImage;
 						Main.pauseGetPortraitsafe = false;
 					}*/
-					
+
 					//blueprintPortrait = BlueprintRoot.Instance.CharGen.CustomPortrait;
 					//	Main.DebugLog("SetPortrait() 6");
-
+				//	Main.DebugLog("SetPortrait() 9");
 					CustomPortraitsManager.Instance.Storage.Unload(Path.Combine(portraitDirectoryPath, "Small.png"));
 					CustomPortraitsManager.Instance.Storage.Unload(Path.Combine(portraitDirectoryPath, "Medium.png"));
 					CustomPortraitsManager.Instance.Storage.Unload(Path.Combine(portraitDirectoryPath, "Fulllength.png"));
@@ -5209,7 +5227,8 @@ if(be.TypeFullName.Contains("BlueprintUnlockableFlag"))
 					else
 					data.m_PetEyeImage = blueprintPortrait.Data.m_PetEyeImage;
 
-					if(File.Exists(Path.Combine(portraitDirectoryPath,"PetEye.png")))
+				//	Main.DebugLog("SetPortrait() 10");
+					if (File.Exists(Path.Combine(portraitDirectoryPath,"PetEye.png")))
                     {
 						
 						EyePortraitInjector.Replacements[data] = PortraitLoader.Image2Sprite.Create(Path.Combine(portraitDirectoryPath, "PetEye.png"), new UnityEngine.Vector2Int(176, 24), TextureFormat.BGRA32);
@@ -5339,7 +5358,7 @@ if(be.TypeFullName.Contains("BlueprintUnlockableFlag"))
 
 		public static void ArueAddHalo()
 		{
-
+			/*
 			if (Game.Instance.Player.MainCharacter.Value != null &&
 				Game.Instance.Player.MainCharacter.Value.Progression != null &&
 				Game.Instance.Player.MainCharacter.Value.Progression.GetCurrentMythicClass() != null &&
@@ -5350,13 +5369,13 @@ if(be.TypeFullName.Contains("BlueprintUnlockableFlag"))
 
 
 				)
-			{
+			*/
 				if (Main.settings.ArueHalo && !Main.settings.ArueHaloAdded)
 				{
 					Main.settings.ArueHaloAdded = true;
 					foreach (UnitEntityData unitEntityDatum in Game.Instance.Player.Party)
 					{
-						if (unitEntityDatum.CharacterName == "Arueshalae")
+						if (unitEntityDatum.CharacterName.Equals(ArueName))
 						{
 							//halo
 							//0b1c9d2964b042e4aadf1616f653eb95
@@ -5387,7 +5406,7 @@ if(be.TypeFullName.Contains("BlueprintUnlockableFlag"))
 					Main.settings.ArueHaloAdded = false;
 					foreach (UnitEntityData unitEntityDatum in Game.Instance.Player.Party)
 					{
-						if (unitEntityDatum.CharacterName == "Arueshalae")
+						if (unitEntityDatum.CharacterName.Equals(ArueName))
 						{
 							var LightHaloFeature = ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("d3f14f00f675a6341a41d2194186835c");
 
@@ -5402,7 +5421,7 @@ if(be.TypeFullName.Contains("BlueprintUnlockableFlag"))
 
 					}
 				}
-			}
+			
 		}
 
 
@@ -5414,7 +5433,7 @@ if(be.TypeFullName.Contains("BlueprintUnlockableFlag"))
 					Main.settings.EmberHaloAdded = true;
 					foreach (UnitEntityData unitEntityDatum in Game.Instance.Player.Party)
 					{
-						if (unitEntityDatum.CharacterName == "Ember")
+						if (unitEntityDatum.CharacterName.Equals(EmberName))
 						{
 						//Main.DebugLog("add ability");
 						//halo
@@ -5448,7 +5467,7 @@ if(be.TypeFullName.Contains("BlueprintUnlockableFlag"))
 					Main.settings.EmberHaloAdded = false;
 					foreach (UnitEntityData unitEntityDatum in Game.Instance.Player.Party)
 					{
-						if (unitEntityDatum.CharacterName == "Arueshalae")
+						if (unitEntityDatum.CharacterName.Equals(EmberName))
 						{
 							var LightHaloFeature = ResourcesLibrary.TryGetBlueprint<BlueprintFeature>("d3f14f00f675a6341a41d2194186835c");
 
