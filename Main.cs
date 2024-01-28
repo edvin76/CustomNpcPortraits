@@ -145,6 +145,8 @@ namespace ExtensionMethods
 				filename = filename.Replace(c.ToString(), "-");
 			}
 
+			filename = filename.Trim();
+
 			/*string whitelist = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.-_ ";
 			foreach (char c in filename)
 			{
@@ -1076,6 +1078,11 @@ namespace CustomNpcPortraits
 			if (!Main.ApplyPatch(typeof(EyePortraitInjector), "EyePortraitInjector"))
 			{
 				throw Main.Error("EyePortraitInjector");
+			}
+
+			if (!Main.ApplyPatch(typeof(SmallPortraitInjector), "SmallPortraitInjector"))
+			{
+				throw Main.Error("SmallPortraitInjector");
 			}
 
 			
@@ -2156,10 +2163,23 @@ WoljifName,
 		GUILayout.Label(GetArmyPortraitsDirectory());
 		GUILayout.EndHorizontal();
 
+
+
+
+			GUILayout.BeginHorizontal(Array.Empty<GUILayoutOption>());
+			if (GUILayout.Button("Open Tactical portraits dir", GUILayout.Width(200f), GUILayout.Height(20f)))
+			{
+
+				Process.Start(GetTacticalPortraitsDirectory());
+
+			}
+			GUILayout.Label(GetTacticalPortraitsDirectory());
+			GUILayout.EndHorizontal();
+
+
 #if DEBUG
 
-
-		GUILayout.BeginHorizontal(Array.Empty<GUILayoutOption>());
+			GUILayout.BeginHorizontal(Array.Empty<GUILayoutOption>());
 		if (GUILayout.Button("dialog", GUILayout.Width(200f), GUILayout.Height(20f)))
 		{
 			try
@@ -4863,7 +4883,16 @@ if(be.TypeFullName.Contains("BlueprintUnlockableFlag"))
 
 		}
 
+		public static string GetTacticalPortraitsDirectory()
+		{
+			string dir = Path.GetFullPath(Path.Combine(CustomPortraitsManager.PortraitsRootFolderPath, @"..\"));
 
+			dir = Path.Combine(dir, TacticalPortraitsDirName());
+
+			Directory.CreateDirectory(dir);
+			return dir;
+
+		}
 		public static string GetCompanionPortraitsDirectory()
 		{
 			
@@ -4882,6 +4911,13 @@ if(be.TypeFullName.Contains("BlueprintUnlockableFlag"))
 		{
 
 			return "Portraits - Army";
+
+		}
+
+		public static string TacticalPortraitsDirName()
+		{
+
+			return "Portraits - Tactical";
 
 		}
 		public static string GetCompanionPortraitDirPrefix()
@@ -5050,6 +5086,17 @@ if(be.TypeFullName.Contains("BlueprintUnlockableFlag"))
 			}
 		}
 
+		[HarmonyPatch(typeof(PortraitData), "get_SmallPortrait")]
+		public static class SmallPortraitInjector
+		{
+			public static Dictionary<PortraitData, Sprite> Replacements = new Dictionary<PortraitData, Sprite>();
+			public static bool Prefix(PortraitData __instance, ref Sprite __result)
+			{
+				if (Replacements.TryGetValue(__instance, out __result))
+					return false;
+				return true;
+			}
+		}
 
 		public static bool isSetPortrait = false;
 		public static PortraitData SetPortrait(UnitEntityData unitEntityData)
