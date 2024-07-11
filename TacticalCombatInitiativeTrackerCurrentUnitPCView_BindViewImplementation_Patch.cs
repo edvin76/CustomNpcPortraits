@@ -76,10 +76,10 @@ namespace CustomNpcPortraits
 
             // 
 
-            string characterName = unitData.Blueprint.CharacterName;
+            string characterName = unitData.Blueprint.CharacterName.cleanCharName();
 
 
-                string unitName = unitData.Blueprint.CharacterName;
+                string unitName = unitData.Blueprint.CharacterName.cleanCharName();
 
             Main.DebugLog(unitName);
             */
@@ -146,7 +146,7 @@ namespace CustomNpcPortraits
                 if (!__instance.UnitData.IsMainCharacter && !__instance.UnitData.Blueprint.IsCompanion)
                 {
 
-                    string characterName = __instance.UnitData.CharacterName;
+                    string characterName = __instance.UnitData.CharacterName.cleanCharName();
 
                     string portraitDirectoryPath = GetPortrait_Patch.GetUnitPortraitPath(__instance.UnitData.Blueprint, characterName);
 

@@ -18,6 +18,7 @@ using Kingmaker.Controllers.Dialog;
 using System.Collections.Generic;
 using Kingmaker.UnitLogic.Alignments;
 using Kingmaker.PubSubSystem;
+using Kingmaker.EntitySystem.Entities;
 
 namespace CustomNpcPortraits
 {
@@ -32,7 +33,7 @@ namespace CustomNpcPortraits
             //return true;
             // if (!Main.areaLoaded) return true;
 
-           // Main.DebugLog("GetPortraitSafe() : " + __instance.CharacterName);
+           // Main.DebugLog("GetPortraitSafe() : " + __instance.CharacterName.cleanCharName());
 
             
             //  Main.DebugLog("GetPortraitSafe() SceneManager.GetActiveScene().name : " + SceneManager.GetActiveScene().name);
@@ -50,7 +51,10 @@ namespace CustomNpcPortraits
             {
                 
                 if ((Game.Instance.CurrentMode == GameModeType.GlobalMap || Game.Instance.CurrentMode == GameModeType.CutsceneGlobalMap )
-&&                        Main.companions.Contains(__instance.CharacterName))
+&&                        Main.companions.Contains(__instance.CharacterName.cleanCharName())
+||
+(Game.Instance.CurrentMode == GameModeType.Dialog && Main.companions.Contains(__instance.CharacterName.cleanCharName()))
+                    )
                 {
                     if (!Main.settings.ManageCompanions)
                     {
@@ -58,7 +62,7 @@ namespace CustomNpcPortraits
                     }
 
                     // Main.DebugLog("getportraitsafe: in");
-                    string characterName = Main.GetCompanionDirName(__instance.CharacterName);
+                    string characterName = Main.GetCompanionDirName(__instance.CharacterName.cleanCharName());
                     string prefix = Main.GetCompanionPortraitDirPrefix();
                     string portraitsDirectoryPath = Main.GetCompanionPortraitsDirectory();
                    // Main.DebugLog("2");
@@ -77,6 +81,17 @@ namespace CustomNpcPortraits
                     BlueprintPortrait blueprintPortrait = ___m_Portrait;
 
 
+                    //UnitEntityData unitEntityData = null;
+                    if (Game.Instance.CurrentMode == GameModeType.Dialog &&
+                        Game.Instance.DialogController != null &&
+                        Game.Instance.DialogController.CurrentSpeaker != null &&
+                        File.Exists(Path.Combine(portraitDirectoryPath, Game.Instance.DialogController.Dialog.name, "Medium.png")))
+                    {
+                        //  unitEntityData = Game.Instance.DialogController.CurrentSpeaker;
+                        portraitDirectoryPath = Path.Combine(portraitDirectoryPath, Game.Instance.DialogController.Dialog.name);
+
+                    }
+                    else
                     if (Directory.GetFiles(portraitDirectoryPath, "*.current").Length != 0)
                     {
                         string[] dirs = Directory.GetFiles(portraitDirectoryPath, "*.current");
@@ -87,18 +102,41 @@ namespace CustomNpcPortraits
                             portraitDirectoryPath = Path.Combine(portraitDirectoryPath, dir);
 
                     }
+                    else
+                    if(File.Exists(Path.Combine(portraitDirectoryPath, __instance.name, "Medium.png")))
+                    {
+                       // Main.DebugLog("!!!!!!!!!!!!!!!!!" + Path.Combine(portraitDirectoryPath, __instance.name, "Medium.png"));
+                            portraitDirectoryPath = Path.Combine(portraitDirectoryPath, __instance.name);
+                            //useSetPortrait = false;
+                       
+                    }
+                    else
+                    if (blueprintPortrait != null && blueprintPortrait.Data != null && blueprintPortrait.Data.IsCustom && !blueprintPortrait.Data.CustomId.IsNullOrEmpty())
+                    {
+                        if (File.Exists(Path.Combine(blueprintPortrait.Data.CustomId, "Medium.png")))
+                            portraitDirectoryPath = blueprintPortrait.Data.CustomId;
+
+                        //  Main.DebugLog("found custom at: " + blueprintPortrait.Data.CustomId);
+
+                    }
+
+
 
                     // Main.DebugLog("4");
 
 
-                    if (blueprintPortrait != null && blueprintPortrait.Data != null && blueprintPortrait.Data.IsCustom && !blueprintPortrait.Data.CustomId.IsNullOrEmpty())
-                    {
-                        if(File.Exists(Path.Combine(blueprintPortrait.Data.CustomId,"Medium.png")))
-                        portraitDirectoryPath = blueprintPortrait.Data.CustomId;
 
-                      //  Main.DebugLog("found custom at: " + blueprintPortrait.Data.CustomId);
 
-                    }
+
+
+
+
+
+
+
+
+
+
                     bool missing = false;
 
                     //Main.DebugLog("6");
@@ -141,10 +179,10 @@ namespace CustomNpcPortraits
 
 
 
-                if(__instance.CharacterName == Main.FinneanName)
+                if(__instance.CharacterName.cleanCharName() == Main.FinneanName)
                 {
 
-                    string dir = Path.Combine(Main.GetCompanionPortraitsDirectory(), Main.GetCompanionPortraitDirPrefix() + __instance.CharacterName);
+                    string dir = Path.Combine(Main.GetCompanionPortraitsDirectory(), Main.GetCompanionPortraitDirPrefix() + __instance.CharacterName.cleanCharName());
                     Directory.CreateDirectory(dir);
 
 
@@ -167,10 +205,10 @@ namespace CustomNpcPortraits
                         return true;
                 }
 
-                if (__instance.CharacterName == Main.PillarName)
+                if (__instance.CharacterName.cleanCharName() == Main.PillarName)
                 {
 
-                    string dir = Path.Combine(Main.GetNpcPortraitsDirectory(), __instance.CharacterName);
+                    string dir = Path.Combine(Main.GetNpcPortraitsDirectory(), __instance.CharacterName.cleanCharName());
                     Directory.CreateDirectory(dir);
 
                     if (Main.settings.AutoBackup && !__instance.m_Portrait.NameSafe().Equals("-not set-"))
@@ -201,8 +239,41 @@ namespace CustomNpcPortraits
                 // Main.DebugLog("GetPortraitSafe() 2");
                 if (Game.Instance.CurrentMode == GameModeType.Cutscene || Game.Instance.CurrentMode == GameModeType.Dialog)
                 {
+                    /*
+                    bool companion = false;
+                        //Main.companions.Contains(Game.Instance.DialogController.CurrentSpeakerName.cleanCharName())
+                        //|| Game.Instance.Player.AllCharacters.Contains(Main.RealCurrentSpeakerEntity(Game.Instance.DialogController.CurrentSpeakerName.cleanCharName()));
+
+
+
+                    if (companion && Game.Instance.DialogController.CurrentSpeakerName.cleanCharName().Equals(__instance.CharacterName.cleanCharName()) )
+                    {
+                        
+                        if(__instance.CharacterName.cleanCharName().Equals(Main.GalfreyName) && !Main.GalfreyChurchDoubled)
+                        {
+                            if(Game.Instance.DialogController.Dialog.name.Equals("Church_Dialogue") &&
+                                Game.Instance.DialogController.CurrentCue.name.Equals("Cue_0022"))
+                                {
+                                Main.GalfreyChurchDoubled = true;
+                           //     CueShowData cueShowDatum = new CueShowData(Game.Instance.DialogController.CurrentCue, new List<SkillCheckResult>(), new List<AlignmentShift>());
+                           //     EventBus.RaiseEvent<IDialogCueHandler>((IDialogCueHandler h) => h.HandleOnCueShow(cueShowDatum), true);
+                                return false;
+
+
+                            }
+                        }
+                        
+                        BlueprintPortrait bp = new BlueprintPortrait();
+
+                        bp.Data = Main.GetCustomPortrait(Main.RealCurrentSpeakerEntity(__instance.CharacterName.cleanCharName())); ;
+
+                        __result = bp;
+                        return false;
+                    }
+                    */
+
                     //   Main.DebugLog("GetPortraitSafe() 3");
-                    if (Main.settings.ManageCompanions && (Game.Instance.DialogController != null) && (Game.Instance.DialogController.CurrentSpeaker != null) && __instance.CharacterName.Equals("Nenio") && Game.Instance.DialogController.CurrentCue.AssetGuid.ToString().Equals("45450b2f327797e41bce701b91118cb4"))
+                    if (Main.settings.ManageCompanions && (Game.Instance.DialogController != null) && (Game.Instance.DialogController.CurrentSpeaker != null) && __instance.CharacterName.cleanCharName().Equals("Nenio") && Game.Instance.DialogController.CurrentCue.AssetGuid.ToString().Equals("45450b2f327797e41bce701b91118cb4"))
                     {
 
                      //   CueShowData cueShowDatum = new CueShowData(Game.Instance.DialogController.CurrentCue, new List<SkillCheckResult>(), new List<AlignmentShift>());
@@ -291,49 +362,58 @@ namespace CustomNpcPortraits
                     }
                     //     Main.DebugLog("GetPortraitSafe() 7");
 
-                    if ((Game.Instance.DialogController.CurrentSpeakerName.Equals("Wirlong Black Mask") && __instance.CharacterName.Equals("Wirlong Black Mask"))
-                       || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Nulkineth") && __instance.CharacterName.Equals("Nulkineth"))
-                       || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Suture") && __instance.CharacterName.Equals("Suture"))
-                       || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Kenabres Crusader") && __instance.CharacterName.Equals("Kenabres Crusader"))
-                       || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Commoner") && __instance.CharacterName.Equals("Commoner"))
-                       || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Marilith") && __instance.CharacterName.Equals("Marilith"))
-                       || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Balor") && __instance.CharacterName.Equals("Balor"))
-                       || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Zermangaleth") && __instance.CharacterName.Equals("Zermangaleth"))
+                    if ((
+                        Game.Instance.DialogController.CurrentSpeakerName.cleanCharName().Equals(__instance.CharacterName.cleanCharName()) ||
+                        Game.Instance.DialogController.CurrentSpeakerName.cleanCharName().Equals("Wirlong Black Mask") && __instance.CharacterName.cleanCharName().Equals("Wirlong Black Mask"))
+                       || (Game.Instance.DialogController.CurrentSpeakerName.cleanCharName().Equals("Nulkineth") && __instance.CharacterName.cleanCharName().Equals("Nulkineth"))
+                       || (Game.Instance.DialogController.CurrentSpeakerName.cleanCharName().Equals("Suture") && __instance.CharacterName.cleanCharName().Equals("Suture"))
+                       || (Game.Instance.DialogController.CurrentSpeakerName.cleanCharName().Equals("Kenabres Crusader") && __instance.CharacterName.cleanCharName().Equals("Kenabres Crusader"))
+                       || (Game.Instance.DialogController.CurrentSpeakerName.cleanCharName().Equals("Commoner") && __instance.CharacterName.cleanCharName().Equals("Commoner"))
+                       || (Game.Instance.DialogController.CurrentSpeakerName.cleanCharName().Equals("Marilith") && __instance.CharacterName.cleanCharName().Equals("Marilith"))
+                       || (Game.Instance.DialogController.CurrentSpeakerName.cleanCharName().Equals("Balor") && __instance.CharacterName.cleanCharName().Equals("Balor"))
+                       || (Game.Instance.DialogController.CurrentSpeakerName.cleanCharName().Equals("Zermangaleth") && __instance.CharacterName.cleanCharName().Equals("Zermangaleth"))
 
-                       || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Langrat Messini") && __instance.CharacterName.Equals("Langrat Messini"))
-                       || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Terta") && __instance.CharacterName.Equals("Terta"))
-                       || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Baphomet Cultist") && __instance.CharacterName.Equals("Baphomet Cultist"))
-                       || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Eagle Watch Crusader") && __instance.CharacterName.Equals("Eagle Watch Crusader"))
-                       || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Rvveg") && __instance.CharacterName.Equals("Rvveg"))
-                       || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Succubus Guard") && __instance.CharacterName.Equals("Succubus Guard"))
-                       || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Slave") && __instance.CharacterName.Equals("Slave"))
-                       || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Cavalry Sculptor") && __instance.CharacterName.Equals("Cavalry Sculptor"))
-                       || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Halfling Warrior") && __instance.CharacterName.Equals("Halfling Warrior"))
-                       || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Skerenthal the Rock Cleaver") && __instance.CharacterName.Equals("Skerenthal the Rock Cleaver"))
-                       || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Red Mask") && __instance.CharacterName.Equals("Red Mask"))
-                       || (Game.Instance.DialogController.CurrentSpeakerName.Equals("The Sinner") && __instance.CharacterName.Equals("The Sinner"))
-                       || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Mad Glowworm") && __instance.CharacterName.Equals("Mad Glowworm"))
-                       || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Morevet Honeyed Tongue") && __instance.CharacterName.Equals("Morevet Honeyed Tongue"))
-                       || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Ygefeles") && __instance.CharacterName.Equals("Ygefeles"))
-                       || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Lathimas") && __instance.CharacterName.Equals("Lathimas"))
+                       || (Game.Instance.DialogController.CurrentSpeakerName.cleanCharName().Equals("Langrat Messini") && __instance.CharacterName.cleanCharName().Equals("Langrat Messini"))
+                       || (Game.Instance.DialogController.CurrentSpeakerName.cleanCharName().Equals("Terta") && __instance.CharacterName.cleanCharName().Equals("Terta"))
+                       || (Game.Instance.DialogController.CurrentSpeakerName.cleanCharName().Equals("Baphomet Cultist") && __instance.CharacterName.cleanCharName().Equals("Baphomet Cultist"))
+                       || (Game.Instance.DialogController.CurrentSpeakerName.cleanCharName().Equals("Eagle Watch Crusader") && __instance.CharacterName.cleanCharName().Equals("Eagle Watch Crusader"))
+                       || (Game.Instance.DialogController.CurrentSpeakerName.cleanCharName().Equals("Rvveg") && __instance.CharacterName.cleanCharName().Equals("Rvveg"))
+                       || (Game.Instance.DialogController.CurrentSpeakerName.cleanCharName().Equals("Succubus Guard") && __instance.CharacterName.cleanCharName().Equals("Succubus Guard"))
+                       || (Game.Instance.DialogController.CurrentSpeakerName.cleanCharName().Equals("Slave") && __instance.CharacterName.cleanCharName().Equals("Slave"))
+                       || (Game.Instance.DialogController.CurrentSpeakerName.cleanCharName().Equals("Cavalry Sculptor") && __instance.CharacterName.cleanCharName().Equals("Cavalry Sculptor"))
+                       || (Game.Instance.DialogController.CurrentSpeakerName.cleanCharName().Equals("Halfling Warrior") && __instance.CharacterName.cleanCharName().Equals("Halfling Warrior"))
+                       || (Game.Instance.DialogController.CurrentSpeakerName.cleanCharName().Equals("Skerenthal the Rock Cleaver") && __instance.CharacterName.cleanCharName().Equals("Skerenthal the Rock Cleaver"))
+                       || (Game.Instance.DialogController.CurrentSpeakerName.cleanCharName().Equals("Red Mask") && __instance.CharacterName.cleanCharName().Equals("Red Mask"))
+                       || (Game.Instance.DialogController.CurrentSpeakerName.cleanCharName().Equals("The Sinner") && __instance.CharacterName.cleanCharName().Equals("The Sinner"))
+                       || (Game.Instance.DialogController.CurrentSpeakerName.cleanCharName().Equals("Mad Glowworm") && __instance.CharacterName.cleanCharName().Equals("Mad Glowworm"))
+                       || (Game.Instance.DialogController.CurrentSpeakerName.cleanCharName().Equals("Morevet Honeyed Tongue") && __instance.CharacterName.cleanCharName().Equals("Morevet Honeyed Tongue"))
+                       || (Game.Instance.DialogController.CurrentSpeakerName.cleanCharName().Equals("Ygefeles") && __instance.CharacterName.cleanCharName().Equals("Ygefeles"))
+                       || (Game.Instance.DialogController.CurrentSpeakerName.cleanCharName().Equals("Lathimas") && __instance.CharacterName.cleanCharName().Equals("Lathimas"))
 
-                       || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Hand of the Inheritor") && __instance.CharacterName.Equals("Hand of the Inheritor"))
-                       || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Fulsome Queen") && __instance.CharacterName.Equals("Fulsome Queen"))
-                       || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Shadow") && __instance.CharacterName.Equals("Shadow"))
+                       || (Game.Instance.DialogController.CurrentSpeakerName.cleanCharName().Equals("Hand of the Inheritor") && __instance.CharacterName.cleanCharName().Equals("Hand of the Inheritor"))
+                       || (Game.Instance.DialogController.CurrentSpeakerName.cleanCharName().Equals("Fulsome Queen") && __instance.CharacterName.cleanCharName().Equals("Fulsome Queen"))
+                       || (Game.Instance.DialogController.CurrentSpeakerName.cleanCharName().Equals("Shadow") && __instance.CharacterName.cleanCharName().Equals("Shadow"))
                        
-                       || (Game.Instance.DialogController.CurrentSpeakerName.Equals("The Spinner of Nightmares") && __instance.CharacterName.Equals("The Spinner of Nightmares"))
-                       || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Katair") && __instance.CharacterName.Equals("Katair"))
-                       || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Nocticula") && __instance.CharacterName.Equals("Nocticula"))
-                       || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Areelu Vorlesh") && __instance.CharacterName.Equals("Areelu Vorlesh"))
+                       || (Game.Instance.DialogController.CurrentSpeakerName.cleanCharName().Equals("The Spinner of Nightmares") && __instance.CharacterName.cleanCharName().Equals("The Spinner of Nightmares"))
+                       || (Game.Instance.DialogController.CurrentSpeakerName.cleanCharName().Equals("Katair") && __instance.CharacterName.cleanCharName().Equals("Katair"))
+                       || (Game.Instance.DialogController.CurrentSpeakerName.cleanCharName().Equals("Nocticula") && __instance.CharacterName.cleanCharName().Equals("Nocticula"))
+                       || (Game.Instance.DialogController.CurrentSpeakerName.cleanCharName().Equals("Areelu Vorlesh") && __instance.CharacterName.cleanCharName().Equals("Areelu Vorlesh"))
 
-                       || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Siabrae") && __instance.CharacterName.Equals("Siabrae"))
+                       || (Game.Instance.DialogController.CurrentSpeakerName.cleanCharName().Equals("Siabrae") && __instance.CharacterName.cleanCharName().Equals("Siabrae"))
 
-                       // || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Targona") && __instance.CharacterName.Equals("Targona"))
+                       // || (Game.Instance.DialogController.CurrentSpeakerName.cleanCharName().Equals("Targona") && __instance.CharacterName.cleanCharName().Equals("Targona"))
 
 
-                       || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Arsinoe") && __instance.CharacterName.Equals("Arsinoe"))
+                       || (Game.Instance.DialogController.CurrentSpeakerName.cleanCharName().Equals("Arsinoe") && __instance.CharacterName.cleanCharName().Equals("Arsinoe"))
 
-                       //    || (Game.Instance.DialogController.CurrentSpeakerName.Equals("Crinukh") && __instance.CharacterName.Equals("Crinukh"))
+                       || (Game.Instance.DialogController.CurrentSpeakerName.cleanCharName().Equals("Baphomet's Archer") && __instance.CharacterName.cleanCharName().Equals("Baphomet's Archer"))
+
+                       || (Game.Instance.DialogController.CurrentSpeakerName.cleanCharName().Equals("Baphomet's Evoker") && __instance.CharacterName.cleanCharName().Equals("Baphomet's Evoker"))
+
+                       || (Game.Instance.DialogController.CurrentSpeakerName.cleanCharName().Equals("Baphomet's Cutthroat") && __instance.CharacterName.cleanCharName().Equals("Baphomet's Cutthroat"))
+
+
+                       //    || (Game.Instance.DialogController.CurrentSpeakerName.cleanCharName().Equals("Crinukh") && __instance.CharacterName.cleanCharName().Equals("Crinukh"))
 
 
                        )
@@ -341,7 +421,7 @@ namespace CustomNpcPortraits
                                // Main.DebugLog("GetPortraitSafe() 1");
 
 
-                        string characterName = __instance.CharacterName;
+                        string characterName = __instance.CharacterName.cleanCharName();
 
                         string portraitsDirectoryPath = Main.GetNpcPortraitsDirectory();
                         string portraitDirectoryName = characterName;
@@ -350,8 +430,8 @@ namespace CustomNpcPortraits
 
                         Directory.CreateDirectory(portraitDirectoryPath);
 
-                        if (!string.IsNullOrEmpty(GetPortrait_Patch.GetUnitPortraitPath(__instance, portraitDirectoryName)))
-                        portraitDirectoryPath = GetPortrait_Patch.GetUnitPortraitPath(__instance, portraitDirectoryName);
+                        if (!string.IsNullOrEmpty(GetPortrait_Patch.GetUnitPortraitPath(__instance)))
+                        portraitDirectoryPath = GetPortrait_Patch.GetUnitPortraitPath(__instance);
 
                        // Main.DebugLog("GetPortraitSafe() 2");
 
@@ -426,7 +506,7 @@ namespace CustomNpcPortraits
 
                         // if (dirs.Contains(characterName))
                         //  {}
-                        string characterName = __instance.CharacterName;
+                        string characterName = __instance.CharacterName.cleanCharName();
 
                         string portraitsDirectoryPath = Main.GetArmyPortraitsDirectory();
                         string portraitDirectoryName = characterName;
@@ -485,7 +565,7 @@ namespace CustomNpcPortraits
 
         public static void Postfix(BlueprintUnit __instance, ref BlueprintPortrait __result, BlueprintPortrait ___m_Portrait)
         {
-           // Main.DebugLog(__instance.CharacterName);
+           // Main.DebugLog(__instance.CharacterName.cleanCharName());
           //  Main.DebugLog(___m_CustomPortrait?.name);
 
             if (!Main.enabled)
@@ -507,7 +587,7 @@ namespace CustomNpcPortraits
 
                     // if (dirs.Contains(characterName))
                     //  {}
-                    string characterName = __instance.CharacterName;
+                    string characterName = __instance.CharacterName.cleanCharName();
 
                     string portraitsDirectoryPath = Main.GetArmyPortraitsDirectory();
                     string portraitDirectoryName = characterName;

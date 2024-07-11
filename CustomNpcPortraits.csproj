@@ -10,7 +10,7 @@
     <Deterministic>False</Deterministic>
     <OutputType>Library</OutputType>
     <RootNamespace>CustomNpcPortraits</RootNamespace>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <TargetFrameworkProfile />
     <NuGetPackageImportStamp>
     </NuGetPackageImportStamp>
@@ -138,12 +138,14 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>D:\Steam\steamapps\common\Pathfinder Second Adventure\Wrath_Data\Managed\UnityEngine.UIModule.dll</HintPath>
     </Reference>
-    <Reference Include="UnityModManager">
-      <HintPath>D:\Steam\steamapps\common\Pathfinder Second Adventure\Wrath_Data\Managed\UnityModManager\UnityModManager.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="UnityModManager, Version=0.25.4.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>D:\Steam\steamapps\common\UnityModManager\UnityModManager.dll</HintPath>
+      <Private>False</Private>
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="SaveLoadVM_RequestLoad_Patch.cs" />
     <Compile Include="KingdomUILeaderCharacterController_SetPortrait_Patch.cs" />
     <Compile Include="GetPortraitSafeGeneral_Patch.cs" />
     <Compile Include="GetPortraitSafe_patch.cs" />
@@ -223,7 +225,7 @@ powershell Compress-Archive -LiteralPath '$(TargetDir)' -DestinationPath '$(Proj
   </PropertyGroup>
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties BuildVersion_ConfigurationName="Release" BuildVersion_IncrementBeforeBuild="True" BuildVersion_ReplaceNonNumerics="False" BuildVersion_DetectChanges="False" BuildVersion_UseGlobalSettings="False" BuildVersion_UpdateAssemblyVersion="True" BuildVersion_BuildVersioningStyle="None.None.Increment.None" BuildVersion_StartDate="2000/1/1" />
+      <UserProperties BuildVersion_StartDate="2000/1/1" BuildVersion_BuildVersioningStyle="None.None.Increment.None" BuildVersion_UpdateAssemblyVersion="True" BuildVersion_UseGlobalSettings="False" BuildVersion_DetectChanges="False" BuildVersion_ReplaceNonNumerics="False" BuildVersion_IncrementBeforeBuild="True" BuildVersion_ConfigurationName="Release" />
     </VisualStudio>
   </ProjectExtensions>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

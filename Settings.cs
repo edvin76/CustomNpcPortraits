@@ -22,7 +22,7 @@ namespace CustomNpcPortraits
 
 		public bool AutoBackup = true;
 
-		public bool AutoSecret = true;
+		public bool AutoSecret = false;
 
 		public bool ManageCompanions = true;
 

@@ -15,6 +15,7 @@ using UnityEngine.Rendering;
 using Kingmaker.EntitySystem.Persistence;
 using static CustomNpcPortraits.Main;
 using System.Collections.Generic;
+using ExtensionMethods;
 
 namespace CustomNpcPortraits
 {
@@ -51,7 +52,7 @@ namespace CustomNpcPortraits
                 {
                  //   Main.DebugLog("2");
 
-                    string characterName = __instance.Unit.CharacterName;
+                    string characterName = __instance.Unit.CharacterName.cleanCharName();
 
                     if (characterName.Equals("Asty"))
                     {
@@ -73,7 +74,7 @@ namespace CustomNpcPortraits
                             characterName = "Tran - Drow";
 
                     }
-                    string portraitDirectoryPath = GetPortrait_Patch.GetUnitPortraitPath(__instance.Unit.Blueprint, characterName);
+                    string portraitDirectoryPath = GetPortrait_Patch.GetUnitPortraitPath(__instance.Unit.Blueprint);
 
 
                   //  Main.DebugLog("3");
