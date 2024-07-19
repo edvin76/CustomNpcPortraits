@@ -145,6 +145,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ObjectDeepCopier.cs" />
     <Compile Include="SaveLoadVM_RequestLoad_Patch.cs" />
     <Compile Include="KingdomUILeaderCharacterController_SetPortrait_Patch.cs" />
     <Compile Include="GetPortraitSafeGeneral_Patch.cs" />
@@ -225,7 +226,7 @@ powershell Compress-Archive -LiteralPath '$(TargetDir)' -DestinationPath '$(Proj
   </PropertyGroup>
   <ProjectExtensions>
     <VisualStudio>
-      <UserProperties BuildVersion_StartDate="2000/1/1" BuildVersion_BuildVersioningStyle="None.None.Increment.None" BuildVersion_UpdateAssemblyVersion="True" BuildVersion_UseGlobalSettings="False" BuildVersion_DetectChanges="False" BuildVersion_ReplaceNonNumerics="False" BuildVersion_IncrementBeforeBuild="True" BuildVersion_ConfigurationName="Release" />
+      <UserProperties BuildVersion_ConfigurationName="Release" BuildVersion_IncrementBeforeBuild="True" BuildVersion_ReplaceNonNumerics="False" BuildVersion_DetectChanges="False" BuildVersion_UseGlobalSettings="False" BuildVersion_UpdateAssemblyVersion="True" BuildVersion_BuildVersioningStyle="None.None.Increment.None" BuildVersion_StartDate="2000/1/1" />
     </VisualStudio>
   </ProjectExtensions>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

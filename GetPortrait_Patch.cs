@@ -26,6 +26,7 @@ using Kingmaker.DialogSystem;
 using Kingmaker.UnitLogic.Alignments;
 using Kingmaker.AreaLogic.Etudes;
 using ExtensionMethods;
+using Kingmaker.DialogSystem.Blueprints;
 
 namespace CustomNpcPortraits
 {
@@ -60,17 +61,20 @@ namespace CustomNpcPortraits
             //if ((__instance.Owner.IsMainCharacter  /*|| Main.companions.Contains(__instance.Owner.Unit.CharacterName.cleanCharName()) */|| (Game.Instance.CurrentMode != GameModeType.Dialog && Game.Instance.CurrentMode != GameModeType.Cutscene)) && Main.areaLoaded && __instance.Owner.Unit.CharacterName.cleanCharName() != "Player Character")
             
             
-            if ((Game.Instance.Player.AllCharacters.Contains(__instance.Owner.Unit) || Main.companions.Contains(__instance.Owner.Unit.CharacterName.cleanCharName())) /*&& Main.areaLoaded */&& __instance.Owner.Unit.CharacterName.cleanCharName() != "Player Character")
+            if (
+                ( Game.Instance.Player.AllCharacters.Contains(__instance.Owner.Unit) || 
+                Main.companions.Contains(__instance.Owner.Unit.CharacterName.cleanCharName()) ) /*&& Main.areaLoaded */&&
+                __instance.Owner.Unit.CharacterName.cleanCharName() != "Player Character")
             {
 
-              //  Main.DebugLog("We are in all set for " + __instance.Owner.Unit.CharacterName.cleanCharName());
+                Main.DebugLog("GetPortrait: " + __instance.Owner.Unit.CharacterName.cleanCharName());
               if(!Main.settings.ManageCompanions)
                 {
                     return true;
                 }
                 __result = Main.SetPortrait(__instance.Owner.Unit, false);
                         //Main.SetPortrait(__instance.Owner.Unit);
-                        if (__result != null && __result.FullLengthPortrait != null)
+                        if (__result != null)
                         return false;
                     else
                     return true;
@@ -156,8 +160,11 @@ namespace CustomNpcPortraits
 
                 string characterName = __instance.Owner.Unit.CharacterName.cleanCharName();
 
-              
-                    if (Game.Instance.DialogController.CurrentSpeakerName.cleanCharName() != null && Game.Instance.DialogController.CurrentSpeakerName.cleanCharName().Length > 0)
+
+
+
+
+                if (Game.Instance.DialogController.CurrentSpeakerName.cleanCharName() != null && Game.Instance.DialogController.CurrentSpeakerName.cleanCharName().Length > 0)
                         characterName = Game.Instance.DialogController.CurrentSpeakerName.cleanCharName();
 /*
                     else if (Game.Instance.DialogController.CurrentSpeaker.CharacterName.cleanCharName() != null && Game.Instance.DialogController.CurrentSpeaker.CharacterName.cleanCharName().Length > 0)
@@ -197,35 +204,7 @@ namespace CustomNpcPortraits
                     }
                 }
                 */
-                if (characterName.Equals(Main.AstyName))
-                {
-                    //Main.SaveOriginals2(Game.Instance.DialogController.CurrentSpeaker.View.Blueprint.PortraitSafe.Data, Path.Combine(Main.GetNpcPortraitsDirectory(), characterName));
-                    //return true;
-                    if (Game.Instance.DialogController.CurrentSpeaker.View.name.ToLower().Contains("drow"))
-                        characterName = Main.AstyName+" - Drow";
 
-                }
-                if (characterName.Equals(Main.VelhmName))
-                {
-                    if (Game.Instance.DialogController.CurrentSpeaker.View.name.ToLower().Contains("drow"))
-                        characterName = Main.VelhmName+" - Drow";
-
-                }
-                if (characterName.Equals(Main.TranName))
-                {
-                    if (Game.Instance.DialogController.CurrentSpeaker.View.name.ToLower().Contains("drow"))
-                        characterName = Main.TranName+" - Drow";
-
-                }
-
-                //Irabeth scar
-                if (characterName.Contains(Main.IrabethName))
-                    if (Game.Instance.Player.EtudesSystem.EtudeIsStarted(ResourcesLibrary.TryGetBlueprint<BlueprintEtude>("b4f08736cf124ae4996fcef7c0a33bf1")))
-                    {
-
-                        Directory.CreateDirectory(Path.Combine(Main.GetCompanionPortraitsDirectory(), Main.IrabethName+" - Scar"));
-                        characterName = Main.IrabethName+" - Scar";
-                    }
                 /*
                     if (characterName.ToLower().Contains("aruesh"))
                     {
@@ -281,7 +260,7 @@ namespace CustomNpcPortraits
 
                 if (!__instance.Owner.Unit.IsMainCharacter || (Game.Instance.DialogController.CurrentSpeakerName.cleanCharName().Equals("Wirlong Black Mask")/* ||Game.Instance.DialogController.CurrentSpeakerName.cleanCharName().Equals("Nenio"))*/&& (Game.Instance.DialogController.CurrentCue.Speaker.Blueprint.CharacterName.cleanCharName() != Game.Instance.Player.GetMainPartyUnit().CharacterName.cleanCharName())))
                 {
-                //      Main.DebugLog("we're in for " + characterName);
+                    //      Main.DebugLog("we're in for " + characterName);
                     //  return true;
 
                     //  if(Game.Instance.DialogController.CurrentCue.AssetGuid.ToString().Equals("45450b2f327797e41bce701b91118cb4"))
@@ -425,8 +404,31 @@ namespace CustomNpcPortraits
                                         else if (!Game.Instance.Player.ActiveCompanions.Contains(__instance.Owner.Unit) && !Game.Instance.Player.RemoteCompanions.Contains(__instance.Owner.Unit))// Npc
                                         {
                     */
+                    if (characterName.Equals(Main.AstyName) ||
+                  characterName.Equals(Main.VelhmName) ||
+                  characterName.Equals(Main.TranName)
+                  )
+                    {
+                        //Main.SaveOriginals2(Game.Instance.DialogController.CurrentSpeaker.View.Blueprint.PortraitSafe.Data, Path.Combine(Main.GetNpcPortraitsDirectory(), characterName));
+                        //return true;
+                        if (
+                            Game.Instance.Player.Dialog.ShownCues.Contains(ResourcesLibrary.TryGetBlueprint<BlueprintCue>("02f7b70fa8433504dbad8f817bdc4578")) ||
+                            Game.Instance.DialogController.CurrentSpeaker.View.name.ToLower().Contains("drow"))
+                            characterName = characterName + " - Drow";
 
-                       // Main.DebugLog("Getportrait() 2b");
+                    }
+
+
+                    //Irabeth scar
+                    if (characterName.Equals(Main.IrabethName))
+                        if (Game.Instance.Player.EtudesSystem.EtudeIsStarted(ResourcesLibrary.TryGetBlueprint<BlueprintEtude>("b4f08736cf124ae4996fcef7c0a33bf1")))
+                        {
+
+                            Directory.CreateDirectory(Path.Combine(Main.GetNpcPortraitsDirectory(), Main.IrabethName + " - Scar"));
+                            characterName = Main.IrabethName + " - Scar";
+
+                        }
+                    // Main.DebugLog("Getportrait() 2b");
                     //string portraitsDirectoryPath = Main.GetNpcPortraitsDirectory();
                     //string portraitDirectoryName = characterName;
                     //string portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, portraitDirectoryName);
@@ -458,6 +460,7 @@ namespace CustomNpcPortraits
                     bool enterHere = false;
 
                     Directory.CreateDirectory(Path.Combine(Main.GetNpcPortraitsDirectory(), characterName));
+
                     if (characterName != blueprintUnit.name && 
                         !characterName.Equals(Main.AstyName+" - Drow") && 
                         !characterName.Equals(Main.TranName+" - Drow") &&
@@ -520,11 +523,11 @@ namespace CustomNpcPortraits
                                 //                         Main.DebugLog("Getportrait() 5");
 
 
-                                if (!characterName.Equals(Main.AstyName) &&
-                                    !characterName.Equals(Main.TranName) &&
-                                    !characterName.Equals(Main.VelhmName) &&
-                                    !characterName.Equals(Main.IrabethName))
-                                Main.SaveOriginals(blueprintUnit, Path.Combine(Main.GetNpcPortraitsDirectory(), characterName));
+                                if (!characterName.Equals(Main.AstyName + " - Drow") &&
+                                    !characterName.Equals(Main.TranName + " - Drow") &&
+                                    !characterName.Equals(Main.VelhmName + " - Drow") &&
+                                    !characterName.Equals(Main.IrabethName + " - Scar"))
+                                    Main.SaveOriginals(blueprintUnit, Path.Combine(Main.GetNpcPortraitsDirectory(), characterName));
                                 
                                 
                                 if (characterName != blueprintUnit.name &&
@@ -705,7 +708,7 @@ namespace CustomNpcPortraits
             // 2. if empty use set
             // 3. if no portrait (if) fallback
             // 4. if no fallb if placeholder
-            string characterName = blueprintUnit.CharacterName.cleanCharName();
+
 
 
             string portraitsDirectoryPath = Main.GetNpcPortraitsDirectory();
@@ -727,7 +730,18 @@ namespace CustomNpcPortraits
             */
 
             UnitEntityData unitEntityData = null;
-            if (Game.Instance.DialogController != null &&
+            if (Game.Instance.CurrentMode == GameModeType.Dialog && 
+                Game.Instance.DialogController != null &&
+                Game.Instance.DialogController.CurrentSpeakerBlueprint != null)
+            {
+                foreach (var unit in Game.Instance.State.Units)
+                {
+                    if (unit.Blueprint.name.Equals(Game.Instance.DialogController.CurrentSpeakerBlueprint.name))
+                        unitEntityData = unit;
+                }
+            }
+            else if (Game.Instance.CurrentMode == GameModeType.Dialog && 
+                Game.Instance.DialogController != null &&
                 Game.Instance.DialogController.CurrentSpeaker != null)
             {
                 unitEntityData = Game.Instance.DialogController.CurrentSpeaker;
@@ -743,6 +757,47 @@ namespace CustomNpcPortraits
 
             string charcterNameDirectoryName = unitEntityData.CharacterName.cleanCharName();
 
+           // string characterName = blueprintUnit.CharacterName.cleanCharName();
+
+            if (charcterNameDirectoryName.Equals(Main.AstyName) ||
+                charcterNameDirectoryName.Equals(Main.VelhmName) ||
+                charcterNameDirectoryName.Equals(Main.TranName) 
+                )
+            {
+                //Main.SaveOriginals2(Game.Instance.DialogController.CurrentSpeaker.View.Blueprint.PortraitSafe.Data, Path.Combine(Main.GetNpcPortraitsDirectory(), characterName));
+                //return true;
+                if (
+                    Game.Instance.Player.Dialog.ShownCues.Contains(ResourcesLibrary.TryGetBlueprint<BlueprintCue>("02f7b70fa8433504dbad8f817bdc4578")) ||
+                    Game.Instance.DialogController.CurrentSpeaker.View.name.ToLower().Contains("drow"))
+                    charcterNameDirectoryName = charcterNameDirectoryName + " - Drow";
+
+            }
+
+
+            //Irabeth scar
+            if (charcterNameDirectoryName.Contains(Main.IrabethName))
+                if (Game.Instance.Player.EtudesSystem.EtudeIsStarted(ResourcesLibrary.TryGetBlueprint<BlueprintEtude>("b4f08736cf124ae4996fcef7c0a33bf1")))
+                {
+
+                    Directory.CreateDirectory(Path.Combine(Main.GetNpcPortraitsDirectory(), Main.IrabethName + " - Scar"));
+                    charcterNameDirectoryName = Main.IrabethName + " - Scar";
+
+
+                    if (!File.Exists(Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName, Main.GetDefaultPortraitsDirName(), "Medium.png")))
+                    {
+                        
+
+                        Main.SaveOriginals2(ResourcesLibrary.TryGetBlueprint<BlueprintPortrait>("72e025ceac51f2145917e0b8f5b88d8a").Data, Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName));
+
+
+                    }
+
+                }
+
+
+            Main.DebugLog("GetUnitPortraitPath: " + charcterNameDirectoryName);
+
+            
             // Kressle
             string portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName);
                 string unitCharNameDirNames = Path.Combine(charcterNameDirectoryName);
@@ -774,17 +829,25 @@ namespace CustomNpcPortraits
     File.Exists(Path.Combine(portraitDirectoryPath, unitEntityData.GetActivePolymorph().Runtime?.SourceBlueprintComponent?.OwnerBlueprint?.name, "Medium.png"))
     )
             {
-                
-                    portraitDirectoryPath = Path.Combine(portraitDirectoryPath, unitEntityData.GetActivePolymorph().Runtime?.SourceBlueprintComponent?.OwnerBlueprint?.name);
+                Main.DebugLog("GetUnitPortraitPath - 1");
+                portraitDirectoryPath = Path.Combine(portraitDirectoryPath, unitEntityData.GetActivePolymorph().Runtime?.SourceBlueprintComponent?.OwnerBlueprint?.name);
 
             }
-            else if (Game.Instance.DialogController?.Dialog != null && File.Exists(Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName, Game.Instance.DialogController.Dialog.name, "Medium.png")))
+            else if (Game.Instance.CurrentMode == GameModeType.Dialog && Game.Instance.DialogController?.Dialog != null && File.Exists(Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName, Game.Instance.DialogController.CurrentSpeakerBlueprint.name, Game.Instance.DialogController.Dialog.name, "Medium.png")))
             {
+                Main.DebugLog("GetUnitPortraitPath - 2");
+                portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName, Game.Instance.DialogController.CurrentSpeakerBlueprint.name, Game.Instance.DialogController.Dialog.name);
+
+            }
+            else if (Game.Instance.CurrentMode == GameModeType.Dialog && Game.Instance.DialogController?.Dialog != null && File.Exists(Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName, Game.Instance.DialogController.Dialog.name, "Medium.png")))
+            {
+                Main.DebugLog("GetUnitPortraitPath - 2");
                 portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName, Game.Instance.DialogController.Dialog.name);
 
             }
             else if (Directory.Exists(Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName, unitNameDirectoryName)) && Directory.GetFiles(Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName, unitNameDirectoryName), "*.current").Length != 0)
             {
+                Main.DebugLog("GetUnitPortraitPath - 3");
                 string[] dirs = Directory.GetFiles(Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName, unitNameDirectoryName), "*.current");
 
                 string dir = Path.GetFileNameWithoutExtension(dirs[0]);
@@ -799,6 +862,7 @@ namespace CustomNpcPortraits
 
             else if (Directory.Exists(Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName)) && Directory.GetFiles(Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName), "*.current").Length != 0)
             {
+                Main.DebugLog("GetUnitPortraitPath - 4");
                 string[] dirs = Directory.GetFiles(Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName), "*.current");
 
                 string dir = Path.GetFileNameWithoutExtension(dirs[0]);
@@ -814,22 +878,24 @@ namespace CustomNpcPortraits
             // Dovan From Nisroch/Dovan
             else if (File.Exists(Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName, unitNameDirectoryName, "Medium.png")))
             {
-
+                Main.DebugLog("GetUnitPortraitPath - 4");
                 unitCharNameDirNames = Path.Combine(charcterNameDirectoryName, unitNameDirectoryName);
 
                 portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName, unitNameDirectoryName);
 
             }
             // Kesten Garess/Shadow of Kesten Garess
-            else if (File.Exists(Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName, characterName, "Medium.png")))
+            /*else if (File.Exists(Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName, characterName, "Medium.png")))
             {
+                Main.DebugLog("GetUnitPortraitPath - 5");
                 unitCharNameDirNames = Path.Combine(charcterNameDirectoryName, characterName);
                 portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName, characterName);
 
-            }
+            }*/
             // Dovan From Nisroch/Dovan From Nisroch
             else if (File.Exists(Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName, charcterNameDirectoryName, "Medium.png")))
             {
+                Main.DebugLog("GetUnitPortraitPath - 6");
                 unitCharNameDirNames = Path.Combine(charcterNameDirectoryName, charcterNameDirectoryName);
                 portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName, charcterNameDirectoryName);
 
@@ -837,32 +903,36 @@ namespace CustomNpcPortraits
             // all portraits/Oleg Leveton/medium.png
             else if (File.Exists(Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName, "Medium.png")))
             {
+                Main.DebugLog("GetUnitPortraitPath - 7");
                 unitCharNameDirNames = Path.Combine(charcterNameDirectoryName);
                 portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName);
 
             }
             else if (File.Exists(Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName, unitNameDirectoryName, Main.GetDefaultPortraitsDirName(), "Medium.png")))
             {
-
+                Main.DebugLog("GetUnitPortraitPath - 8");
                 unitCharNameDirNames = Path.Combine(charcterNameDirectoryName, unitNameDirectoryName);
 
-                portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName, unitNameDirectoryName);
+                portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName, unitNameDirectoryName, Main.GetDefaultPortraitsDirName());
 
             }
             else if (File.Exists(Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName, Main.GetDefaultPortraitsDirName(), "Medium.png")))
             {
+                Main.DebugLog("GetUnitPortraitPath - 9");
                 unitCharNameDirNames = Path.Combine(charcterNameDirectoryName);
-                portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName);
+                portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName, Main.GetDefaultPortraitsDirName());
 
             }
 
             else
             {
 
+             //   Main.DebugLog("GetUnitPortraitPath - 10"+ Path.Combine(portraitsDirectoryPath, charcterNameDirectoryName, Main.GetDefaultPortraitsDirName()) );
                 portraitDirectoryPath = "";
 
             }
 
+            
 
             // return Tuple.Create(portraitDirectoryPath, unitCharNameDirNames);
             return portraitDirectoryPath;

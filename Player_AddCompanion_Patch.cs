@@ -17,7 +17,7 @@ namespace CustomNpcPortraits
             {
               // Main.DebugLog("Refresh companion potraits called after addcompanion.");
 
-              //  Main.SafeLoad(new Action(Main.SetPortraits), "Apply custom portraits after new companion added");
+//                Main.SafeLoad(new Action(Main.SetPortraits), "Apply custom portraits after new companion added");
 
             }
             catch (Exception e)
