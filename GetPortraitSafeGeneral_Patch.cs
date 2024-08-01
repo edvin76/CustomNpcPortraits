@@ -45,7 +45,7 @@ namespace CustomNpcPortraits
                     string portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, portraitDirectoryName);
 
 
-                if (characterName.Equals("Enemy Leader"))
+                if (characterName.Equals(Main.EnemyLeaderName))
                 {
 
                     portraitDirectoryPath = Path.Combine(portraitDirectoryPath, __instance.name);
@@ -125,7 +125,7 @@ namespace CustomNpcPortraits
                     string portraitDirectoryPath = Path.Combine(portraitsDirectoryPath, portraitDirectoryName);
 
 
-                    if (characterName.Equals("Enemy Leader"))
+                    if (characterName.Equals(Main.EnemyLeaderName))
                     {
 
                         portraitDirectoryPath = Path.Combine(portraitDirectoryPath, __instance.name);

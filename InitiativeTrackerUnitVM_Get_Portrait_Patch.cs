@@ -123,7 +123,7 @@ namespace CustomNpcPortraits
                             Main.DebugLog("turn 2 nothing in portraits-npc");
 
 
-                        if (characterName.Equals("Enemy Leader"))
+                        if (characterName.Equals(Main.EnemyLeaderName))
                         {
                                 string portraitsDirectoryPath = Main.GetArmyPortraitsDirectory();
                                 string portraitDirectoryName = characterName;

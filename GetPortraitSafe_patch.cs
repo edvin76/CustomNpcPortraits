@@ -181,6 +181,10 @@ namespace CustomNpcPortraits
 
                 if(__instance.CharacterName.cleanCharName() == Main.FinneanName)
                 {
+                    if (!Main.settings.ManageCompanions)
+                    {
+                        return true;
+                    }
 
                     string dir = Path.Combine(Main.GetCompanionPortraitsDirectory(), Main.GetCompanionPortraitDirPrefix() + __instance.CharacterName.cleanCharName());
                     Directory.CreateDirectory(dir);
@@ -273,9 +277,13 @@ namespace CustomNpcPortraits
                     */
 
                     //   Main.DebugLog("GetPortraitSafe() 3");
-                    if (Main.settings.ManageCompanions && (Game.Instance.DialogController != null) && (Game.Instance.DialogController.CurrentSpeaker != null) && __instance.CharacterName.cleanCharName().Equals("Nenio") && Game.Instance.DialogController.CurrentCue.AssetGuid.ToString().Equals("45450b2f327797e41bce701b91118cb4"))
+  /*                  if (Main.settings.ManageCompanions && 
+                        (Game.Instance.DialogController != null) && 
+                        (Game.Instance.DialogController.CurrentSpeaker != null) && 
+                        __instance.CharacterName.cleanCharName().Equals("Nenio") && 
+                        Game.Instance.DialogController.CurrentCue.AssetGuid.ToString().Equals("45450b2f327797e41bce701b91118cb4"))
                     {
-
+*/
                      //   CueShowData cueShowDatum = new CueShowData(Game.Instance.DialogController.CurrentCue, new List<SkillCheckResult>(), new List<AlignmentShift>());
                      //   EventBus.RaiseEvent<IDialogCueHandler>((IDialogCueHandler h) => h.HandleOnCueShow(cueShowDatum), true);
 
@@ -358,8 +366,8 @@ namespace CustomNpcPortraits
 
 
                         */
-                        return true;
-                    }
+                  //      return true;
+                //    }
                     //     Main.DebugLog("GetPortraitSafe() 7");
 
                     if ((
@@ -418,7 +426,7 @@ namespace CustomNpcPortraits
 
                        )
                     {
-                               // Main.DebugLog("GetPortraitSafe() 1");
+                                Main.DebugLog("GetPortraitSafe() 1");
 
 
                         string characterName = __instance.CharacterName.cleanCharName();
@@ -440,13 +448,27 @@ namespace CustomNpcPortraits
 
                         if (Main.settings.AutoBackup && !File.Exists(Path.Combine(portraitDirectoryPath, Main.GetDefaultPortraitsDirName(), Main.mediumName)))
                         {
-                          //  Main.DebugLog("GetPortraitSafe() 3b");
+                            Main.DebugLog("GetPortraitSafe() 3b");
 
 
-                            Main.SaveOriginals(__instance, Path.Combine(Main.GetNpcPortraitsDirectory(), characterName));
-                            if (characterName != __instance.name)
-                                Main.SaveOriginals(__instance, Path.Combine(Main.GetNpcPortraitsDirectory(), characterName, __instance.name));
 
+                            if (!characterName.Equals(Main.AstyName) &&
+                           !characterName.Equals(Main.TranName) &&
+                           !characterName.Equals(Main.VelhmName)
+                           )
+                            {
+                                if (!characterName.Equals(Main.IrabethName + " - Scar"))
+                                    Main.SaveOriginals(__instance, Path.Combine(Main.GetNpcPortraitsDirectory(), characterName));
+
+
+                                if (characterName != __instance.name &&
+                                        !characterName.Equals(Main.AstyName + " - Drow") &&
+                                        !characterName.Equals(Main.TranName + " - Drow") &&
+                                        !characterName.Equals(Main.VelhmName + " - Drow") &&
+                                        !characterName.Equals(Main.IrabethName + " - Scar")
+                                    )
+                                    Main.SaveOriginals(__instance, Path.Combine(Main.GetNpcPortraitsDirectory(), characterName, __instance.name));
+                            }
                             /*
                             if ((___m_Portrait != null) && (___m_Portrait.Data != null))
                             {

@@ -65,7 +65,7 @@ namespace CustomNpcPortraits
                 if (__instance.Type == GameModeType.Dialog )
                 {
 
-                    Main.DebugLog("SetPortraits()");
+                    Main.DebugLog("Dialog OnDeactivate SetPortraits()");
 
                     Main.SafeLoad(new Action(Main.SetPortraits), "Apply custom portraits after dialog ended");
 
