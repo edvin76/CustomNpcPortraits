@@ -1426,10 +1426,18 @@ WoljifName,
 		{
 			foreach (DirectoryInfo dir in source.GetDirectories())
 				CopyFilesRecursively(dir, target.CreateSubdirectory(dir.Name));
+
 			foreach (FileInfo file in source.GetFiles())
 				try
 				{
-					file.CopyTo(Path.Combine(target.FullName, file.Name), false);
+					if(!File.Exists(Path.Combine(target.FullName, file.Name)))
+                    {
+						//FileInfo t = new FileInfo(Path.Combine(target.FullName, file.Name));
+						//FileInfo s = new FileInfo(Path.Combine(source.FullName, file.Name));
+						file.CopyTo(Path.Combine(target.FullName, file.Name), false);
+
+
+					}
 				}
 				catch (Exception e) { Main.DebugError(e); }
 		}
@@ -2030,21 +2038,21 @@ WoljifName,
 
 								if (bc != null && bc.Speaker != null && bc.Speaker.Blueprint != null && !bc.Speaker.Blueprint.name.IsNullOrEmpty() && !bc.Speaker.Blueprint.CharacterName.cleanCharName().IsNullOrEmpty() && !unitNames.Contains(bc.Speaker.Blueprint.name) && !companions.Contains(bc.Speaker.Blueprint.CharacterName.cleanCharName()))
 								{
-							//		Main.DebugLog("1");
+									//Main.DebugLog("1");
 
 									if (!bc.Speaker.Blueprint.IsCompanion /* && !fyou.Contains(bc.Speaker.Blueprint.name)*/)
 									{
-							//			Main.DebugLog("2");
+										//Main.DebugLog("2");
 										if (bc.Speaker.Blueprint.name != bc.Speaker.Blueprint?.CharacterName.cleanCharName())
 										{
 							
-											//Main.DebugLog("3");
+											Main.DebugLog(bc.Speaker.Blueprint.name);
 											unitNames.Add(bc.Speaker.Blueprint.name);
 											i++;
 										}
 									}
 								}
-						//		Main.DebugLog("4");
+							//	Main.DebugLog("4");
 								if (bc != null && bc.Listener != null && !bc.Listener.name.IsNullOrEmpty() && !bc.Listener.CharacterName.cleanCharName().IsNullOrEmpty() && !unitNames.Contains(bc.Listener.name) && !companions.Contains(bc.Listener.CharacterName.cleanCharName()))
 								{
 							//		Main.DebugLog("5");
@@ -2053,7 +2061,7 @@ WoljifName,
 							//			Main.DebugLog("6");
 										if (bc.Listener.name != bc.Listener?.CharacterName.cleanCharName())
 										{
-							//				Main.DebugLog("7");
+											Main.DebugLog(bc.Listener.name);
 											unitNames.Add(bc.Listener.name);
 											i++;
 
@@ -2065,7 +2073,7 @@ WoljifName,
 					}
 					catch (Exception e)
 					{
-						//Main.DebugError(e);
+						Main.DebugError(e);
 						j++;
 					}
 				}
@@ -2107,7 +2115,19 @@ WoljifName,
 
 				CurrentSpeakerName = Game.Instance.DialogController.CurrentSpeakerName.cleanCharName();
 
-				Main.DebugLog("a1a: "+ CurrentSpeakerName);
+				DirectoryInfo di = new DirectoryInfo(GetPortrait_Patch.GetUnitPortraitPath(Game.Instance.DialogController.CurrentSpeakerBlueprint));
+
+				Main.DebugLog("a1aa: " + (di.Name));
+
+				if(CurrentSpeakerName.IsNullOrEmpty())
+				if (Game.Instance.DialogController.CurrentSpeakerBlueprint != null && !CurrentSpeakerName.Equals(di.Name))
+				{
+					
+
+					CurrentSpeakerName = di.Name;
+				}
+
+				Main.DebugLog("a1a: " + CurrentSpeakerName);
 
 				companion = Main.companions.Contains(CurrentSpeakerName) ;
 
